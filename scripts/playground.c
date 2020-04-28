@@ -17,11 +17,42 @@ using std::cout;
 using std::endl;
 
 void playground() {
-    TFile f1("mu3e_run_000006.root");
+    gROOT->SetStyle("Plain");
+    gStyle->SetOptStat(111111);
+    gStyle->SetOptFit(1111);
+    gStyle->SetPalette(57);
+    gStyle->SetOptTitle(0);
+
+    std::vector<float> myarray;
+    for(int i=0; i < 100; i++) {
+        float mynumber = ((float) rand() / RAND_MAX);
+        myarray.push_back(mynumber);
+        cout << mynumber << endl;
+    }
+
+    TH1F h("h", "example", 10, 0., 1.);
+    for(int i=0; i < myarray.size(); i++) {
+        h.Fill(myarray[i]);
+    }
+
+    auto  mycanvas = new TCanvas();
+    mycanvas->SetWindowPosition(0, 400 );
+
+    h.SetMarkerStyle(kOpenCircle);
+    h.SetMarkerColor(kBlue);
+    h.SetLineColor(kBlue);
+
+//    graph.DrawClone("APE");
+    h.DrawClone("");
+    h.Print();
+}
+
+void playground1() {
+    TFile f1("../data/mu3e_run_000006.root");
     TTree *t_mu3e;
     f1.GetObject("mu3e", t_mu3e);
 
-    TFile f2("mu3e_run_000006_trirec_cosmic2.root");
+    TFile f2("../data/mu3e_run_000006_trirec_cosmic2.root");
     TTree *t_segs;
     f2.GetObject("segs", t_segs);
 
