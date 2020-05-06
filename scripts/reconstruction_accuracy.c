@@ -75,13 +75,22 @@ void reconstruction_accuracy() {
     int rec_trajid;
 
     float mc_p;
+    float mc_pt;
+    float mc_tau;
+    float mc_phi;
+
     float rec_p;
+    float rec_pt;
+    float rec_tau;
+    float rec_phi;
+
 
     t_segs->SetBranchAddress("eventId", &rec_event);
     t_segs->SetBranchAddress("nhit", &rec_nhit);
     t_segs->SetBranchAddress("mc_tid", &rec_trajid);
     t_segs->SetBranchAddress("mc_p", &mc_p);
     t_segs->SetBranchAddress("p", &rec_p);
+
 
     cout << "Branches set for segs..." << endl;
 
@@ -189,9 +198,9 @@ void reconstruction_accuracy() {
 
     //TODO Print histogram of nhits and rel error of p reconstruction
 
-    const float LEFT_BOUNDARY = -4;
+    const float LEFT_BOUNDARY = -2;
     const float RIGHT_BOUNDARY = 4;
-    const int BIN_COUNT = 20;
+    const int BIN_COUNT = 100;
 
     if (MAKE_PLOT) {
         TH1F *h1 = new TH1F("h1", "p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
@@ -203,91 +212,82 @@ void reconstruction_accuracy() {
             h2->Fill(p_inv_rel_errors[i]);
         }
 
-        //NHIT histograms
-
-        TH1F *h21 = new TH1F("h21", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
-        for (int i = 0; i < p_inv_rel_errors_hits[0].size(); i++) {
-            h21->Fill(p_inv_rel_errors_hits[0][i]);
-        }
-        TH1F *h22 = new TH1F("h22", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
-        for (int i = 0; i < p_inv_rel_errors_hits[1].size(); i++) {
-            h22->Fill(p_inv_rel_errors_hits[1][i]);
-        }
-        TH1F *h23 = new TH1F("h23", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
-        for (int i = 0; i < p_inv_rel_errors_hits[2].size(); i++) {
-            h23->Fill(p_inv_rel_errors_hits[2][i]);
-            cout << "data: " << p_inv_rel_errors_hits[2][i]<< endl;
-        }
-        TH1F *h24 = new TH1F("h24", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
-        for (int i = 0; i < p_inv_rel_errors_hits[3].size(); i++) {
-            h24->Fill(p_inv_rel_errors_hits[3][i]);
-        }
-        TH1F *h25 = new TH1F("h25", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
-        for (int i = 0; i < p_inv_rel_errors_hits[4].size(); i++) {
-            h25->Fill(p_inv_rel_errors_hits[4][i]);
-        }
-        TH1F *h26 = new TH1F("h26", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
-        for (int i = 0; i < p_inv_rel_errors_hits[5].size(); i++) {
-            h26->Fill(p_inv_rel_errors_hits[5][i]);
-        }
-
-
-        std::vector<TH1F*> hist_hits;
-        for(i = 0; i < p_inv_rel_errors_hits.size(); i++) {
-
-            TH1F *hh = new THF1("h");
-            hist_hits.push_back(hh);
-        }
-
         TH1F *h3 = new TH1F("h3", "number of hits per run", 20, 0., 20.);
         for (int i = 0; i < nhits.size(); i++) {
             h3->Fill(nhits[i]);
         }
 
+
+        //NHIT histograms
+
+        std::vector<TH1F*> hist_hits;
+        for(int i = 0; i < 6; i++) {
+            std::stringstream histname, histtitle;
+            histname << "h2" << i;
+            histtitle << "1/p rec error, nhit=" << i + 4;
+            TH1F *hh = new TH1F((histname.str()).c_str(), (histtitle.str()).c_str(), BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+            hist_hits.push_back(hh);
+            histname.str(std::string());
+            histtitle.str(std::string());
+        }
+
+        for(int i = 0; i < hist_hits.size(); i++) {
+            for(int j=0; j < p_inv_rel_errors_hits[i].size(); j++) {
+                hist_hits[i]->Fill(p_inv_rel_errors_hits[i][j]);
+            }
+        }
+
         //Single plots
-        auto  *c2 = new TCanvas("c1", "c1");
+        auto  *c2 = new TCanvas("c1", "c1", 800,800);
         c2->SetWindowPosition(0, 500 );
         c2->SetLogy(1);
+        auto legend1 = new TLegend();
+
+        h2->SetFillStyle(3001);
+        h2->SetFillColor(16);
         h2->SetLineColor(4);
         h2->SetName("1/p reconstruction error");
         h2->Draw("same");
+        legend1->AddEntry(h2, "all hits", "l");
 
-        h23->SetLineColor(5);
-        h23->SetName("nhit = 6");
-        h23->Draw("same");
-
-        auto legend1 = new TLegend();
-        legend1->AddEntry(h1, "p rec error", "");
-
+        for(int i=0; i < hist_hits.size(); i++) {
+            hist_hits[i]->SetLineColor(i+1);
+            hist_hits[i]->SetFillStyle(3001);
+            hist_hits[i]->SetFillColor(i+1);
+            hist_hits[i]->Draw("same");
+            std::stringstream histtitle;
+            histtitle << "nhit=" << i + 4;
+            legend1->AddEntry(hist_hits[i], (histtitle.str()).c_str(), "l");
+        }
         legend1->Draw();
 
 
         // Second plot
-        auto  *c1 = new TCanvas("c", "c", 1200, 600);
-        c1->SetWindowPosition(0, 400 );
-        c1->SetLogy(1);
-
-
-        c1->Divide(3,1);
-        c1->cd(1);
-        c1->SetLogy(1);
-        h1->Draw();
-        c1->cd(2);
-        c1->SetLogy(1);
-        h2->Draw();
-        c1->cd(3);
-        c1->SetLogy(1);
-        h3->Draw();
-
-        auto legend = new TLegend(30,20);
-        legend->SetHeader("Legend and run data","C"); // option "C" allows to center the header
-        std::stringstream rundata;
-        rundata << "run=" << run << ", events=" << mu3e_entries;
-        legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
-        rundata.str(std::string());
-//        rundata  << "count p_fail/p_rec=" << p_fail_count << "/" << segs_entries;
+//        auto  *c1 = new TCanvas("c", "c", 1200, 600);
+//        c1->SetWindowPosition(0, 400 );
+//        c1->SetLogy(1);
+//
+//
+//        c1->Divide(3,1);
+//        c1->cd(1);
+//        c1->SetLogy(1);
+//        h1->Draw();
+//        c1->cd(2);
+//        c1->SetLogy(1);
+//        h2->Draw();
+//        c1->cd(3);
+//        c1->SetLogy(1);
+//        h3->Draw();
+//
+//        auto legend = new TLegend(30,20);
+//        legend->SetHeader("Legend and run data","C"); // option "C" allows to center the header
+//        std::stringstream rundata;
+//        rundata << "run=" << run << ", events=" << mu3e_entries;
 //        legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
-        legend->Draw();
+//        rundata.str(std::string());
+////        rundata  << "count p_fail/p_rec=" << p_fail_count << "/" << segs_entries;
+////        legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
+//        legend->Draw();
     }
 
     float p_inv_rec_error_mean = vector_mean(p_inv_rel_errors);
