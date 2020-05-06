@@ -18,8 +18,8 @@ using std::endl;
 
 const std::string pathtodata = "../data/";
 const int run = 7;
-const bool DETAILED_PRINTS = false;
-const bool MAKE_PLOT = false;
+const bool DETAILED_PRINTS = true;
+const bool MAKE_PLOT = true;
 
 void reconstruction_accuracy() {
 
@@ -93,6 +93,7 @@ void reconstruction_accuracy() {
     std::vector<int> rec_nhits;
 
     int rec_hits_count[6] = {0};
+    std::vector<float> p_inv_rel_errors_hits[6];
 
 
     unsigned int mu3e_index = 1;
@@ -108,7 +109,7 @@ void reconstruction_accuracy() {
         }
 
         for (unsigned int hit = 0; hit < (unsigned int) mu3e_nhits; hit++) {
-            //pixelid calc
+//            PXID pixid = process_pixel_id((*pixelid)[hit]);
             unsigned int trajid = (*trajids)[hit];
             double trajpx = (*traj_px)[hit];
         }
@@ -123,6 +124,7 @@ void reconstruction_accuracy() {
 
 
         //TODO Find good criteria to sort out, these numbers are kind of random
+        //mc_p != 0 this should be one
         if (trajp / mc_p < 0.99 || trajp / mc_p > 1.01) {
             //check, if the mc_p corresponds to calculated impuls from px, py, pz from sim file
             p_fail_count++;
@@ -133,6 +135,7 @@ void reconstruction_accuracy() {
                 //compare impulses of reconstruction and mc truth
                 float p_rel_error = ((mc_p) - (rec_p)) / (mc_p);
                 p_rel_errors.push_back(p_rel_error);
+
                 nhits.push_back(mu3e_nhits);
                 rec_nhits.push_back(rec_nhit);
 
@@ -142,22 +145,33 @@ void reconstruction_accuracy() {
                 p_inv_rel_errors.push_back(p_inv_rel_error);
 
                 switch(rec_nhit) {
-                    case 4: rec_hits_count[0]++;
+                    case 4:
+                        rec_hits_count[0]++;
+                        p_inv_rel_errors_hits[0].push_back(p_inv_rel_error);
                         break;
-                    case 5: rec_hits_count[1]++;
+                    case 5:
+                        rec_hits_count[1]++;
+                        p_inv_rel_errors_hits[1].push_back(p_inv_rel_error);
                         break;
-                    case 6: rec_hits_count[2]++;
+                    case 6:
+                        rec_hits_count[2]++;
+                        p_inv_rel_errors_hits[2].push_back(p_inv_rel_error);
                         break;
-                    case 7: rec_hits_count[3]++;
+                    case 7:
+                        rec_hits_count[3]++;
+                        p_inv_rel_errors_hits[3].push_back(p_inv_rel_error);
                         break;
-                    case 8: rec_hits_count[4]++;
+                    case 8:
+                        rec_hits_count[4]++;
+                        p_inv_rel_errors_hits[4].push_back(p_inv_rel_error);
                         break;
-                    default: rec_hits_count[5]++;
+                    default:
+                        rec_hits_count[5]++;
+                        p_inv_rel_errors_hits[5].push_back(p_inv_rel_error);
                 }
 
                 ////PRINT SECTION PER ENTRY IN TREE
-//            if(DETAILED_PRINTS) {
-                if(p_rel_error > 10) {
+                if(DETAILED_PRINTS) {
                     //data from reconstruction
                     cout << "rec_event: " << rec_event << " mu3e_event: " << header[0];
                     cout << " mc_p: " << mc_p << " rec_p: " << rec_p << "rec_nhit: "<< rec_nhit <<"\t\t";
@@ -175,30 +189,94 @@ void reconstruction_accuracy() {
 
     //TODO Print histogram of nhits and rel error of p reconstruction
 
+    const float LEFT_BOUNDARY = -4;
+    const float RIGHT_BOUNDARY = 4;
+    const int BIN_COUNT = 20;
+
     if (MAKE_PLOT) {
-        TH1F *h1 = new TH1F("h1", "p reconstruction errors", 20, -1., 1.);
+        TH1F *h1 = new TH1F("h1", "p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
         for (int i = 0; i < p_rel_errors.size(); i++) {
             h1->Fill(p_rel_errors[i]);
         }
-
-        TH1F *h2 = new TH1F("h2", "1/p reconstruction errors", 20, -1., 1.);
+        TH1F *h2 = new TH1F("h2", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
         for (int i = 0; i < p_inv_rel_errors.size(); i++) {
             h2->Fill(p_inv_rel_errors[i]);
         }
+
+        //NHIT histograms
+
+        TH1F *h21 = new TH1F("h21", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        for (int i = 0; i < p_inv_rel_errors_hits[0].size(); i++) {
+            h21->Fill(p_inv_rel_errors_hits[0][i]);
+        }
+        TH1F *h22 = new TH1F("h22", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        for (int i = 0; i < p_inv_rel_errors_hits[1].size(); i++) {
+            h22->Fill(p_inv_rel_errors_hits[1][i]);
+        }
+        TH1F *h23 = new TH1F("h23", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        for (int i = 0; i < p_inv_rel_errors_hits[2].size(); i++) {
+            h23->Fill(p_inv_rel_errors_hits[2][i]);
+            cout << "data: " << p_inv_rel_errors_hits[2][i]<< endl;
+        }
+        TH1F *h24 = new TH1F("h24", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        for (int i = 0; i < p_inv_rel_errors_hits[3].size(); i++) {
+            h24->Fill(p_inv_rel_errors_hits[3][i]);
+        }
+        TH1F *h25 = new TH1F("h25", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        for (int i = 0; i < p_inv_rel_errors_hits[4].size(); i++) {
+            h25->Fill(p_inv_rel_errors_hits[4][i]);
+        }
+        TH1F *h26 = new TH1F("h26", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        for (int i = 0; i < p_inv_rel_errors_hits[5].size(); i++) {
+            h26->Fill(p_inv_rel_errors_hits[5][i]);
+        }
+
+
+        std::vector<TH1F*> hist_hits;
+        for(i = 0; i < p_inv_rel_errors_hits.size(); i++) {
+
+            TH1F *hh = new THF1("h");
+            hist_hits.push_back(hh);
+        }
+
         TH1F *h3 = new TH1F("h3", "number of hits per run", 20, 0., 20.);
         for (int i = 0; i < nhits.size(); i++) {
             h3->Fill(nhits[i]);
         }
 
+        //Single plots
+        auto  *c2 = new TCanvas("c1", "c1");
+        c2->SetWindowPosition(0, 500 );
+        c2->SetLogy(1);
+        h2->SetLineColor(4);
+        h2->SetName("1/p reconstruction error");
+        h2->Draw("same");
+
+        h23->SetLineColor(5);
+        h23->SetName("nhit = 6");
+        h23->Draw("same");
+
+        auto legend1 = new TLegend();
+        legend1->AddEntry(h1, "p rec error", "");
+
+        legend1->Draw();
+
+
+        // Second plot
         auto  *c1 = new TCanvas("c", "c", 1200, 600);
         c1->SetWindowPosition(0, 400 );
+        c1->SetLogy(1);
+
 
         c1->Divide(3,1);
         c1->cd(1);
+        c1->SetLogy(1);
         h1->Draw();
         c1->cd(2);
+        c1->SetLogy(1);
         h2->Draw();
         c1->cd(3);
+        c1->SetLogy(1);
         h3->Draw();
 
         auto legend = new TLegend(30,20);
@@ -207,23 +285,21 @@ void reconstruction_accuracy() {
         rundata << "run=" << run << ", events=" << mu3e_entries;
         legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
         rundata.str(std::string());
-        rundata  << "count p_fail/p_rec=" << p_fail_count << "/" << segs_entries;
-        legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
+//        rundata  << "count p_fail/p_rec=" << p_fail_count << "/" << segs_entries;
+//        legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
         legend->Draw();
     }
 
-    float p_rec_error_mean = vector_mean(p_rel_errors);
     float p_inv_rec_error_mean = vector_mean(p_inv_rel_errors);
 
     ////PRINT THE STATS
     cout << endl << endl << "---General Stats---\n" << endl;
     cout << "trajp / p_mc != 1 fail count: " << p_fail_count << ", total: " << segs_entries << ", rate: "
          << (p_fail_count / (float) segs_entries) * 100 << " %" << endl;
-    cout << "p reconstruction error mean: " << p_rec_error_mean * 100 << "% " <<  endl;
     cout << "1 / p reconstruction error mean: "  << p_inv_rec_error_mean * 100 << "% " << endl;
 
     for(int i=0; i < 5; i++) {
-        cout << i+4 << " hits count: " << rec_hits_count[i] << endl;
+        cout << i+4 << " hits count: " << rec_hits_count[i] << "\t" << p_inv_rel_errors_hits[i].size() << endl;
     }
     cout << "other: " << rec_hits_count[5] << endl;
 }
