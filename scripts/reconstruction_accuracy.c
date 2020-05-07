@@ -81,16 +81,20 @@ void reconstruction_accuracy() {
     float mc_lam;
 
     float rec_p;
-    float rec_tan01;
-    float rec_lam01;
+    float rec_tan01[2];
+    float rec_lam01[2];
+//    std::vector<double> *rec_tan01 = nullptr;
+//    std::vector<double> *rec_lam01 = nullptr;
 
     //for calculation
-    float rec_phi;
-    float rec_theta;
-    float rec_pt;
+    double rec_phi;
+    double rec_theta;
+    double rec_pt;
 
     t_segs->SetBranchAddress("eventId", &rec_event);
     t_segs->SetBranchAddress("nhit", &rec_nhit);
+
+    t_segs->SetBranchAddress("p", &rec_p);
 
     t_segs->SetBranchAddress("mc_tid", &rec_trajid);
     t_segs->SetBranchAddress("mc_p", &mc_p);
@@ -98,11 +102,10 @@ void reconstruction_accuracy() {
     t_segs->SetBranchAddress("mc_theta", &mc_theta);
     t_segs->SetBranchAddress("mc_phi", &mc_phi);
     t_segs->SetBranchAddress("mc_lam", &mc_lam);
-    t_segs->SetBranchAddress("mc_phi", &mc_phi);
 
-    t_segs->SetBranchAddress("p", &rec_p);
-    t_segs->SetBranchAddress("lam01", &rec_lam01);
-    t_segs->SetBranchAddress("tan01", &rec_tan01);
+
+//    t_segs->SetBranchAddress("lam01", &rec_lam01);
+//    t_segs->SetBranchAddress("tan01", &rec_tan01);
 
     cout << "Branches set for segs..." << endl;
 
@@ -146,9 +149,13 @@ void reconstruction_accuracy() {
         double trajpx = (*traj_px)[0];
         double trajpy = (*traj_py)[0];
         double trajpz = (*traj_pz)[0];
-
         double trajp = sqrt(pow(trajpx, 2) + pow(trajpy, 2) + pow(trajpz, 2));
 
+        //TODO get theta and phi data for reconstruction
+        //Theta, phi and traverse p of reconstruction
+        rec_pt = rec_p * cos((rec_lam01[0]));
+        rec_phi = atan((rec_tan01[0]));
+        rec_theta = rec_phi - (rec_lam01[0]);
 
         //TODO Find good criteria to sort out, these numbers are kind of random
         //mc_p != 0 this should be one
@@ -160,7 +167,7 @@ void reconstruction_accuracy() {
                 //if the impulse is correct, compare reconstruction with mc truth info
 
                 //compare impulses of reconstruction and mc truth
-                float p_rel_error = ((mc_p) - (rec_p)) / (mc_p);
+                float p_rel_error = (abs(mc_p) - abs(rec_p)) / abs(mc_p);
                 p_rel_errors.push_back(p_rel_error);
 
                 nhits.push_back(mu3e_nhits);
@@ -168,7 +175,7 @@ void reconstruction_accuracy() {
 
                 float mc_p_inv = 1. / mc_p;
                 float rec_p_inv = 1. /rec_p;
-                float p_inv_rel_error = (mc_p_inv - rec_p_inv) / mc_p_inv;
+                float p_inv_rel_error = (abs(mc_p_inv) - abs(rec_p_inv)) / abs(mc_p_inv);
                 p_inv_rel_errors.push_back(p_inv_rel_error);
 
                 switch(rec_nhit) {
@@ -206,8 +213,12 @@ void reconstruction_accuracy() {
                     //data from simulation
 //                    cout << "\t" << "traj id; (px, py, pz) " <<  trajid << "; (" << trajpx << ", " << trajpy << ", " << trajpz << ") ";
 //                    cout << "p_calc: " << trajp << "\t";
-
 //                    cout << "\tp_calc / mc_p: " << double(trajp / mc_p);
+
+                    //mc and rec deviations
+                    cout << "pt_mc= " << mc_pt << " pt_rec= " << rec_pt << " phi_mc= " << mc_phi << " rec_phi= " << rec_phi;
+                    cout << " mc_theta= " << mc_theta << " rec_theta= " << rec_theta << "\t\t";
+
                     cout << "(1/mc_p-1/rec_p)/(1/mc_p): " << p_inv_rel_error*100 << " %" << endl;
                 }
             }
@@ -217,7 +228,7 @@ void reconstruction_accuracy() {
     //TODO Print histogram of nhits and rel error of p reconstruction
 
     const float LEFT_BOUNDARY = -2.0;
-    const float RIGHT_BOUNDARY = 4.0;
+    const float RIGHT_BOUNDARY = 1.0 ;
     const int BIN_COUNT = 50;
 
     if (MAKE_PLOT) {
