@@ -4,7 +4,6 @@
 #include <TTree.h>
 #include <map>
 #include <string>
-#include <iostream>
 #include <TH1.h>
 #include <TGraph.h>
 #include <TCanvas.h>
@@ -17,7 +16,8 @@ using std::cout;
 using std::endl;
 
 const std::string pathtodata = "../data/";
-const int run = 7;
+const std::string pathtoplots = "../plots/";
+const int run = 10;
 const bool DETAILED_PRINTS = true;
 const bool MAKE_PLOT = true;
 
@@ -32,15 +32,15 @@ void reconstruction_accuracy() {
     std::string infile1 = pathtodata + "mu3e_run_" + runpadded + ".root";
     std::string infile2 = pathtodata + "mu3e_run_" + runpadded + "_trirec_cosmic.root";
 
-    TFile
-    f1(infile1.c_str());
-    TFile
-    f2(infile2.c_str());
+    TFile f1(infile1.c_str());
+    TFile f2(infile2.c_str());
 
     TTree *t_mu3e;
     f1.GetObject("mu3e", t_mu3e);
     TTree *t_segs;
     f2.GetObject("segs", t_segs);
+    TTree *t_frames;
+    f2.GetObject("frames", t_frames);
 
     //data in mu3e tree
     unsigned int mu3e_entries = t_mu3e->GetEntries();
@@ -76,23 +76,41 @@ void reconstruction_accuracy() {
 
     float mc_p;
     float mc_pt;
-    float mc_tau;
+    float mc_theta;
     float mc_phi;
+    float mc_lam;
 
     float rec_p;
-    float rec_pt;
-    float rec_tau;
-    float rec_phi;
+    float rec_tan01;
+    float rec_lam01;
 
+    //for calculation
+    float rec_phi;
+    float rec_theta;
+    float rec_pt;
 
     t_segs->SetBranchAddress("eventId", &rec_event);
     t_segs->SetBranchAddress("nhit", &rec_nhit);
+
     t_segs->SetBranchAddress("mc_tid", &rec_trajid);
     t_segs->SetBranchAddress("mc_p", &mc_p);
-    t_segs->SetBranchAddress("p", &rec_p);
+    t_segs->SetBranchAddress("mc_pt", &mc_pt);
+    t_segs->SetBranchAddress("mc_theta", &mc_theta);
+    t_segs->SetBranchAddress("mc_phi", &mc_phi);
+    t_segs->SetBranchAddress("mc_lam", &mc_lam);
+    t_segs->SetBranchAddress("mc_phi", &mc_phi);
 
+    t_segs->SetBranchAddress("p", &rec_p);
+    t_segs->SetBranchAddress("lam01", &rec_lam01);
+    t_segs->SetBranchAddress("tan01", &rec_tan01);
 
     cout << "Branches set for segs..." << endl;
+
+
+    //data for frames tree
+    unsigned int frames_entries = t_frames->GetEntries();
+    //TODO Maybe switch from segs tree to frames tree
+    cout << "Branches set for frames..." << endl;
 
     //stats data definitions
     int p_fail_count = 0;
@@ -100,9 +118,8 @@ void reconstruction_accuracy() {
     std::vector<float> p_inv_rel_errors;
     std::vector<int> nhits;
     std::vector<int> rec_nhits;
-
-    int rec_hits_count[6] = {0};
     std::vector<float> p_inv_rel_errors_hits[6];
+    int rec_hits_count[6] = {0};
 
 
     unsigned int mu3e_index = 1;
@@ -112,6 +129,7 @@ void reconstruction_accuracy() {
     for (unsigned int i = 0; i < segs_entries; i++) {
         t_segs->GetEntry(i);
 
+        //find corresponding entry in segs tree
         while (rec_event > header[0]) {
             t_mu3e->GetEntry(mu3e_index);
             mu3e_index++;
@@ -134,7 +152,7 @@ void reconstruction_accuracy() {
 
         //TODO Find good criteria to sort out, these numbers are kind of random
         //mc_p != 0 this should be one
-        if (trajp / mc_p < 0.99 || trajp / mc_p > 1.01) {
+        if ((trajp / mc_p < 0.99 || trajp / mc_p > 1.01)) {
             //check, if the mc_p corresponds to calculated impuls from px, py, pz from sim file
             p_fail_count++;
         } else {
@@ -186,11 +204,11 @@ void reconstruction_accuracy() {
                     cout << " mc_p: " << mc_p << " rec_p: " << rec_p << "rec_nhit: "<< rec_nhit <<"\t\t";
 
                     //data from simulation
-                    cout << "\t" << "traj id; (px, py, pz) " <<  trajid << "; (" << trajpx << ", " << trajpy << ", " << trajpz << ") ";
-                    cout << "p_calc: " << trajp << "\t";
+//                    cout << "\t" << "traj id; (px, py, pz) " <<  trajid << "; (" << trajpx << ", " << trajpy << ", " << trajpz << ") ";
+//                    cout << "p_calc: " << trajp << "\t";
 
-                    cout << "\tp_calc / mc_p: " << double(trajp / mc_p) << endl;
-//                cout << " relative error: "  << p_rel_error << endl;
+//                    cout << "\tp_calc / mc_p: " << double(trajp / mc_p);
+                    cout << "(1/mc_p-1/rec_p)/(1/mc_p): " << p_inv_rel_error*100 << " %" << endl;
                 }
             }
         }
@@ -198,16 +216,26 @@ void reconstruction_accuracy() {
 
     //TODO Print histogram of nhits and rel error of p reconstruction
 
-    const float LEFT_BOUNDARY = -2;
-    const float RIGHT_BOUNDARY = 4;
-    const int BIN_COUNT = 100;
+    const float LEFT_BOUNDARY = -2.0;
+    const float RIGHT_BOUNDARY = 4.0;
+    const int BIN_COUNT = 50;
 
     if (MAKE_PLOT) {
+        std::stringstream filename;
+        std::stringstream run_info;
+        run_info << "run" << run << "_frames" << mu3e_entries << "_recevents" << segs_entries;
+        std::string run_info_str = (run_info.str()).c_str();
+
+
+        ///FILLING THE HISTOGRAMS
+
         TH1F *h1 = new TH1F("h1", "p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
         for (int i = 0; i < p_rel_errors.size(); i++) {
             h1->Fill(p_rel_errors[i]);
         }
+
         TH1F *h2 = new TH1F("h2", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+
         for (int i = 0; i < p_inv_rel_errors.size(); i++) {
             h2->Fill(p_inv_rel_errors[i]);
         }
@@ -217,9 +245,7 @@ void reconstruction_accuracy() {
             h3->Fill(nhits[i]);
         }
 
-
         //NHIT histograms
-
         std::vector<TH1F*> hist_hits;
         for(int i = 0; i < 6; i++) {
             std::stringstream histname, histtitle;
@@ -237,8 +263,42 @@ void reconstruction_accuracy() {
             }
         }
 
-        //Single plots
-        auto  *c2 = new TCanvas("c1", "c1", 800,800);
+        ///PLOTTING THE HISTOGRAMS
+
+        //group plot canvas p err 1/p err and nhit hist
+        auto  *c1 = new TCanvas("c", "c", 1200, 600);
+        c1->SetWindowPosition(0, 400 );
+        c1->SetLogy(1);
+
+
+        c1->Divide(3,1);
+        c1->cd(1);
+        c1->SetLogy(1);
+        h1->Draw();
+        c1->cd(2);
+        c1->SetLogy(1);
+        h2->Draw();
+        c1->cd(3);
+        c1->SetLogy(1);
+        h3->Draw();
+
+//        auto legend = new TLegend(30,20);
+//        legend->SetHeader("Legend and run data","C"); // option "C" allows to center the header
+//        std::stringstream rundata;
+//        rundata << "run=" << run << ", events=" << mu3e_entries;
+//        legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
+//        rundata.str(std::string());
+//        rundata  << "count p_fail/p_rec=" << p_fail_count << "/" << segs_entries;
+//        legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
+//        legend->Draw();
+
+        filename << pathtoplots << run_info_str << "_hist_3plots_err_nhits.pdf";
+        c1->SaveAs((filename.str()).c_str());
+        filename.str(std::string());
+
+
+        //Single histogram for different nhits
+        auto  *c2 = new TCanvas();
         c2->SetWindowPosition(0, 500 );
         c2->SetLogy(1);
         auto legend1 = new TLegend();
@@ -247,8 +307,8 @@ void reconstruction_accuracy() {
         h2->SetFillColor(16);
         h2->SetLineColor(4);
         h2->SetName("1/p reconstruction error");
-        h2->Draw("same");
-        legend1->AddEntry(h2, "all hits", "l");
+
+        h2->DrawClone("");
 
         for(int i=0; i < hist_hits.size(); i++) {
             hist_hits[i]->SetLineColor(i+1);
@@ -259,35 +319,30 @@ void reconstruction_accuracy() {
             histtitle << "nhit=" << i + 4;
             legend1->AddEntry(hist_hits[i], (histtitle.str()).c_str(), "l");
         }
-        legend1->Draw();
+
+        legend1->AddEntry(h2, "all hits", "l");
+        legend1->DrawClone("");
+
+        filename << pathtoplots << run_info_str << "_hist_perr_nhits.pdf";
+        c2->SaveAs((filename.str()).c_str());
+        filename.str(std::string());
 
 
-        // Second plot
-//        auto  *c1 = new TCanvas("c", "c", 1200, 600);
-//        c1->SetWindowPosition(0, 400 );
-//        c1->SetLogy(1);
-//
-//
-//        c1->Divide(3,1);
-//        c1->cd(1);
-//        c1->SetLogy(1);
-//        h1->Draw();
-//        c1->cd(2);
-//        c1->SetLogy(1);
-//        h2->Draw();
-//        c1->cd(3);
-//        c1->SetLogy(1);
-//        h3->Draw();
-//
-//        auto legend = new TLegend(30,20);
-//        legend->SetHeader("Legend and run data","C"); // option "C" allows to center the header
-//        std::stringstream rundata;
-//        rundata << "run=" << run << ", events=" << mu3e_entries;
-//        legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
-//        rundata.str(std::string());
-////        rundata  << "count p_fail/p_rec=" << p_fail_count << "/" << segs_entries;
-////        legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
-//        legend->Draw();
+        //Single histogram for nhits
+        auto  *c3 = new TCanvas();
+        c3->SetWindowPosition(0, 500 );
+        c3->SetLogy(1);
+        auto legend2 = new TLegend();
+
+        h3->SetLineColor(4);
+        h3->SetFillStyle(16);
+        h3->SetName("nhits for reconstructed tracks");
+        h3->DrawClone("");
+
+        filename << pathtoplots << run_info_str << "_hist_nhits.pdf";
+        c3->SaveAs((filename.str()).c_str());
+        filename.str(std::string());
+
     }
 
     float p_inv_rec_error_mean = vector_mean(p_inv_rel_errors);
