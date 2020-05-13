@@ -8,16 +8,16 @@
 #include <TGraph.h>
 #include <TCanvas.h>
 #include <fstream>
+#include <cmath>
 #include "../util/utility_functions.h"
 #include "../util/custom_types.h"
-
 
 using std::cout;
 using std::endl;
 
 const std::string pathtodata = "../data/";
 const std::string pathtoplots = "../plots/";
-const int run = 10;
+const int run = 11;
 const bool DETAILED_PRINTS = true;
 const bool MAKE_PLOT = true;
 
@@ -76,14 +76,18 @@ void reconstruction_accuracy() {
 
     float mc_p;
     float mc_pt;
+//    std::vector<double> *rec_tan01 = nullptr;
     float mc_theta;
     float mc_phi;
     float mc_lam;
+    float mc_vpca_offset;
+    float mc_vpca_phi;
+
 
     float rec_p;
+    float rec_r;
     float rec_tan01[2];
     float rec_lam01[2];
-//    std::vector<double> *rec_tan01 = nullptr;
 //    std::vector<double> *rec_lam01 = nullptr;
 
     //for calculation
@@ -95,6 +99,7 @@ void reconstruction_accuracy() {
     t_segs->SetBranchAddress("nhit", &rec_nhit);
 
     t_segs->SetBranchAddress("p", &rec_p);
+    t_segs->SetBranchAddress("r", &rec_r);
 
     t_segs->SetBranchAddress("mc_tid", &rec_trajid);
     t_segs->SetBranchAddress("mc_p", &mc_p);
@@ -102,10 +107,12 @@ void reconstruction_accuracy() {
     t_segs->SetBranchAddress("mc_theta", &mc_theta);
     t_segs->SetBranchAddress("mc_phi", &mc_phi);
     t_segs->SetBranchAddress("mc_lam", &mc_lam);
+    t_segs->SetBranchAddress("mc_vpca_offset", &mc_vpca_offset);
+    t_segs->SetBranchAddress("mc_vpca_phi", &mc_vpca_phi);
 
 
-//    t_segs->SetBranchAddress("lam01", &rec_lam01);
-//    t_segs->SetBranchAddress("tan01", &rec_tan01);
+    t_segs->SetBranchAddress("tan01", &rec_tan01);
+    t_segs->SetBranchAddress("lam01", &rec_lam01);
 
     cout << "Branches set for segs..." << endl;
 
@@ -119,6 +126,11 @@ void reconstruction_accuracy() {
     int p_fail_count = 0;
     std::vector<float> p_rel_errors;
     std::vector<float> p_inv_rel_errors;
+    std::vector<float> rec_phis;
+    std::vector<float> mc_dcas;
+    std::vector<float> mc_ps;
+    std::vector<float> rec_ps;
+    std::vector<float> rec_inv_ps;
     std::vector<int> nhits;
     std::vector<int> rec_nhits;
     std::vector<float> p_inv_rel_errors_hits[6];
@@ -129,6 +141,7 @@ void reconstruction_accuracy() {
     t_mu3e->GetEntry(mu3e_index);
     mu3e_index++;
 
+//    for (unsigned int i = 0; i < segs_entries; i++) {
     for (unsigned int i = 0; i < segs_entries; i++) {
         t_segs->GetEntry(i);
 
@@ -153,9 +166,9 @@ void reconstruction_accuracy() {
 
         //TODO get theta and phi data for reconstruction
         //Theta, phi and traverse p of reconstruction
-        rec_pt = rec_p * cos((rec_lam01[0]));
-        rec_phi = atan((rec_tan01[0]));
-        rec_theta = rec_phi - (rec_lam01[0]);
+        rec_pt = rec_p * std::cos((rec_lam01[0]));
+        rec_phi = rec_tan01[0];
+        rec_theta = 3.14159*0.5 - rec_lam01[0];
 
         //TODO Find good criteria to sort out, these numbers are kind of random
         //mc_p != 0 this should be one
@@ -166,17 +179,25 @@ void reconstruction_accuracy() {
             if (true) {
                 //if the impulse is correct, compare reconstruction with mc truth info
 
+                //TODO Use direction provided by phi to correct sign of impulse
                 //compare impulses of reconstruction and mc truth
-                float p_rel_error = (abs(mc_p) - abs(rec_p)) / abs(mc_p);
+
+                float p_rel_error = ((mc_p) - (rec_p*sgn(rec_r))) / (mc_p);
                 p_rel_errors.push_back(p_rel_error);
+
+                float mc_p_inv = 1. / mc_p;
+                float rec_p_inv = 1. /rec_p * sgn(rec_r);
+                float p_inv_rel_error = ((mc_p_inv) - (rec_p_inv)) / (mc_p_inv);
+                p_inv_rel_errors.push_back(p_inv_rel_error);
+
+                rec_phis.push_back(rec_phi);
+                mc_dcas.push_back(mc_vpca_offset);
 
                 nhits.push_back(mu3e_nhits);
                 rec_nhits.push_back(rec_nhit);
-
-                float mc_p_inv = 1. / mc_p;
-                float rec_p_inv = 1. /rec_p;
-                float p_inv_rel_error = (abs(mc_p_inv) - abs(rec_p_inv)) / abs(mc_p_inv);
-                p_inv_rel_errors.push_back(p_inv_rel_error);
+                rec_ps.push_back(rec_p*sgn(rec_r));
+                mc_ps.push_back(mc_p);
+                rec_inv_ps.push_back(rec_p_inv);
 
                 switch(rec_nhit) {
                     case 4:
@@ -208,7 +229,7 @@ void reconstruction_accuracy() {
                 if(DETAILED_PRINTS) {
                     //data from reconstruction
                     cout << "rec_event: " << rec_event << " mu3e_event: " << header[0];
-                    cout << " mc_p: " << mc_p << " rec_p: " << rec_p << "rec_nhit: "<< rec_nhit <<"\t\t";
+                    cout << " mc_p: " << mc_p << " rec_p: " << rec_p*sgn(rec_r) << "rec_nhit: "<< rec_nhit <<"\t\t";
 
                     //data from simulation
 //                    cout << "\t" << "traj id; (px, py, pz) " <<  trajid << "; (" << trajpx << ", " << trajpy << ", " << trajpz << ") ";
@@ -227,11 +248,11 @@ void reconstruction_accuracy() {
 
     //TODO Print histogram of nhits and rel error of p reconstruction
 
-    const float LEFT_BOUNDARY = -2.0;
-    const float RIGHT_BOUNDARY = 1.0 ;
-    const int BIN_COUNT = 50;
-
     if (MAKE_PLOT) {
+        const float LEFT_BOUNDARY = -2.0;
+        const float RIGHT_BOUNDARY = 1.0 ;
+        const int BIN_COUNT = 50;
+
         std::stringstream filename;
         std::stringstream run_info;
         run_info << "run" << run << "_frames" << mu3e_entries << "_recevents" << segs_entries;
@@ -246,7 +267,6 @@ void reconstruction_accuracy() {
         }
 
         TH1F *h2 = new TH1F("h2", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
-
         for (int i = 0; i < p_inv_rel_errors.size(); i++) {
             h2->Fill(p_inv_rel_errors[i]);
         }
@@ -255,6 +275,14 @@ void reconstruction_accuracy() {
         for (int i = 0; i < nhits.size(); i++) {
             h3->Fill(nhits[i]);
         }
+
+        ///FILLING SCATTER PLOTS
+
+        TGraph *g_phip = new TGraph(p_inv_rel_errors.size(),&p_inv_rel_errors[0],&rec_phis[0]);
+        TGraph *g_dcap = new TGraph(p_inv_rel_errors.size(),&p_inv_rel_errors[0],&mc_dcas[0]);
+        TGraph *g_perrp = new TGraph(p_rel_errors.size(),&rec_ps[0],&p_rel_errors[0]);
+        TGraph *g_pmcp = new TGraph(rec_ps.size(),&rec_ps[0],&mc_ps[0]);
+
 
         //NHIT histograms
         std::vector<TH1F*> hist_hits;
@@ -266,9 +294,6 @@ void reconstruction_accuracy() {
             hist_hits.push_back(hh);
             histname.str(std::string());
             histtitle.str(std::string());
-        }
-
-        for(int i = 0; i < hist_hits.size(); i++) {
             for(int j=0; j < p_inv_rel_errors_hits[i].size(); j++) {
                 hist_hits[i]->Fill(p_inv_rel_errors_hits[i][j]);
             }
@@ -354,11 +379,69 @@ void reconstruction_accuracy() {
         c3->SaveAs((filename.str()).c_str());
         filename.str(std::string());
 
+        auto *c4 = new TCanvas();
+        c4->SetWindowPosition(0, 500 );
+        auto legend4 = new TLegend();
+        g_phip->SetTitle("#phi - p_{err} correlation");
+        //"#frac{1/p_{err} #minus 1/p_{mc}}{1/p_{mc}}"
+        g_phip->GetXaxis()->SetTitle("p_{inv_err}");
+        g_phip->GetXaxis()->SetRangeUser(-10.,10.);
+        g_phip->GetYaxis()->SetTitle("#phi_{mc}");
+        g_phip->Draw("ap");
+        filename << pathtoplots << run_info_str << "_perr-phi.pdf";
+        c4->SaveAs((filename.str()).c_str());
+        filename.str(std::string());
+
+        auto *c5 = new TCanvas();
+        c5->SetWindowPosition(0, 500 );
+        auto legend5 = new TLegend();
+        g_dcap->SetTitle("Dca - p_{err} correlation");
+        g_dcap->GetXaxis()->SetTitle("p_{inv_err}");
+        g_dcap->GetYaxis()->SetTitle("#phi_{mc}");
+        g_dcap->GetXaxis()->SetRangeUser(-7.,7.);
+        g_dcap->GetYaxis()->SetRangeUser(0.,60.);
+        g_dcap->Draw("ap");
+        filename << pathtoplots << run_info_str << "_perr-dca.pdf";
+        c5->SaveAs((filename.str()).c_str());
+        filename.str(std::string());
+
+        auto *c6 = new TCanvas();
+        c6->SetWindowPosition(0, 500 );
+        auto legend6 = new TLegend();
+        g_perrp->SetTitle("p_{rec} - p_{err} correlation");
+        g_perrp->GetYaxis()->SetTitle("p_{inv_err}");
+        g_perrp->GetXaxis()->SetTitle("#p_{rec}");
+        g_perrp->GetXaxis()->SetRangeUser(-1.e5,1.e5);
+        g_perrp->GetYaxis()->SetRangeUser(-2.,2.);
+        g_perrp->Draw("ap");
+        filename << pathtoplots << run_info_str << "_p-perr.pdf";
+        c6->SaveAs((filename.str()).c_str());
+        filename.str(std::string());
+
+        auto *c7 = new TCanvas("c7", "c7", 500,500);
+        c7->SetWindowPosition(0, 500 );
+//        c7->SetLogy(1);
+//        c7->SetLogx(1);
+        auto legend7 = new TLegend();
+        g_pmcp->SetTitle("p_{rec} - p_{mc} correlation");
+        g_pmcp->GetXaxis()->SetMaxDigits(2);
+        g_pmcp->GetYaxis()->SetMaxDigits(2);
+        g_pmcp->GetYaxis()->SetTitle("p_{mc}");
+        g_pmcp->GetXaxis()->SetTitle("p_{rec}");
+        g_pmcp->GetXaxis()->SetRangeUser(0,5.e4);
+        g_pmcp->GetYaxis()->SetRangeUser(0,5.e4);
+        g_pmcp->Draw("AP");
+        filename << pathtoplots << run_info_str << "_p-pmc.pdf";
+        c7->SaveAs((filename.str()).c_str());
+        filename.str(std::string());
+
+
+
     }
 
+    ////PRINT THE STATS
     float p_inv_rec_error_mean = vector_mean(p_inv_rel_errors);
 
-    ////PRINT THE STATS
     cout << endl << endl << "---General Stats---\n" << endl;
     cout << "trajp / p_mc != 1 fail count: " << p_fail_count << ", total: " << segs_entries << ", rate: "
          << (p_fail_count / (float) segs_entries) * 100 << " %" << endl;
