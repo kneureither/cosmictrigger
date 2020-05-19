@@ -5,7 +5,10 @@
 
 #include <string>
 #include <iostream>
+#include <experimental/filesystem>
 #include "custom_types.h"
+
+namespace fs = std::experimental::filesystem;
 
 struct PXID {
     unsigned int sensor;
@@ -94,6 +97,16 @@ void SaveCanvas(TCanvas* c1, const std::string& name, const std::string& path) {
     c1->SaveAs((path + "/" + name + ".png").c_str());
     c1->SaveAs((path + "/" + name + ".pdf").c_str());
 }
+
+void check_create_directory(std::string path) {
+    if (fs::exists(path.c_str())) {
+        cout << "STATUS : path exists: " << path << endl;
+    } else {
+        fs::create_directory(path);
+        cout << "STATUS : no such path - created: " << path << endl;
+    }
+}
+
 
 void set_plotting_style() {
     gROOT->SetStyle("Plain");
