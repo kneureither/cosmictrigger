@@ -27,6 +27,13 @@ std::string get_padded_string(int number, int n, char c) {
     return str;
 }
 
+template <class T>
+std::string get_string(T number) {
+    stringstream ss;
+    ss << number;
+    return ss.str();
+}
+
 PXID process_pixel_id(unsigned int pixel_id) {
     PXID pixid;
     pixid.sensor        = (pixel_id)>>16;
@@ -104,6 +111,33 @@ void check_create_directory(std::string path) {
     } else {
         fs::create_directory(path);
         cout << "STATUS : no such path - created: " << path << endl;
+    }
+}
+
+int get_charge_from_type(int type) {
+    if (type == 4) {
+        //mu-
+        return 1;
+    } else if (type == 3) {
+        //mu+
+        return -1;
+    } else {
+        //not a muon
+        return 1;
+    }
+}
+
+unsigned int get_layer(int sid) {
+    if(0 <= sid && sid < 1024) {
+        return 0;
+    } else if (1024 <= sid && sid < 2048) {
+        return 1;
+    } else if ((2000 <= sid && sid < 3000) || (10000 <= sid && sid < 11500) || (14000 <= sid && sid < 15200)) {
+        return 2;
+    } else if ((3000 <= sid && sid < 4000) || (11500 <= sid && sid < 12500) || (15200 <= sid && sid < 16500)) {
+        return 3;
+    } else {
+        return 100;
     }
 }
 
