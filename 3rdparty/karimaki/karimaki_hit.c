@@ -78,18 +78,18 @@ int karimaki_hit(int npoints, double xp[MAXLAYER], double yp[MAXLAYER],  double 
     ConstrZ[i]=zp[i];
 
     TWeight[i]=1./tres[i];  // standard weight
-    //    printf("i=%d: x=%f   y=%f   TWeight[i]=%f\n",i, ConstrX[i],ConstrY[i],TWeight[i]);
+    printf("i=%d: x=%f   y=%f   TWeight[i]=%f\n",i, ConstrX[i],ConstrY[i],TWeight[i]);
     NumConstr++;
   }
 
   // 2d track fit in transverse plane
   c_cirparw (ConstrX,ConstrY,TWeight,&NumConstr,TPar,&TCh2dF);
-  //    printf("Karimaki transverse track parameter: %f %f %f  chi2norm=%f,\n",TPar[0],TPar[1],TPar[2],TCh2dF);
+  printf("Karimaki transverse track parameter: %f %f %f  chi2norm=%f,\n",TPar[0],TPar[1],TPar[2],TCh2dF);
 
   // radius parameter
   rad=1.0/TPar[0];
 
-  //  printf("karimaki_hit result: rad=%f, chi2=%f \n",rad,TCh2dF );
+  printf("karimaki_hit result: rad=%f, chi2=%f \n",rad,TCh2dF );
 
   // calculate arc length
   for (i=0;i<npoints;i++) {
@@ -111,7 +111,7 @@ int karimaki_hit(int npoints, double xp[MAXLAYER], double yp[MAXLAYER],  double 
 
   // first 2d track fit in longitudinal plane
   fitszw (ConstrS,ConstrZ,ZWeight,NumConstr,ZPar,&ZCh2dF);
-//    printf("Karimaki longitudinal track parameter: %f %f  chi2norm=%f,\n",ZPar[0],ZPar[1],ZCh2dF);
+  printf("Karimaki longitudinal track parameter: %f %f  chi2norm=%f,\n",ZPar[0],ZPar[1],ZCh2dF);
 
   // redo weight calculation of used hits
   theta=atan2(1.0,ZPar[1]);
@@ -124,7 +124,7 @@ int karimaki_hit(int npoints, double xp[MAXLAYER], double yp[MAXLAYER],  double 
 
   // redo fit with correct weights
   fitszw (ConstrS,ConstrZ,ZWeight,NumConstr,ZPar,&ZCh2dF);
-//    printf("Karimaki longitudinal track parameter: %f %f  chi2norm=%f,\n",ZPar[0],ZPar[1],ZCh2dF);
+  printf("Karimaki longitudinal track parameter: %f %f  chi2norm=%f,\n",ZPar[0],ZPar[1],ZCh2dF);
 
   // store results
   theta=atan2(1.0,ZPar[1]);

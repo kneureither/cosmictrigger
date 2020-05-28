@@ -7,3 +7,34 @@ INC=" -Iinclude -Iinclude/include/ -I/usr/include/eigen3/ -I/usr/include/eigen3/
 LIB="libwatson.so libfastjet.so"
 
 g++ $INC -std=c++11 -O1 -mcmodel=medium  -o  ../bin/lhcstudy pixelmult.c gen_jets.c track_jet.c multi_trigger.c fit_triplhit.c gbl_barrel_if.cpp calc_resolution.c nucl_sim.c particle_mass.c particle_charge.c random.c brems_layer.c radbs.c gen_noise_barr.c rdextra.c pixonly_main.c calc_hitrates.c calc_hitmult2.c zpair_prod.c photon_beampipe.c photon_group.c phot_sim.c anatrigger.c anadoublets.c anaendcap2.c anaendcap3.c triplet_trigger.c endcap3_trigger.c doublet_trigger.c endcap2_trigger.c karimaki.c  karimaki_hit.c fitszw.c anatracks.c extrapolate_to_group.c fit_ntriplekari2.c pixrecfast2.c cross_cylinder2.c simulate_beampipe.c scatter_cylinder.c cross_disc.c scatter_disc.c simulate_group2.c check_group.c det_sim_itk.c tools.c rdlhcdata5.c  rdpara.c fit_triplet03.c  gen_track9.c wrappers.c -x f77 cirpar.f cirparw.f -x none -lm libkernlib.a libpacklib.a libmathlib.a -lm   /usr/lib64/libf2c.a $LIB
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+g++ $INC -std=c++11 -O1 -mcmodel=medium  -o  ../bin/lhcstudy pixelmult.c gen_jets.c track_jet.c multi_trigger.c fit_triplhit.c gbl_barrel_if.cpp calc_resolution.c nucl_sim.c particle_mass.c particle_charge.c random.c brems_layer.c radbs.c gen_noise_barr.c rdextra.c pixonly_main.c calc_hitrates.c calc_hitmult2.c zpair_prod.c photon_beampipe.c photon_group.c phot_sim.c anatrigger.c anadoublets.c anaendcap2.c anaendcap3.c triplet_trigger.c endcap3_trigger.c doublet_trigger.c endcap2_trigger.c karimaki.c  karimaki_hit.c fitszw.c anatracks.c extrapolate_to_group.c fit_ntriplekari2.c pixrecfast2.c cross_cylinder2.c simulate_beampipe.c scatter_cylinder.c cross_disc.c scatter_disc.c simulate_group2.c check_group.c det_sim_itk.c tools.c rdlhcdata5.c  rdpara.c fit_triplet03.c  gen_track9.c wrappers.c -x f77 cirpar.f cirparw.f -x none -lm libkernlib.a libpacklib.a libmathlib.a -lm   /usr/lib64/libf2c.a $LIB

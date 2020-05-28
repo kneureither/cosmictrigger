@@ -1,0 +1,2 @@
+#define ITK_EXT_SIMPLIFIED_60TRI_Y
+#define THICK_ACTIVE 5e-5

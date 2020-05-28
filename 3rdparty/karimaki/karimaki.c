@@ -34,10 +34,6 @@ Add s-z fit subsequently
 
 #define MINRESOLUTION 1E-6  // minimum resolution for spatial position
 
-
-
-
-
 int karimaki() {
 
   int i,k,itr;
@@ -62,7 +58,7 @@ int karimaki() {
   float alpha;
   float theta,r3d;
 
-  int fitszw (float *,float *,float *,int ,float *,float *);
+  int fitszw(float *,float *,float *,int ,float *,float *);
 
   /* loop over reconstructed tracks */
   for (itr=0;itr<nrectrack;itr++) {
