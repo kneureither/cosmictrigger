@@ -104,6 +104,7 @@ void reconstruction_accuracy() {
 
     float rec_p;
     float rec_r;
+    float rec_rt;
     float rec_tan01[TRIPLET_HIT_ARRAY_LENGTH];
     float rec_lam01[TRIPLET_HIT_ARRAY_LENGTH];
     float rec_zpca_x;
@@ -144,11 +145,15 @@ void reconstruction_accuracy() {
     float rec_theta;
     float rec_pt;
 
+    //For Fit
+    KariFit karires;
+
     t_segs->SetBranchAddress("eventId", &rec_event);
     t_segs->SetBranchAddress("nhit", &rec_nhit);
 
     t_segs->SetBranchAddress("p", &rec_p);
     t_segs->SetBranchAddress("r", &rec_r);
+    t_segs->SetBranchAddress("rt", &rec_rt);
     t_segs->SetBranchAddress("tan01", &rec_tan01);
     t_segs->SetBranchAddress("lam01", &rec_lam01);
     t_segs->SetBranchAddress("zpca_z", &rec_zpca_z);
@@ -209,6 +214,7 @@ void reconstruction_accuracy() {
     std::vector<float> pt_inv_errors;
     std::vector<float> p_over_pmcs;
     std::vector<float> rec_rs;
+    std::vector<float> rec_rts;
     std::vector<float> rec_p_corrs;
     std::vector<float> rec_ps;
     std::vector<float> rec_inv_ps;
@@ -222,6 +228,14 @@ void reconstruction_accuracy() {
     std::vector<float> rec_dca_ys;
     std::vector<float> rec_dca_zs;
 
+    std::vector<float> kari_r3ds;
+    std::vector<float> kari_rads;
+    std::vector<float> kari_dcas;
+    std::vector<float> kari_phis;
+    std::vector<float> kari_tchi2ns;
+    std::vector<float> kari_z0s;
+    std::vector<float> kari_thetas;
+    std::vector<float> kari_zchi2ns;
 
     std::vector<float> mc_dcas;
     std::vector<float> mc_z_dcas;
@@ -247,8 +261,8 @@ void reconstruction_accuracy() {
     t_mu3e->GetEntry(mu3e_index);
     mu3e_index++;
 
-//    for (unsigned int i = 0; i < segs_entries; i++) {
-    for (unsigned int i = 1; i < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); i++) {
+
+    for (unsigned int i = 10; i < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); i++) {
         t_segs->GetEntry(i);
 
         //find corresponding entry in mu3e tree
@@ -274,6 +288,13 @@ void reconstruction_accuracy() {
             }
         }
 
+        //get trajectory data from mu3e tree
+        unsigned int trajid = (*trajids)[0];
+        double trajpx = (*traj_px)[0];
+        double trajpy = (*traj_py)[0];
+        double trajpz = (*traj_pz)[0];
+        double trajp = sqrt(pow(trajpx, 2) + pow(trajpy, 2) + pow(trajpz, 2));
+
         if (HIT_PRINTS) {
             cout << "\tsegs data" << endl;
             cout << "\ttriplet 00: " << "\tsid=" << sid00[0] << "\tx=" << x00[0] << "\tx=" << x00[1] << "\tx=" << x00[4] << endl;
@@ -289,10 +310,13 @@ void reconstruction_accuracy() {
             cout << endl;
         }
 
-        //store hit data
-        std::vector<float> xp;
-        std::vector<float> yp;
-        std::vector<float> zp;
+        //Do Karimaki Helix fit
+        std::vector<double> xp;
+        std::vector<double> yp;
+        std::vector<double> zp;
+        double tres[10] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
+        double zres[10] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
+        double rres[10] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
         combinehits(xp, yp, zp, rec_nhit, x00, x11, y00, y11, z00, z11);
 
         if(HIT_PRINTS) {
@@ -301,14 +325,7 @@ void reconstruction_accuracy() {
             }
         }
 
-        //get trajectory data from mu3e tree
-        unsigned int trajid = (*trajids)[0];
-        double trajpx = (*traj_px)[0];
-        double trajpy = (*traj_py)[0];
-        double trajpz = (*traj_pz)[0];
-        double trajp = sqrt(pow(trajpx, 2) + pow(trajpy, 2) + pow(trajpz, 2));
-
-
+        karimaki_hit(karires, rec_nhit, &xp[0], &yp[0], &zp[0], tres, zres, rres);
 
 
         //Theta, phi and traverse p of reconstruction
@@ -321,32 +338,33 @@ void reconstruction_accuracy() {
         } else {
             if (true) {
 
-                //TODO Use direction provided by phi to correct sign of momentum
                 //The charge of the particle is given by the sign of the traj radius (rec_r)
                 //This is used to correct the p_mc_corr = sgn(r) * p_mc, because the monte carlo
                 //momenta are only given as absolutes.
 
                 float mc_p_corr = mc_p * sgn(mc_pid);
                 float mc_pt_corr = mc_pt * sgn(mc_pid);
-                float rec_p_corr = rec_p * sgn(rec_r); //TODO rec_p anders korrigieren (phi)
+                float rec_p_corr = rec_p * sgn(rec_r);
                 float rec_pt_corr = rec_pt;
 
                 float mc_inv_p = 1. / mc_p_corr;
                 float mc_inv_pt = 1. / mc_pt_corr;
                 float rec_inv_p = 1. / rec_p;
-                float rec_inv_pt = 1. / rec_pt; //TODO switch to rec_pt_corr
-                float p_inv_rel_error = (rec_inv_p - mc_inv_p); //this will mostly be used as estimator for deviation
-                float p_rel_error = (mc_p_corr - rec_p);
+                float rec_inv_pt = 1. / rec_pt;
+                float p_inv_abs_error = (rec_inv_p - mc_inv_p); //this will mostly be used as estimator for deviation
+                float p_abs_error = (mc_p_corr - rec_p);
                 float p_over_pmc = rec_p / mc_p_corr;
                 float mc_z_dca = std::sin(mc_vpca_phi) * mc_vpca_offset;
                 float pt_inv_error = (1./rec_pt_corr) - (1./mc_pt_corr);
+
+                //TODO Calculate momentum from kari fit radius
 
                 //calculated data
                 rec_inv_ps.push_back(rec_inv_p);
                 rec_p_corrs.push_back(rec_p_corr);
                 rec_inv_pts.push_back(rec_inv_p);
-                p_inv_rel_errors.push_back(p_inv_rel_error);
-                p_rel_errors.push_back(p_rel_error);
+                p_inv_rel_errors.push_back(p_inv_abs_error);
+                p_rel_errors.push_back(p_abs_error);
                 pt_inv_errors.push_back(pt_inv_error);
                 p_over_pmcs.push_back(p_over_pmc);
                 rec_pts.push_back(rec_pt);
@@ -362,10 +380,21 @@ void reconstruction_accuracy() {
                 //reconstruction data
                 rec_ps.push_back(rec_p);
                 rec_rs.push_back(rec_r);
+                rec_rts.push_back(rec_rt);
                 rec_dca_rs.push_back(rec_zpca_r);
                 rec_dca_xs.push_back(rec_zpca_x);
                 rec_dca_ys.push_back(rec_zpca_y);
                 rec_dca_zs.push_back(rec_zpca_z);
+
+                //kari data
+                kari_r3ds.push_back(karires.r3d);
+                kari_rads.push_back(karires.rad);
+                kari_dcas.push_back(karires.dca);
+                kari_phis.push_back(karires.phi);
+                kari_tchi2ns.push_back(karires.tchi2n);
+                kari_z0s.push_back(karires.z0);
+                kari_thetas.push_back(karires.theta);
+                kari_zchi2ns.push_back(karires.zchi2n);
 
                 //monte carlo data
                 mc_ps.push_back(mc_p);
@@ -383,38 +412,38 @@ void reconstruction_accuracy() {
 
                 switch(rec_nhit) {
                     case 4:
-                        p_inv_rel_errors_hits[0].push_back(p_inv_rel_error);
-                        p_inv_err_nhits[0].push_back(p_inv_rel_error);
+                        p_inv_rel_errors_hits[0].push_back(p_inv_abs_error);
+                        p_inv_err_nhits[0].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[0].push_back(pt_inv_error);
                         rec_rdca_nhits[0].push_back(rec_zpca_r);
                         break;
                     case 5:
-                        p_inv_rel_errors_hits[1].push_back(p_inv_rel_error);
-                        p_inv_err_nhits[0].push_back(p_inv_rel_error);
+                        p_inv_rel_errors_hits[1].push_back(p_inv_abs_error);
+                        p_inv_err_nhits[0].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[0].push_back(pt_inv_error);
                         rec_rdca_nhits[0].push_back(rec_zpca_r);
                         break;
                     case 6:
-                        p_inv_rel_errors_hits[2].push_back(p_inv_rel_error);
-                        p_inv_err_nhits[1].push_back(p_inv_rel_error);
+                        p_inv_rel_errors_hits[2].push_back(p_inv_abs_error);
+                        p_inv_err_nhits[1].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[1].push_back(pt_inv_error);
                         rec_rdca_nhits[1].push_back(rec_zpca_r);
                         break;
                     case 7:
-                        p_inv_rel_errors_hits[3].push_back(p_inv_rel_error);
-                        p_inv_err_nhits[1].push_back(p_inv_rel_error);
+                        p_inv_rel_errors_hits[3].push_back(p_inv_abs_error);
+                        p_inv_err_nhits[1].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[1].push_back(pt_inv_error);
                         rec_rdca_nhits[1].push_back(rec_zpca_r);
                         break;
                     case 8:
-                        p_inv_rel_errors_hits[4].push_back(p_inv_rel_error);
-                        p_inv_err_nhits[2].push_back(p_inv_rel_error);
+                        p_inv_rel_errors_hits[4].push_back(p_inv_abs_error);
+                        p_inv_err_nhits[2].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[2].push_back(pt_inv_error);
                         rec_rdca_nhits[2].push_back(rec_zpca_r);
                         break;
                     default:
-                        p_inv_rel_errors_hits[5].push_back(p_inv_rel_error);
-                        p_inv_err_nhits[2].push_back(p_inv_rel_error);
+                        p_inv_rel_errors_hits[5].push_back(p_inv_abs_error);
+                        p_inv_err_nhits[2].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[2].push_back(pt_inv_error);
                         rec_rdca_nhits[2].push_back(rec_zpca_r);
                 }
@@ -435,7 +464,7 @@ void reconstruction_accuracy() {
                     cout << "pt_mc= " << mc_pt << " pt_rec= " << rec_pt << " phi_mc= " << mc_phi << " rec_phi= " << rec_phi;
                     cout << " mc_theta= " << mc_theta << " rec_theta= " << rec_theta << "z-dca=" << mc_z_dca <<"\t\t";
 
-                    cout << "(1/mc_p-1/rec_p)/(1/mc_p): " << p_inv_rel_error*100 << " %" << endl;
+                    cout << "(1/mc_p-1/rec_p)/(1/mc_p): " << p_inv_abs_error*100 << " %" << endl;
                 }
             }
         }
@@ -604,6 +633,40 @@ void reconstruction_accuracy() {
             fillHistWithVector(h, p_inv_rel_errors_hits[i]);
             h_pinv_relerrorhits.push_back(h);
         }
+
+        //KARIMAKI Results
+        TH1F *h_r3dkari = new TH1F("h_r3dkari", "rad_{kari} 3D ", 30, -2000, 2000);
+        labelAxis(h_r3dkari, "3D radius [mm]", "count");
+        fillHistWithVector(h_r3dkari, kari_r3ds);
+
+        TH1F *h_rkari = new TH1F("h_rkari", "rad_{kari} 2D ", 30, -100, 100);
+        labelAxis(h_rkari, "transverse radius [mm]", "count");
+        fillHistWithVector(h_rkari, kari_rads);
+
+        TH1F *h_phikari = new TH1F("h_phikari", "#phi_{kari}", 30, -3.2, 3.2);
+        labelAxis(h_phikari, "#phi", "count");
+        fillHistWithVector(h_phikari, kari_phis);
+
+        TH1F *h_dcakari = new TH1F("h_dcakari", "DCA_{kari}", 30, 0, 100);
+        labelAxis(h_dcakari, "DCA [mm]", "count");
+        fillHistWithVector(h_dcakari, kari_dcas);
+
+        TH1F *h_tchi2nkari = new TH1F("h_tchi2nkari", "transverse #chi^{2}_{kari}", 30, 0, 200);
+        labelAxis(h_tchi2nkari, "#chi^{2}", "count");
+        fillHistWithVector(h_tchi2nkari, kari_tchi2ns);
+
+        TH1F *h_z0kari = new TH1F("h_z0kari", "z0_{kari}", 30, 0, 1000);
+        labelAxis(h_z0kari, "z0 [mm]", "count");
+        fillHistWithVector(h_z0kari, kari_z0s);
+
+        TH1F *h_thetakari = new TH1F("h_thetakari", "#Theta_{kari}", 30, -3.2, 3.2);
+        labelAxis(h_thetakari, "#Theta", "count");
+        fillHistWithVector(h_thetakari, kari_thetas);
+
+        TH1F *h_zchi2kari = new TH1F("h_zchi2kari", "longitudinal #chi^{2}_{kari}", 30, 0, 1000);
+        labelAxis(h_zchi2kari, "#chi^{2}", "count");
+        fillHistWithVector(h_zchi2kari, kari_zchi2ns);
+
 
 
         ///FILLING SCATTER PLOTS
@@ -933,6 +996,55 @@ void reconstruction_accuracy() {
             l2->Draw();
 
             c_multi3->Print(plottingfile.c_str(), "pdf");
+        }
+
+        //karimaki histograms (2x4 canvas)
+        auto *c_multi10 = new TCanvas("cmulti10", "cmulti10", 1200, 1200);
+        c_multi10->SetWindowPosition(0, 400);
+
+        c_multi10->Divide(2,2);
+        {
+            c_multi10->cd(1);
+            gPad->SetLeftMargin(0.15);
+            h_r3dkari->Draw();
+
+            c_multi10->cd(2);
+            gPad->SetLeftMargin(0.15);
+            h_rkari->Draw();
+
+            c_multi10->cd(3);
+            gPad->SetLeftMargin(0.15);
+            h_phikari->Draw();
+
+            c_multi10->cd(4);
+            gPad->SetLeftMargin(0.15);
+            h_dcakari->Draw();
+
+            c_multi10->Print(plottingfile.c_str(), "pdf");
+        }
+
+        auto *c_multi11 = new TCanvas("cmulti11", "cmulti11", 1200, 1200);
+        c_multi11->SetWindowPosition(0, 400);
+
+        c_multi11->Divide(2,2);
+        {
+            c_multi11->cd(1);
+            gPad->SetLeftMargin(0.15);
+            h_tchi2nkari->Draw();
+
+            c_multi11->cd(2);
+            gPad->SetLeftMargin(0.15);
+            h_z0kari->Draw();
+
+            c_multi11->cd(3);
+            gPad->SetLeftMargin(0.15);
+            h_thetakari->Draw();
+
+            c_multi11->cd(4);
+            gPad->SetLeftMargin(0.15);
+            h_zchi2kari->Draw();
+
+            c_multi11->Print(plottingfile.c_str(), "pdf");
         }
 
 
