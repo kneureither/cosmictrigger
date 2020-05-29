@@ -1,3 +1,8 @@
+//
+// Created by Konstantin Neureither on 27.04.20.
+//
+#define TRIPLET_HIT_ARRAY_LENGTH 1024
+
 #include <TFile.h>
 #include <TROOT.h>
 #include <algorithm>
@@ -6,26 +11,30 @@
 #include <string>
 #include <TH1.h>
 #include <TGraph.h>
+#include <TLine.h>
 #include <TCanvas.h>
+#include <TLegend.h>
 #include <fstream>
 #include <filesystem>
 #include <cmath>
 #include "../util/utility_functions.h"
-#include "../util/custom_types.h"
+#include "../util/plots.h"
+#include "reconstruction_accuracy.h"
 
 using std::cout;
 using std::endl;
 
-const std::string pathtodata = "../data/";
-const std::string pathtoplots = "../plots/";
-const int run = 10;
-const bool RECONSTRUCTION_PRINTS = false;
-const bool HIT_PRINTS = true;
-const bool MAKE_PLOT = true;
-const bool ADDITIONAL_PLOTS = false;
-const int MAX_ENTRIES = 0;
 
 void reconstruction_accuracy() {
+
+    const std::string pathtodata = "../data/";
+    const std::string pathtoplots = "../plots/";
+    const int run = 10;
+    const bool RECONSTRUCTION_PRINTS = false;
+    const bool HIT_PRINTS = true;
+    const bool MAKE_PLOT = true;
+    const bool ADDITIONAL_PLOTS = false;
+    const int MAX_ENTRIES = 0;
 
     //TODO Get run number as cmd argument
 
@@ -41,10 +50,10 @@ void reconstruction_accuracy() {
     TFile f1(infile1.c_str());
     TFile f2(infile2.c_str());
 
-    gStyle->SetLegendBorderSize(1);
-    gStyle->SetLegendFillColor(0);
-    gStyle->SetLegendFont(42);
-    gStyle->SetLegendTextSize(0.03);
+//    gStyle->SetLegendBorderSize(1);
+//    gStyle->SetLegendFillColor(0);
+//    gStyle->SetLegendFont(42);
+//    gStyle->SetLegendTextSize(0.03);
 
     TTree *t_mu3e;
     f1.GetObject("mu3e", t_mu3e);
@@ -95,31 +104,45 @@ void reconstruction_accuracy() {
 
     float rec_p;
     float rec_r;
-    float rec_tan01[2];
-    float rec_lam01[2];
+    float rec_tan01[TRIPLET_HIT_ARRAY_LENGTH];
+    float rec_lam01[TRIPLET_HIT_ARRAY_LENGTH];
     float rec_zpca_x;
     float rec_zpca_y;
     float rec_zpca_z;
     float rec_zpca_r;
 
-    float x00[2];
-    float x10[2];
-    float x20[2];
-    float x01[2];
-    float x11[2];
-    float x21[2];
+    float x00[1024];
+    float x10[TRIPLET_HIT_ARRAY_LENGTH];
+    float x20[TRIPLET_HIT_ARRAY_LENGTH];
+    float x01[TRIPLET_HIT_ARRAY_LENGTH];
+    float x11[TRIPLET_HIT_ARRAY_LENGTH];
+    float x21[TRIPLET_HIT_ARRAY_LENGTH];
 
-    int sid00[2];
-    int sid10[2];
-    int sid20[2];
-    int sid01[2];
-    int sid11[2];
-    int sid21[2];
+    float y00[TRIPLET_HIT_ARRAY_LENGTH];
+    float y10[TRIPLET_HIT_ARRAY_LENGTH];
+    float y20[TRIPLET_HIT_ARRAY_LENGTH];
+    float y01[TRIPLET_HIT_ARRAY_LENGTH];
+    float y11[TRIPLET_HIT_ARRAY_LENGTH];
+    float y21[TRIPLET_HIT_ARRAY_LENGTH];
+
+    float z00[TRIPLET_HIT_ARRAY_LENGTH];
+    float z10[TRIPLET_HIT_ARRAY_LENGTH];
+    float z20[TRIPLET_HIT_ARRAY_LENGTH];
+    float z01[TRIPLET_HIT_ARRAY_LENGTH];
+    float z11[TRIPLET_HIT_ARRAY_LENGTH];
+    float z21[TRIPLET_HIT_ARRAY_LENGTH];
+
+    float sid00[TRIPLET_HIT_ARRAY_LENGTH];
+    float sid10[TRIPLET_HIT_ARRAY_LENGTH];
+    float sid20[TRIPLET_HIT_ARRAY_LENGTH];
+    float sid01[TRIPLET_HIT_ARRAY_LENGTH];
+    float sid11[TRIPLET_HIT_ARRAY_LENGTH];
+    float sid21[TRIPLET_HIT_ARRAY_LENGTH];
 
     //for calculation
-    double rec_phi;
-    double rec_theta;
-    double rec_pt;
+    float rec_phi;
+    float rec_theta;
+    float rec_pt;
 
     t_segs->SetBranchAddress("eventId", &rec_event);
     t_segs->SetBranchAddress("nhit", &rec_nhit);
@@ -144,12 +167,26 @@ void reconstruction_accuracy() {
     t_segs->SetBranchAddress("mc_type", &mc_type);
     t_segs->SetBranchAddress("mc_pid", &mc_pid);
 
-    t_segs->SetBranchAddress("sid00", &x00);
-    t_segs->SetBranchAddress("sid10", &x10);
-    t_segs->SetBranchAddress("sid20", &x20);
-    t_segs->SetBranchAddress("sid01", &x01);
-    t_segs->SetBranchAddress("sid11", &x11);
-    t_segs->SetBranchAddress("sid21", &x21);
+    t_segs->SetBranchAddress("x00", &x00);
+    t_segs->SetBranchAddress("x10", &x10);
+    t_segs->SetBranchAddress("x20", &x20);
+    t_segs->SetBranchAddress("x01", &x01);
+    t_segs->SetBranchAddress("x11", &x11);
+    t_segs->SetBranchAddress("x21", &x21);
+
+    t_segs->SetBranchAddress("y00", &y00);
+    t_segs->SetBranchAddress("y10", &y10);
+    t_segs->SetBranchAddress("y20", &y20);
+    t_segs->SetBranchAddress("y01", &y01);
+    t_segs->SetBranchAddress("y11", &y11);
+    t_segs->SetBranchAddress("y21", &y21);
+
+    t_segs->SetBranchAddress("z00", &z00);
+    t_segs->SetBranchAddress("z10", &z10);
+    t_segs->SetBranchAddress("z20", &z20);
+    t_segs->SetBranchAddress("z01", &z01);
+    t_segs->SetBranchAddress("z11", &z11);
+    t_segs->SetBranchAddress("z21", &z21);
 
     t_segs->SetBranchAddress("sid00", &sid00);
     t_segs->SetBranchAddress("sid10", &sid10);
@@ -211,7 +248,7 @@ void reconstruction_accuracy() {
     mu3e_index++;
 
 //    for (unsigned int i = 0; i < segs_entries; i++) {
-    for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); i++) {
+    for (unsigned int i = 1; i < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); i++) {
         t_segs->GetEntry(i);
 
         //find corresponding entry in mu3e tree
@@ -239,12 +276,29 @@ void reconstruction_accuracy() {
 
         if (HIT_PRINTS) {
             cout << "\tsegs data" << endl;
-            cout << "\ttriplet 00: " << "\tsid=" << sid00[0] << "\tx=" << x00[0] << endl;
+            cout << "\ttriplet 00: " << "\tsid=" << sid00[0] << "\tx=" << x00[0] << "\tx=" << x00[1] << "\tx=" << x00[4] << endl;
             cout << "\ttriplet 10: " << "\tsid=" << sid10[0] << "\tx=" << x10[0] << endl;
             cout << "\ttriplet 20: " << "\tsid=" << sid20[0] << "\tx=" << x20[0] << endl;
             cout << "\ttriplet 01: " << "\tsid=" << sid01[0] << "\tx=" << x01[0] << endl;
             cout << "\ttriplet 11: " << "\tsid=" << sid11[0] << "\tx=" << x11[0] << endl;
             cout << "\ttriplet 21: " << "\tsid=" << sid21[0] << "\tx=" << x21[0] << endl;
+
+            for(int i=0; i<rec_nhit-2; i++) {
+                cout << "\tx=" << x00[i];
+            }
+            cout << endl;
+        }
+
+        //store hit data
+        std::vector<float> xp;
+        std::vector<float> yp;
+        std::vector<float> zp;
+        combinehits(xp, yp, zp, rec_nhit, x00, x11, y00, y11, z00, z11);
+
+        if(HIT_PRINTS) {
+            for(int i = 0; i < rec_nhit; i++) {
+                cout << "Gathered hits in array: (" << xp[i] << ", " << yp[i] << ", " << zp[i] << ")" << endl;
+            }
         }
 
         //get trajectory data from mu3e tree
@@ -255,20 +309,22 @@ void reconstruction_accuracy() {
         double trajp = sqrt(pow(trajpx, 2) + pow(trajpy, 2) + pow(trajpz, 2));
 
 
+
+
         //Theta, phi and traverse p of reconstruction
-        rec_pt = rec_p * std::cos((rec_lam01[0]));
-        rec_phi = rec_tan01[0];
-        rec_theta = 3.14159*0.5 - rec_lam01[0];
+        float rec_pt = rec_p * std::cos((rec_lam01)[0]);
+        float rec_phi = (rec_tan01)[0];
+        float rec_theta = 3.14159*0.5 - (rec_lam01)[0];
 
         if (mc_p == 0 || mc_pt == 0 || rec_p == 0 || rec_pt == 0) {
             p_fail_count++;
         } else {
             if (true) {
 
-                //TODO Use direction provided by phi to correct sign of impulse
+                //TODO Use direction provided by phi to correct sign of momentum
                 //The charge of the particle is given by the sign of the traj radius (rec_r)
                 //This is used to correct the p_mc_corr = sgn(r) * p_mc, because the monte carlo
-                //impulses are only given as absolutes.
+                //momenta are only given as absolutes.
 
                 float mc_p_corr = mc_p * sgn(mc_pid);
                 float mc_pt_corr = mc_pt * sgn(mc_pid);
@@ -383,12 +439,13 @@ void reconstruction_accuracy() {
                 }
             }
         }
+
     }
 
     //TODO Print histogram of nhits and rel error of p reconstruction
 
     if (MAKE_PLOT) {
-        //impulses
+        //momenta
         const float LEFT_BOUNDARY = -3e4;
         const float RIGHT_BOUNDARY = 3e4 ;
         const int BIN_COUNT = 50;
@@ -411,11 +468,11 @@ void reconstruction_accuracy() {
         fillHistWithVector(h_rec_nhits, rec_nhits);
 
         //Trajectory data Monte Carlo
-        TH1F *h_pmc = new TH1F("h_pmc", "muon impulses monte carlo (charge corrrected)", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        TH1F *h_pmc = new TH1F("h_pmc", "muon momenta monte carlo (charge corrrected)", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
         labelAxis(h_pmc, "p_{mc} * charge_{mc} [MeV]", "count");
         fillHistWithVector(h_pmc, mc_p_corrs);
 
-        TH1F *h_ptmc = new TH1F("h_ptmc", "muon traverse impulses monte carlo (charge corrrected)", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        TH1F *h_ptmc = new TH1F("h_ptmc", "muon traverse momenta monte carlo (charge corrrected)", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
         labelAxis(h_ptmc, "p_{t-mc} * charge_{mc} [MeV]", "count");
         fillHistWithVector(h_ptmc, mc_pt_corrs);
 
@@ -424,23 +481,23 @@ void reconstruction_accuracy() {
         fillHistWithVector(h_phimc, mc_phis);
 
         //Trajectory data reconstructed
-        TH1F *h_p = new TH1F("h_p", "muon impulses", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        TH1F *h_p = new TH1F("h_p", "muon momenta", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
         labelAxis(h_p, "p_{rec} [MeV]", "count");
         fillHistWithVector(h_p, rec_ps);
 
-        TH1F *h_p_corr = new TH1F("h_p_corr", "muon impulses (charge corrected)", 30, 0, RIGHT_BOUNDARY);
+        TH1F *h_p_corr = new TH1F("h_p_corr", "muon momenta (charge corrected)", 30, 0, RIGHT_BOUNDARY);
         labelAxis(h_p_corr, "p_{rec-corr} [MeV^{-1}]", "count");
         fillHistWithVector(h_p_corr, rec_p_corrs);
 
-        TH1F *h_pt = new TH1F("h_pt", "muon traverse impulses", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
-        labelAxis(h_pt, "p_{t} [MeV^{-1}]", "count");
+        TH1F *h_pt = new TH1F("h_pt", "muon transverse momentum", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        labelAxis(h_pt, "p_{t} [MeV]", "count");
         fillHistWithVector(h_pt, rec_pts);
 
-        TH1F *h_phi = new TH1F("h_phi", "reconstruction #Phi (var: tan01)", 30, -3.2, 3.2);
-        labelAxis(h_phi, "#Phi", "count");
+        TH1F *h_phi = new TH1F("h_phi", "reconstruction #phi (var: tan01)", 30, -3.2, 3.2);
+        labelAxis(h_phi, "#phi", "count");
         fillHistWithVector(h_phi, rec_phis);
 
-        TH1F *h_theta = new TH1F("h_theta", "reconstruction theta", 30, 0, 3.2 );
+        TH1F *h_theta = new TH1F("h_theta", "reconstruction #Theta", 30, -3.2, 3.2 );
         labelAxis(h_theta, "#Theta", "count");
         fillHistWithVector(h_theta, rec_thetas);
 
