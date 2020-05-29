@@ -36,7 +36,7 @@ Add s-z fit subsequently
 
 #define MINRESOLUTION 1E-6  // minimum resolution for spatial position
 
-int karimaki_hit(int npoints, double xp[MAXLAYER], double yp[MAXLAYER],  double zp[MAXLAYER], double tres[MAXLAYER], double zres[MAXLAYER], double rres[MAXLAYER]) {
+int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp[MAXLAYER],  double zp[MAXLAYER], double tres[MAXLAYER], double zres[MAXLAYER], double rres[MAXLAYER]) {
 
   int i;
 
@@ -111,7 +111,7 @@ int karimaki_hit(int npoints, double xp[MAXLAYER], double yp[MAXLAYER],  double 
 
   // first 2d track fit in longitudinal plane
   fitszw (ConstrS,ConstrZ,ZWeight,NumConstr,ZPar,&ZCh2dF);
-  printf("Karimaki longitudinal track parameter: %f %f  chi2norm=%f,\n",ZPar[0],ZPar[1],ZCh2dF);
+//  printf("Karimaki longitudinal track parameter: %f %f  chi2norm=%f,\n",ZPar[0],ZPar[1],ZCh2dF);
 
   // redo weight calculation of used hits
   theta=atan2(1.0,ZPar[1]);
@@ -130,17 +130,17 @@ int karimaki_hit(int npoints, double xp[MAXLAYER], double yp[MAXLAYER],  double 
   theta=atan2(1.0,ZPar[1]);
   r3d=1.0/TPar[0]/sin(theta);
 
-  kari.rad=TPar[1];;
-  kari.r3d=r3d;
-  kari.dca=TPar[1];
-  kari.phi=TPar[2];
-  kari.z0=ZPar[0];
-  kari.theta=theta;
+  karires.rad=TPar[1];;
+  karires.r3d=r3d;
+  karires.dca=TPar[1];
+  karires.phi=TPar[2];
+  karires.z0=ZPar[0];
+  karires.theta=theta;
   
-  kari.tchi2n=TCh2dF;
-  kari.zchi2n=ZCh2dF;
+  karires.tchi2n=TCh2dF;
+  karires.zchi2n=ZCh2dF;
 
-  //  printf("karimaki_hit result: rad=%f,r3d=%f  theta=%f  chi2=%f %f\n",kari.rad,kari.r3d,kari.theta,TCh2dF,ZCh2dF );
+  //  printf("karimaki_hit result: rad=%f,r3d=%f  theta=%f  chi2=%f %f\n",karires.rad,karires.r3d,karires.theta,TCh2dF,ZCh2dF );
 
   return 0;
 }

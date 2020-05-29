@@ -1,3 +1,9 @@
+#ifndef COSMICTRIGGER_KARIMAKI_H
+#define COSMICTRIGGER_KARIMAKI_H
+
+#endif //COSMICTRIGGER_KARIMAKI_H
+
+
 typedef struct KariFit
 {
   float r3d;
@@ -12,8 +18,8 @@ typedef struct KariFit
 
 // global memory
 
-#ifdef MAIN
-KARITRACK kari;
-#else
-extern KARITRACK kari;
-#endif
+//#ifdef MAIN
+//KARITRACK kari;
+//#else
+//extern KARITRACK kari;
+//#endif

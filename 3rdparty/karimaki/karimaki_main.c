@@ -2,16 +2,29 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "karimaki.h"
-
-//#include <TFile.h>
+#include <TFile.h>
 #include <TROOT.h>
+#include <TTree.h>
+#include <string>
+#include <TH1.h>
+#include <TGraph.h>
+#include <TCanvas.h>
+#include <fstream>
+#include <filesystem>
+#include <iostream>
 
-KARITRACK kari;
+#include "karimaki.h"
+#include "../../util/utility_functions.h"
+#include "../../util/custom_types.h"
+
+using std::endl;
+using std::cout;
 
 int main(int argc, char *argv[]) {
 
 //    TApplication* app = new TApplication("app",&argc, argv);
+
+    int karimaki_hit(KariFit&, int , double *, double *, double *, double *, double *, double *);
 
     int npoints = 4;
     double xp[4] = {85.8653, 71.3723,-36.469,-49.4697};
@@ -21,10 +34,10 @@ int main(int argc, char *argv[]) {
     double zres[4] = {1.0,1.0,1.0,1.0};
     double rres[4] = {1.0,1.0,1.0,1.0};
 
-    int karimaki_hit(int , double *, double *, double *, double *, double *, double *);
-    karimaki_hit(npoints, xp, yp, zp, tres, zres, rres);
+    KARITRACK karires;
+    karimaki_hit(karires, npoints, xp, yp, zp, tres, zres, rres);
 
     printf("success!");
-    printf("kari.phi=%4.2f", kari.phi);
+    printf("kari.phi=%4.2f", karires.phi);
 
 }

@@ -10,6 +10,9 @@
 		http://www.netlib.org/f2c/libf2c.zip
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include "f2c.h"
 
 /* CMZ :  8.14/00 01/07/98  20.38.08  by  Stephen Burke */
@@ -99,7 +102,7 @@
     --x;
 
     /* Function Body */
-    *cdf = 0.f;
+    *cdf = (float)0.;
 /*     ------------------------------------------------------------------ */
 /*     fit to shifted reference point (to reduce round-off errors) */
 /*     ------------------------------------------------------------------ */
@@ -114,7 +117,7 @@
 /*     shift to first point */
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
-	*sw += 1.f;
+	*sw += (float)1.;
 	*sx += (doublereal) x[i__] - (doublereal) x[1];
 /* L20: */
 	*sy += (doublereal) y[i__] - (doublereal) y[1];
@@ -157,12 +160,12 @@
 /*     compare PHI with initial track direction */
 /*     IF(COSPHI*CX+SINPHI*CY.LT.0.0) THEN */
     if (cosphi * ((doublereal) x[1] + cx) + sinphi * ((doublereal) y[1] + cy) 
-	    < 0.f) {
+	    < (float)0.) {
 /*         reverse direction */
-	if (phi < 0.f) {
-	    phi += 3.141592654f;
+	if (phi < (float)0.) {
+	    phi += (float)3.141592654;
 	} else {
-	    phi += -3.141592654f;
+	    phi += (float)-3.141592654;
 	}
 	cosphi = -cosphi;
 	sinphi = -sinphi;
@@ -189,13 +192,13 @@
 /*     ------------------------------------------------------------------ */
     dtr = (doublereal) x[1] * sinphi - (doublereal) y[1] * cosphi + dca;
     dln = (doublereal) x[1] * cosphi + (doublereal) y[1] * sinphi;
-    spa = dtr * 2.f + rnv * (dtr * dtr + dln * dln);
+    spa = dtr * (float)2. + rnv * (dtr * dtr + dln * dln);
     spb = rnv * (doublereal) x[1] + u * sinphi;
     spc = -rnv * (doublereal) y[1] + u * cosphi;
-    spt = sqrt(rnv * spa + 1.f);
+    spt = sqrt(rnv * spa + (float)1.);
 /*     shifted parameters */
     tr[1] = rnv;
-    tr[2] = spa / (spt + 1.f);
+    tr[2] = spa / (spt + (float)1.);
     tr[3] = atan2(spb, spc);
 /*     ------------------------------------------------------------------ */
 /*     change sign of RNV */
@@ -218,3 +221,6 @@ L100:
 #undef sw
 
 
+#ifdef __cplusplus
+	}
+#endif
