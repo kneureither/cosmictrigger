@@ -1,0 +1,25 @@
+# List of interesting commands using ROOT.
+
+# Control ROOT
+.q //schließen
+.x <filename>; //execute a macro
+.L <filename>; and then func call <filename.c>; // load functions from macro
+.L <filename>+; //c++ compile macro
+
+.help
+.? //obtain list of cmds
+
+
+# using the shell within ROOT:
+.!pwd
+.!ls
+.!<any shell command>
+
+
+# Browse Tree
+TFile f("file.root")
+T->Show([event])
+
+T->Print()
+
+T->Scan()
