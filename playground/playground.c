@@ -1,4 +1,3 @@
-
 #include <TFile.h>
 #include <TROOT.h>
 #include <algorithm>
@@ -9,6 +8,8 @@
 #include <TGraph.h>
 #include <TCanvas.h>
 #include <fstream>
+#include "../util/utility_functions.h"
+#include "../util/custom_types.h"
 
 
 // using namespace std;
@@ -17,6 +18,43 @@ using std::cout;
 using std::endl;
 
 void playground() {
+    const float LEFT_BOUNDARY = 0;
+    const float RIGHT_BOUNDARY = 4;
+    const int BIN_COUNT = 10;
+
+    TH1F *h2 = new TH1F("h2", "1/p reconstruction errors", BIN_COUNT, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+    for (int i = 0; i < 500; i++) {
+        h2->Fill(1.0);
+    }
+    auto  *c2 = new TCanvas();
+    c2->SetWindowPosition(0, 500 );
+
+    h2->DrawClone("");
+}
+
+void playground4() {
+    std::vector<int> myvec;
+    std::vector<float> myfloatvec;
+    srand(time(NULL));
+
+    int sum = 0;
+    float sumfloat = 0.0;
+
+    for(int i=0; i < 20; i++) {
+        int rand = std::rand();
+        float float_rand = ((float) std::rand()) / (float) RAND_MAX;
+        myvec.push_back(rand);
+        myfloatvec.push_back(float_rand);
+
+        sum += rand;
+        sumfloat += float_rand;
+    }
+
+    cout << "FLOAT:\tVEC: " << vector_mean(myfloatvec) << " CALC: " << sumfloat / 20.0 << endl;
+    cout << "INT:\tVEC: " << vector_mean(myvec) << " CALC: " << sum / 20.0 << endl;
+}
+
+void playground2() {
     gROOT->SetStyle("Plain");
     gStyle->SetOptStat(111111);
     gStyle->SetOptFit(1111);
