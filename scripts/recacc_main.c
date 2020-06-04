@@ -4,8 +4,16 @@
 #include <iostream>
 
 int main(int argc, char *argv[]) {
-    std::cout << "Running reconstruction_accuracy()..." << std::endl;
+    int run;
+    if(argc < 2) {
+        std::cout << "ERR : No argument! Usage Mu3eRecAcc <run number> " << std::endl;
+        exit(0);
+    } else {
+        run = atoi(argv[1]);
+    }
 
-    void reconstruction_accuracy();
-    reconstruction_accuracy();
+    std::cout << "Running reconstruction_accuracy() for run " << run << "..." << std::endl;
+
+    void reconstruction_accuracy(int);
+    reconstruction_accuracy(run);
 }

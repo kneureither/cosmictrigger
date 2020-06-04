@@ -2,6 +2,9 @@
 // Created by Konstantin Neureither on 27.04.20.
 //
 #define TRIPLET_HIT_ARRAY_LENGTH 1024
+#ifndef PI
+#define PI 3.1415926535
+#endif
 
 #include <TFile.h>
 #include <TROOT.h>
@@ -26,11 +29,10 @@ using std::cout;
 using std::endl;
 
 
-void reconstruction_accuracy() {
+void reconstruction_accuracy(int run) {
 
     const std::string pathtodata = "../data/";
     const std::string pathtoplots = "../plots/";
-    const int run = 10;
     const bool RECONSTRUCTION_PRINTS = false;
     bool HIT_PRINTS = true;
     const bool MAKE_PLOT = true;
@@ -50,11 +52,6 @@ void reconstruction_accuracy() {
 
     TFile f1(infile1.c_str());
     TFile f2(infile2.c_str());
-
-//    gStyle->SetLegendBorderSize(1);
-//    gStyle->SetLegendFillColor(0);
-//    gStyle->SetLegendFont(42);
-//    gStyle->SetLegendTextSize(0.03);
 
     TTree *t_mu3e;
     f1.GetObject("mu3e", t_mu3e);
@@ -114,7 +111,7 @@ void reconstruction_accuracy() {
     float rec_zpca_z;
     float rec_zpca_r;
 
-    float x00[1024];
+    float x00[TRIPLET_HIT_ARRAY_LENGTH];
     float x10[TRIPLET_HIT_ARRAY_LENGTH];
     float x20[TRIPLET_HIT_ARRAY_LENGTH];
     float x01[TRIPLET_HIT_ARRAY_LENGTH];
@@ -274,16 +271,19 @@ void reconstruction_accuracy() {
             t_mu3e->GetEntry(mu3e_index);
             mu3e_index++;
         }
+        //if there is no corresponding found, skip
         if(rec_event != header[0]) continue;
 
 //        HIT_PRINTS = (rec_nhit == 5 ? true : false);
 
         if(HIT_PRINTS) {
+            //some status prints for debugging
             cout << "segs_index=" << i << "\tmu3e_index=" << mu3e_index;
             cout << "\trec_event=" << rec_event << "\tmu3e_event= " << header[0];
             cout << "\trec_nhits=" << rec_nhit << "\tmu3e_nhit=" << mu3e_nhits << endl;
         }
 
+        //get hit data from mu3e tree (not used, only for debugging)
         for (unsigned int hit = 0; hit < (unsigned int) mu3e_nhits; hit++) {
             PXID pixid = process_pixel_id((*pixelid)[hit]);
             unsigned int trajid = (*trajids)[hit];
@@ -302,6 +302,7 @@ void reconstruction_accuracy() {
         double trajpz = (*traj_pz)[0];
         double trajp = sqrt(pow(trajpx, 2) + pow(trajpy, 2) + pow(trajpz, 2));
 
+        //print triplet data from segs tree
         if (HIT_PRINTS) {
             cout << "segs tree data:" << endl;
 
@@ -314,11 +315,6 @@ void reconstruction_accuracy() {
                 cout << "\ttriplet 11: " << "\tsid=" << sid11[j] << "\tx11=" << x11[j] << "\ty11=" << y11[j] << endl;
                 cout << "\ttriplet 21: " << "\tsid=" << sid21[j] << "\tx21=" << x21[j] << "\ty21=" << y21[j] << endl;
             }
-
-
-//            for(int i=0; i<rec_nhit-2; i++) {
-//                cout << "\tx=" << x00[i];
-//            }
             cout << endl;
         }
 
@@ -335,19 +331,18 @@ void reconstruction_accuracy() {
                 x00, x10, x01, x20, x21, y00, y10, y01, y20, y21, z00, z10, z01, z20, z21, sid00, sid10, sid01, sid20, sid21);
 
         if(HIT_PRINTS) {
-
             for(int i = 0; i < ncombinedhits; i++) {
                 cout << "\tHits sorted for kari:  sid=" << sids[i] << " x=" << xp[i] << "  y=" << yp[i] << "  z=" << zp[i] << endl;
             }
         }
 
         karimaki_hit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], tres, zres, rres);
-
+        correctKariDirection(karires);
 
         //Theta, phi and traverse p of reconstruction
         float rec_pt = rec_p * std::cos((rec_lam01)[0]);
         float rec_phi = (rec_tan01)[0];
-        float rec_theta = 3.14159*0.5 - (rec_lam01)[0];
+        float rec_theta = PI*0.5 - (rec_lam01)[0];
 
         if (mc_p == 0 || mc_pt == 0 || rec_p == 0 || rec_pt == 0) {
             p_fail_count++;
