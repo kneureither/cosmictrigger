@@ -3,9 +3,17 @@
 
 #endif //COSMICTRIGGER_TPLOTS_H
 
+#include <assert.h>
+#include <TH1.h>
+#include <TGraph.h>
+#include <TCanvas.h>
+#include <type_traits>
+
 //This file contains functions for setting plot properties
 //and filling plots with data.
 
+using std::cout;
+using std::endl;
 
 void labelAxis(TH1 * h, const char * xtitle, const char * ytitle){
     h->GetXaxis()->SetTitle(xtitle);
@@ -47,8 +55,59 @@ void fillHistWithVector(TH1F * h, std::vector<T> &data) {
     }
 }
 
-void SaveCanvas(TCanvas* c1, const std::string& name, const std::string& path) {
+void saveCanvas(TCanvas* c1, const std::string& name, const std::string& path) {
     c1->SaveAs((path + "/" + name + ".eps").c_str());
     c1->SaveAs((path + "/" + name + ".png").c_str());
     c1->SaveAs((path + "/" + name + ".pdf").c_str());
+}
+
+template <typename RootGraph>
+void makeSimpleMultiCanvas(int height, int width, int count, RootGraph ** g,
+                           bool setlogy, bool setlogx, std::string plottingfile) {
+    assert(height * width == count);
+    TCanvas * canvas = new TCanvas("canvas", "canvas", width*300, height*300);
+
+    canvas->Divide(width, height);
+
+    for (int i = 0; i < count; ++i) {
+        canvas->cd(i+1);
+
+        if(setlogx) gPad->SetLogx(1);
+        if(setlogy) gPad->SetLogy(1);
+        gPad->SetLeftMargin(0.15);
+
+        if(std::is_same<RootGraph, TGraph>::value) {
+            std::cout << "its a Tgraph" << std::endl;
+            g[i]->Draw("ap");
+        }
+        if(std::is_same<RootGraph, TH1F>::value) {
+            std::cout << "its a TH1F" << std::endl;
+            g[i]->Draw();
+        }
+    }
+    canvas->Print(plottingfile.c_str(), "pdf");
+}
+
+template <typename RootGraph>
+void makeSimpleSingleCanvas(RootGraph * g, bool setlogy, bool setlogx, std::string plottingfile) {
+    TCanvas * canvas = new TCanvas("canvas", "canvas", 900, 900);
+
+    if(setlogx) gPad->SetLogx(1);
+    if(setlogy) gPad->SetLogy(1);
+    gPad->SetLeftMargin(0.15);
+
+    if(std::is_same<RootGraph, TGraph>::value) {
+        std::cout << "its a Tgraph" << std::endl;
+        g[i]->Draw("ap");
+    }
+    if(std::is_same<RootGraph, TH1F>::value) {
+        std::cout << "its a TH1F" << std::endl;
+        g[i]->Draw();
+    }
+    canvas->Print(plottingfile.c_str(), "pdf");
+}
+
+template <typename RootGraph>
+void makeSimpleSingleCanvas(RootGraph * g, std::string plottingfile) {
+    makeSimpleSingleCanvas(g, false, false, plottingfile);
 }

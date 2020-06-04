@@ -39,8 +39,6 @@ void reconstruction_accuracy(int run) {
     const bool ADDITIONAL_PLOTS = false;
     const int MAX_ENTRIES = 0;
 
-    //TODO Get run number as cmd argument
-
     check_create_directory(pathtodata);
     check_create_directory(pathtoplots);
     std::string pathtorunplots = pathtoplots + "run_" + get_padded_string(run, 3, '0') + "/";
@@ -1083,59 +1081,13 @@ void reconstruction_accuracy(int run) {
             c_multi3->Print(plottingfile.c_str(), "pdf");
         }
 
-        //karimaki histograms (2x4 canvas)
-        auto *c_multi10 = new TCanvas("cmulti10", "cmulti10", 1200, 1200);
-        c_multi10->SetWindowPosition(0, 400);
+        //karimaki histograms (2x2 canvas)
+        TH1F* graph1[4] = {h_r3dkari, h_rkari, h_phikari, h_thetakari};
+        makeSimpleMultiCanvas( 2, 2, 4, graph1, false, false, plottingfile);
 
-        c_multi10->Divide(2,2);
-        {
-            c_multi10->cd(1);
-            gPad->SetLeftMargin(0.15);
-            h_r3dkari->Draw();
-
-            c_multi10->cd(2);
-            gPad->SetLeftMargin(0.15);
-            h_rkari->Draw();
-
-            c_multi10->cd(3);
-            gPad->SetLeftMargin(0.15);
-            h_phikari->Draw();
-
-            c_multi10->cd(4);
-            gPad->SetLeftMargin(0.15);
-            h_thetakari->Draw();
-
-
-            c_multi10->Print(plottingfile.c_str(), "pdf");
-        }
-
-        auto *c_multi11 = new TCanvas("cmulti11", "cmulti11", 1200, 1200);
-        c_multi11->SetWindowPosition(0, 400);
-
-        c_multi11->Divide(2,2);
-        {
-            c_multi11->cd(1);
-            gPad->SetLeftMargin(0.15);
-            h_dcakari->Draw();
-
-            c_multi11->cd(2);
-            gPad->SetLeftMargin(0.15);
-            h_z0kari->Draw();
-
-            c_multi11->cd(3);
-            gPad->SetLeftMargin(0.15);
-            h_tchi2nkari->Draw();
-
-            c_multi11->cd(4);
-            gPad->SetLeftMargin(0.15);
-            h_zchi2kari->Draw();
-
-            c_multi11->Print(plottingfile.c_str(), "pdf");
-        }
-
-//        auto *c_multi12 = new TCanvas("cmulti12", "cmulti12", 1200, 1200);
-//        TH1F* graph[4] = {h_dcakari, h_tchi2nkari, h_z0kari, h_zchi2kari};
-//        makeCanvas(c_multi12, 2, 2, 4, graph, false, false, plottingfile);
+        //karimaki histograms 2 (2x2 canvas)
+        TH1F* graph2[4] = {h_dcakari, h_tchi2nkari, h_z0kari, h_zchi2kari};
+        makeSimpleMultiCanvas( 2, 2, 4, graph2, false, false, plottingfile);
 
 
 

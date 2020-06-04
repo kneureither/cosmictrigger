@@ -1,11 +1,13 @@
 //
 // Created by Konstantin Neureither on 29.05.20.
 //
-
 #ifndef COSMICTRIGGER_RECONSTRUCTION_ACCURACY_H
 #define COSMICTRIGGER_RECONSTRUCTION_ACCURACY_H
-
 #endif //COSMICTRIGGER_RECONSTRUCTION_ACCURACY_H
+
+#ifndef PI
+#define PI 3.1415926535
+#endif //PI
 
 #include <math.h>
 #include "../3rdparty/karimaki/karimaki.h"
