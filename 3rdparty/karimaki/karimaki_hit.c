@@ -129,7 +129,7 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
   // store results
   theta=atan2(1.0,ZPar[1]);
   r3d=1.0/TPar[0]/sin(theta);
-  
+
     karires.rad=rad;
     karires.r3d=r3d;
     karires.dca=TPar[1];
