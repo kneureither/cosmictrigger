@@ -256,6 +256,8 @@ void reconstruction_accuracy(int run) {
     std::vector<float> p_inv_err_nhits[3];
     std::vector<float> pt_inv_err_nhits[3];
     std::vector<float> rec_rdca_nhits[3];
+    std::vector<float> p_inv_err_r_dcas[4];
+    std::vector<float> p_inv_err_z_dcas[4];
     int rec_hits_count[6] = {0};
 
     unsigned int mu3e_index = 1;
@@ -459,6 +461,29 @@ void reconstruction_accuracy(int run) {
                         rec_rdca_nhits[2].push_back(rec_zpca_r);
                 }
 
+                //filling data for histograms of errors depending on dca r
+                if(0 <= rec_zpca_r && rec_zpca_r < 4 ) {
+                    p_inv_err_r_dcas[0].push_back(p_inv_abs_error);
+                } else if (4 <= rec_zpca_r && rec_zpca_r < 5) {
+                    p_inv_err_r_dcas[1].push_back(p_inv_abs_error);
+                } else if (5 <= rec_zpca_r && rec_zpca_r < 6) {
+                    p_inv_err_r_dcas[2].push_back(p_inv_abs_error);
+                } else {
+                    p_inv_err_r_dcas[3].push_back(p_inv_abs_error);
+                }
+
+                //filling data for histograms of errors depending on dca z
+                int abs_dca_z = abs(rec_zpca_z);
+                if(abs_dca_z < 5) {
+                    p_inv_err_z_dcas[0].push_back(p_inv_abs_error);
+                } else if(5 <= abs_dca_z && abs_dca_z < 10) {
+                    p_inv_err_z_dcas[1].push_back(p_inv_abs_error);
+                } else if(10 <= abs_dca_z && abs_dca_z < 20) {
+                    p_inv_err_z_dcas[2].push_back(p_inv_abs_error);
+                } else {
+                    p_inv_err_z_dcas[3].push_back(p_inv_abs_error);
+                }
+
                 ////PRINT SECTION PER ENTRY IN TREE
                 if(RECONSTRUCTION_PRINTS) {
                     //data from reconstruction
@@ -481,8 +506,6 @@ void reconstruction_accuracy(int run) {
         }
 
     }
-
-    //TODO Print histogram of nhits and rel error of p reconstruction
 
     if (MAKE_PLOT) {
         //momenta
@@ -598,7 +621,7 @@ void reconstruction_accuracy(int run) {
         labelAxis(h_zdca, "dca_{z} [mm]", "count");
         fillHistWithVector(h_zdca, rec_dca_zs);
 
-        //pt nhit dependend error histograms
+        //pt nhit dependent error histograms
         std::vector<TH1F*> h_ptinv_errhits;
         for(int i=0; i<3; i++) {
             std::string histtitle = "pt_{rec}^{-1} #minus pt_{mc}^{-1} for " + get_string(2*i+4) + " and " +
@@ -610,7 +633,7 @@ void reconstruction_accuracy(int run) {
             h_ptinv_errhits.push_back(h);
         }
 
-        //r dca nhit dependend histograms
+        //r dca nhit dependent histograms
         std::vector<TH1F*> h_rdca_errhits;
         for(int i=0; i<3; i++) {
             std::string histtitle = "dca_{reconstruction} radius for " + get_string(2*i+4) + " and " +
@@ -622,7 +645,7 @@ void reconstruction_accuracy(int run) {
             h_rdca_errhits.push_back(h);
         }
 
-        //pt nhit dependend error histograms
+        //pt nhit dependent error histograms
         std::vector<TH1F*> h_pinv_errhits;
         for(int i=0; i<3; i++) {
             std::string histtitle = "p_{rec}^{-1} #minus p_{mc}^{-1} for " + get_string(2*i+4) + " and " +
@@ -634,7 +657,31 @@ void reconstruction_accuracy(int run) {
             h_pinv_errhits.push_back(h);
         }
 
-        //p nhit dependend error histograms (hits individually) (for overlay hist)
+        //p r dca dependent error histograms
+        std::vector<TH1F*> h_pinv_err_rdca;
+        std::string radialintervals[4] = {"0-4", "4-5", "5-6", "> 6"};
+        for(int i=0; i<4; i++) {
+            std::string histtitle = "p_{rec}^{-1} #minus p_{mc}^{-1} for r-dca_{rec} " + radialintervals[i] + " cm";
+            std::string histhandle = "h_pinv_r_" + radialintervals[i] + "cm";
+            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0003, 0.0003);
+            labelAxis(h, "p_{rec}^{-1} #minus p_{mc}^{-1} [Mev^{-1}]", "count");
+            fillHistWithVector(h, p_inv_err_r_dcas[i]);
+            h_pinv_err_rdca.push_back(h);
+        }
+
+        //p z dca dependent error histograms
+        std::vector<TH1F*> h_pinv_err_zdca;
+        std::string zdcaintervals[4] = {"0 - 5", "5 -10", "10-20", "> 20 "};
+        for(int i=0; i<4; i++) {
+            std::string histtitle = "p_{rec}^{-1} #minus p_{mc}^{-1} for abs(z-dca_{rec}) " + zdcaintervals[i] + " cm";
+            std::string histhandle = "h_pinv_z_" + zdcaintervals[i] + "cm";
+            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0003, 0.0003);
+            labelAxis(h, "p_{rec}^{-1} #minus p_{mc}^{-1} [Mev^{-1}]", "count");
+            fillHistWithVector(h, p_inv_err_z_dcas[i]);
+            h_pinv_err_zdca.push_back(h);
+        }
+
+        //p nhit dependent error histograms (hits individually) (for overlay hist)
         std::vector<TH1F*> h_pinv_relerrorhits;
         for(int i = 0; i < 6; i++) {
             std::string histhandle = "h_pinv_relerror_hits_" + get_string(i);
@@ -677,7 +724,6 @@ void reconstruction_accuracy(int run) {
         TH1F *h_zchi2kari = new TH1F("h_zchi2kari", "longitudinal #chi^{2}_{kari}", 30, 0, 1000);
         labelAxis(h_zchi2kari, "#chi^{2}", "count");
         fillHistWithVector(h_zchi2kari, kari_zchi2ns);
-
 
 
         ///FILLING SCATTER PLOTS
@@ -947,6 +993,34 @@ void reconstruction_accuracy(int run) {
             c_multi8->Print(plottingfile.c_str(), "pdf");
         }
 
+        //p error histograms for rdca intervals (2x2 canvas)
+        auto *c_multi12 = new TCanvas("cmulti12", "cmulti12", 1200, 1200);
+        c_multi12->SetWindowPosition(0, 400);
+
+        c_multi12->Divide(2,2);
+        {
+            for(int i=0; i<4; i++) {
+                c_multi12->cd(i+1);
+                gPad->SetLeftMargin(0.15);
+                h_pinv_err_rdca[i]->Draw();
+            }
+            c_multi12->Print(plottingfile.c_str(), "pdf");
+        }
+
+        //p error histograms for zdca intervals (2x2 canvas)
+        auto *c_multi13 = new TCanvas("cmulti13", "cmulti13", 1200, 1200);
+        c_multi13->SetWindowPosition(0, 400);
+
+        c_multi13->Divide(2,2);
+        {
+            for(int i=0; i<4; i++) {
+                c_multi13->cd(i+1);
+                gPad->SetLeftMargin(0.15);
+                h_pinv_err_zdca[i]->Draw();
+            }
+            c_multi13->Print(plottingfile.c_str(), "pdf");
+        }
+
         //rec dca plots (2x2 canvas)
         auto *c_multi4 = new TCanvas("cmulti4", "cmulti4", 900, 600);
         c_multi4->SetWindowPosition(0, 400);
@@ -1162,107 +1236,6 @@ void reconstruction_accuracy(int run) {
 
         ////###########################################################################
 
-        if(ADDITIONAL_PLOTS) {
-
-            //group plot canvas p_err 1/p_err and nhit hist
-            auto  *c1 = new TCanvas("c", "c", 1200, 600);
-            c1->SetWindowPosition(0, 400);
-
-            c1->Divide(3,1);
-            c1->cd(1);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_p_relerror->Draw();
-
-            c1->cd(2);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_pinv_relerror->Draw();
-
-            c1->cd(3);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_nhits->Draw();
-
-//        auto legend = new TLegend(30,20);
-//        legend->SetHeader("Legend and run data","C"); // option "C" allows to center the header
-//        std::stringstream rundata;
-//        rundata << "run=" << run << ", events=" << mu3e_entries;
-//        legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
-//        rundata.str(std::string());
-//        rundata  << "count p_fail/p_rec=" << p_fail_count << "/" << segs_entries;
-//        legend->AddEntry((TObject*)0, (rundata.str()).c_str(), "");
-//        legend->Draw();
-
-            filename = filename_template + "_hist_3plots_err_nhits.pdf";
-            c1->SaveAs(filename.c_str());
-
-            //Single histogram for nhits
-            auto  *c3 = new TCanvas();
-            c3->SetWindowPosition(0, 500 );
-            c3->SetLogy(1);
-            auto legend2 = new TLegend();
-
-            h_nhits->SetLineColor(4);
-            h_nhits->SetFillStyle(16);
-            h_nhits->SetName("nhits for reconstructed tracks");
-            h_nhits->DrawClone("");
-
-            filename = filename_template + "_hist_nhits.pdf";
-            c3->SaveAs(filename.c_str());
-
-            auto *c4 = new TCanvas();
-            c4->SetWindowPosition(0, 500 );
-            auto legend4 = new TLegend();
-            g_pdev_phi->SetTitle("#phi - p_{err} correlation");
-            //"#frac{1/p_{err} #minus 1/p_{mc}}{1/p_{mc}}"
-            g_pdev_phi->GetXaxis()->SetTitle("p_{inv_err}");
-            g_pdev_phi->GetXaxis()->SetRangeUser(-10.,10.);
-            g_pdev_phi->GetYaxis()->SetTitle("#phi_{mc}");
-            g_pdev_phi->Draw("ap");
-            filename = filename_template + "_perr-phi.pdf";
-            c4->SaveAs(filename.c_str());
-
-            auto *c5 = new TCanvas();
-            c5->SetWindowPosition(0, 500 );
-            auto legend5 = new TLegend();
-            g_pdev_dca->SetTitle("Dca - p_{err} correlation");
-            g_pdev_dca->GetXaxis()->SetTitle("p_{inv_err}");
-            g_pdev_dca->GetYaxis()->SetTitle("#phi_{mc}");
-            g_pdev_dca->GetXaxis()->SetRangeUser(-7.,7.);
-            g_pdev_dca->GetYaxis()->SetRangeUser(0.,60.);
-            g_pdev_dca->Draw("ap");
-            filename = filename_template + "_perr-dca.pdf";
-            c5->SaveAs(filename.c_str());
-
-            auto *c6 = new TCanvas();
-            c6->SetWindowPosition(0, 500 );
-            auto legend6 = new TLegend();
-            g_pdev_p->SetTitle("p_{rec} - p_{err} correlation");
-            g_pdev_p->GetYaxis()->SetTitle("p_{inv_err}");
-            g_pdev_p->GetXaxis()->SetTitle("#p_{rec}");
-            g_pdev_p->GetXaxis()->SetRangeUser(-1.e5,1.e5);
-            g_pdev_p->GetYaxis()->SetRangeUser(-2.,2.);
-            g_pdev_p->Draw("ap");
-            filename = filename_template + "_p-perr.pdf";
-            c6->SaveAs(filename.c_str());
-
-            auto *c7 = new TCanvas("c7", "c7", 500,500);
-            c7->SetWindowPosition(0, 500 );
-//        c7->SetLogy(1);
-//        c7->SetLogx(1);
-            auto legend7 = new TLegend();
-            g_prec_pmc->SetTitle("p_{rec} - p_{mc} correlation");
-            g_prec_pmc->GetXaxis()->SetMaxDigits(2);
-            g_prec_pmc->GetYaxis()->SetMaxDigits(2);
-            g_prec_pmc->GetYaxis()->SetTitle("p_{mc}");
-            g_prec_pmc->GetXaxis()->SetTitle("p_{rec}");
-            g_prec_pmc->GetXaxis()->SetRangeUser(0,5.e4);
-            g_prec_pmc->GetYaxis()->SetRangeUser(0,5.e4);
-            g_prec_pmc->Draw("AP");
-            filename = filename_template + "_p-pmc.pdf";
-            c7->SaveAs(filename.c_str());
-        }
     }
 
     ////PRINT THE STATS
