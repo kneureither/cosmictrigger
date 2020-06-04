@@ -55,7 +55,7 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
   float ZPar[2]; 
   float rad;
   float r_hit;
-  //  float phi_hit;
+  float phi_hit;
   float arg;
   float alpha;
   float theta,r3d;
@@ -78,7 +78,7 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
     ConstrZ[i]=zp[i];
 
     TWeight[i]=1./tres[i];  // standard weight
-    printf("i=%d: x=%f   y=%f   TWeight[i]=%f\n",i, ConstrX[i],ConstrY[i],TWeight[i]);
+    printf("i=%d: x=%f   y=%f   z=%f TWeight[i]=%f\n",i, ConstrX[i],ConstrY[i],ConstrZ[i],TWeight[i]);
     NumConstr++;
   }
 
@@ -94,7 +94,7 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
   // calculate arc length
   for (i=0;i<npoints;i++) {
     r_hit=sqrt(pow(ConstrX[i],2)+pow(ConstrY[i],2));
-    //	phi_hit=atan2(ConstrY[NumConstr],ConstrX[NumConstr]);
+    phi_hit=atan2(ConstrY[NumConstr],ConstrX[NumConstr]);
     arg=0.5*r_hit/rad;
 
 // hit reached ?
@@ -111,7 +111,7 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
 
   // first 2d track fit in longitudinal plane
   fitszw (ConstrS,ConstrZ,ZWeight,NumConstr,ZPar,&ZCh2dF);
-//  printf("Karimaki longitudinal track parameter: %f %f  chi2norm=%f,\n",ZPar[0],ZPar[1],ZCh2dF);
+  printf("Karimaki longitudinal track parameter: %f %f  chi2norm=%f,\n",ZPar[0],ZPar[1],ZCh2dF);
 
   // redo weight calculation of used hits
   theta=atan2(1.0,ZPar[1]);
@@ -130,17 +130,35 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
   theta=atan2(1.0,ZPar[1]);
   r3d=1.0/TPar[0]/sin(theta);
 
-  karires.rad=TPar[1];;
-  karires.r3d=r3d;
-  karires.dca=TPar[1];
-  karires.phi=TPar[2];
-  karires.z0=ZPar[0];
-  karires.theta=theta;
-  
-  karires.tchi2n=TCh2dF;
-  karires.zchi2n=ZCh2dF;
+  float phi = TPar[2];
 
-  //  printf("karimaki_hit result: rad=%f,r3d=%f  theta=%f  chi2=%f %f\n",karires.rad,karires.r3d,karires.theta,TCh2dF,ZCh2dF );
+  //correct radius depending on phi
+  //TODO this seems badly wrong! Correct fit direction
+  if(phi >= 0) {
+    karires.rad=rad;
+    karires.r3d=r3d;
+    karires.dca=TPar[1];
+    karires.phi=phi;
+    karires.z0=ZPar[0];
+    karires.theta=PI / 2 - theta;
+
+    karires.tchi2n=TCh2dF;
+    karires.zchi2n=ZCh2dF;
+  } else {
+    karires.rad=-rad;
+    karires.r3d=-r3d;
+    karires.dca=TPar[1];
+    karires.phi=-phi;
+    karires.z0=ZPar[0];
+    karires.theta=PI/2 - theta;
+
+    karires.tchi2n=TCh2dF;
+  }
+
+//  karires.rad=TPar[1];
+
+
+  printf("karimaki_hit result: rad=%f,r3d=%f  theta=%f  chi2=%f %f\n",karires.rad,karires.r3d,karires.theta,TCh2dF,ZCh2dF );
 
   return 0;
 }

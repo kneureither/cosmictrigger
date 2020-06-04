@@ -17,6 +17,7 @@
 #include <fstream>
 #include <filesystem>
 #include <cmath>
+#include <assert.h>
 #include "../util/utility_functions.h"
 #include "../util/plots.h"
 #include "reconstruction_accuracy.h"
@@ -31,7 +32,7 @@ void reconstruction_accuracy() {
     const std::string pathtoplots = "../plots/";
     const int run = 10;
     const bool RECONSTRUCTION_PRINTS = false;
-    const bool HIT_PRINTS = true;
+    bool HIT_PRINTS = true;
     const bool MAKE_PLOT = true;
     const bool ADDITIONAL_PLOTS = false;
     const int MAX_ENTRIES = 0;
@@ -90,6 +91,7 @@ void reconstruction_accuracy() {
     unsigned int segs_entries = t_segs->GetEntries();
     int rec_event;
     int rec_nhit;
+    int rec_ntriplet;
     int rec_trajid;
 
     float mc_p;
@@ -150,6 +152,8 @@ void reconstruction_accuracy() {
 
     t_segs->SetBranchAddress("eventId", &rec_event);
     t_segs->SetBranchAddress("nhit", &rec_nhit);
+    t_segs->SetBranchAddress("n", &rec_ntriplet);
+
 
     t_segs->SetBranchAddress("p", &rec_p);
     t_segs->SetBranchAddress("r", &rec_r);
@@ -262,7 +266,7 @@ void reconstruction_accuracy() {
     mu3e_index++;
 
 
-    for (unsigned int i = 10; i < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); i++) {
+    for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); i++) {
         t_segs->GetEntry(i);
 
         //find corresponding entry in mu3e tree
@@ -270,6 +274,9 @@ void reconstruction_accuracy() {
             t_mu3e->GetEntry(mu3e_index);
             mu3e_index++;
         }
+        if(rec_event != header[0]) continue;
+
+//        HIT_PRINTS = (rec_nhit == 5 ? true : false);
 
         if(HIT_PRINTS) {
             cout << "segs_index=" << i << "\tmu3e_index=" << mu3e_index;
@@ -296,17 +303,22 @@ void reconstruction_accuracy() {
         double trajp = sqrt(pow(trajpx, 2) + pow(trajpy, 2) + pow(trajpz, 2));
 
         if (HIT_PRINTS) {
-            cout << "\tsegs data" << endl;
-            cout << "\ttriplet 00: " << "\tsid=" << sid00[0] << "\tx=" << x00[0] << "\tx=" << x00[1] << "\tx=" << x00[4] << endl;
-            cout << "\ttriplet 10: " << "\tsid=" << sid10[0] << "\tx=" << x10[0] << endl;
-            cout << "\ttriplet 20: " << "\tsid=" << sid20[0] << "\tx=" << x20[0] << endl;
-            cout << "\ttriplet 01: " << "\tsid=" << sid01[0] << "\tx=" << x01[0] << endl;
-            cout << "\ttriplet 11: " << "\tsid=" << sid11[0] << "\tx=" << x11[0] << endl;
-            cout << "\ttriplet 21: " << "\tsid=" << sid21[0] << "\tx=" << x21[0] << endl;
+            cout << "segs tree data:" << endl;
 
-            for(int i=0; i<rec_nhit-2; i++) {
-                cout << "\tx=" << x00[i];
+            for(int j=0; j<rec_ntriplet; j++) {
+                cout << "\ttriplet index" << j << endl;
+                cout << "\ttriplet 00: " << "\tsid=" << sid00[j] << "\tx00=" << x00[j] << "\ty00=" << y00[j]<< endl;
+                cout << "\ttriplet 10: " << "\tsid=" << sid10[j] << "\tx10=" << x10[j] << "\ty10=" << y10[j] << endl;
+                cout << "\ttriplet 20: " << "\tsid=" << sid20[j] << "\tx20=" << x20[j] << "\ty20=" << y20[j] << endl;
+                cout << "\ttriplet 01: " << "\tsid=" << sid01[j] << "\tx01=" << x01[j] << "\ty01=" << y01[j] << endl;
+                cout << "\ttriplet 11: " << "\tsid=" << sid11[j] << "\tx11=" << x11[j] << "\ty11=" << y11[j] << endl;
+                cout << "\ttriplet 21: " << "\tsid=" << sid21[j] << "\tx21=" << x21[j] << "\ty21=" << y21[j] << endl;
             }
+
+
+//            for(int i=0; i<rec_nhit-2; i++) {
+//                cout << "\tx=" << x00[i];
+//            }
             cout << endl;
         }
 
@@ -314,18 +326,22 @@ void reconstruction_accuracy() {
         std::vector<double> xp;
         std::vector<double> yp;
         std::vector<double> zp;
+        std::vector<int> sids;
         double tres[10] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
         double zres[10] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
         double rres[10] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
-        combinehits(xp, yp, zp, rec_nhit, x00, x11, y00, y11, z00, z11);
+
+        int ncombinedhits = combinehits(xp, yp, zp,  sids, rec_nhit, rec_ntriplet,
+                x00, x10, x01, x20, x21, y00, y10, y01, y20, y21, z00, z10, z01, z20, z21, sid00, sid10, sid01, sid20, sid21);
 
         if(HIT_PRINTS) {
-            for(int i = 0; i < rec_nhit; i++) {
-                cout << "Gathered hits in array: (" << xp[i] << ", " << yp[i] << ", " << zp[i] << ")" << endl;
+
+            for(int i = 0; i < ncombinedhits; i++) {
+                cout << "\tHits sorted for kari:  sid=" << sids[i] << " x=" << xp[i] << "  y=" << yp[i] << "  z=" << zp[i] << endl;
             }
         }
 
-        karimaki_hit(karires, rec_nhit, &xp[0], &yp[0], &zp[0], tres, zres, rres);
+        karimaki_hit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], tres, zres, rres);
 
 
         //Theta, phi and traverse p of reconstruction
@@ -639,7 +655,7 @@ void reconstruction_accuracy() {
         labelAxis(h_r3dkari, "3D radius [mm]", "count");
         fillHistWithVector(h_r3dkari, kari_r3ds);
 
-        TH1F *h_rkari = new TH1F("h_rkari", "rad_{kari} 2D ", 30, -100, 100);
+        TH1F *h_rkari = new TH1F("h_rkari", "rad_{kari} 2D ", 30, -2000, 2000);
         labelAxis(h_rkari, "transverse radius [mm]", "count");
         fillHistWithVector(h_rkari, kari_rads);
 
@@ -647,7 +663,7 @@ void reconstruction_accuracy() {
         labelAxis(h_phikari, "#phi", "count");
         fillHistWithVector(h_phikari, kari_phis);
 
-        TH1F *h_dcakari = new TH1F("h_dcakari", "DCA_{kari}", 30, 0, 100);
+        TH1F *h_dcakari = new TH1F("h_dcakari", "DCA_{kari}", 30, -100, 100);
         labelAxis(h_dcakari, "DCA [mm]", "count");
         fillHistWithVector(h_dcakari, kari_dcas);
 
@@ -655,7 +671,7 @@ void reconstruction_accuracy() {
         labelAxis(h_tchi2nkari, "#chi^{2}", "count");
         fillHistWithVector(h_tchi2nkari, kari_tchi2ns);
 
-        TH1F *h_z0kari = new TH1F("h_z0kari", "z0_{kari}", 30, 0, 1000);
+        TH1F *h_z0kari = new TH1F("h_z0kari", "z0_{kari}", 30, -1000, 1000);
         labelAxis(h_z0kari, "z0 [mm]", "count");
         fillHistWithVector(h_z0kari, kari_z0s);
 
@@ -1018,7 +1034,8 @@ void reconstruction_accuracy() {
 
             c_multi10->cd(4);
             gPad->SetLeftMargin(0.15);
-            h_dcakari->Draw();
+            h_thetakari->Draw();
+
 
             c_multi10->Print(plottingfile.c_str(), "pdf");
         }
@@ -1030,7 +1047,7 @@ void reconstruction_accuracy() {
         {
             c_multi11->cd(1);
             gPad->SetLeftMargin(0.15);
-            h_tchi2nkari->Draw();
+            h_dcakari->Draw();
 
             c_multi11->cd(2);
             gPad->SetLeftMargin(0.15);
@@ -1038,7 +1055,7 @@ void reconstruction_accuracy() {
 
             c_multi11->cd(3);
             gPad->SetLeftMargin(0.15);
-            h_thetakari->Draw();
+            h_tchi2nkari->Draw();
 
             c_multi11->cd(4);
             gPad->SetLeftMargin(0.15);
@@ -1046,6 +1063,10 @@ void reconstruction_accuracy() {
 
             c_multi11->Print(plottingfile.c_str(), "pdf");
         }
+
+//        auto *c_multi12 = new TCanvas("cmulti12", "cmulti12", 1200, 1200);
+//        TH1F* graph[4] = {h_dcakari, h_tchi2nkari, h_z0kari, h_zchi2kari};
+//        makeCanvas(c_multi12, 2, 2, 4, graph, false, false, plottingfile);
 
 
 
