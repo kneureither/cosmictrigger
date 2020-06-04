@@ -129,31 +129,15 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
   // store results
   theta=atan2(1.0,ZPar[1]);
   r3d=1.0/TPar[0]/sin(theta);
-
-  float phi = TPar[2];
-
-  //correct radius depending on phi
-  //TODO this seems badly wrong! Correct fit direction
-  if(phi >= 0) {
+  
     karires.rad=rad;
     karires.r3d=r3d;
     karires.dca=TPar[1];
-    karires.phi=phi;
+    karires.phi=TPar[2];
     karires.z0=ZPar[0];
-    karires.theta=PI / 2 - theta;
-
+    karires.theta=theta;
     karires.tchi2n=TCh2dF;
     karires.zchi2n=ZCh2dF;
-  } else {
-    karires.rad=-rad;
-    karires.r3d=-r3d;
-    karires.dca=TPar[1];
-    karires.phi=-phi;
-    karires.z0=ZPar[0];
-    karires.theta=PI/2 - theta;
-
-    karires.tchi2n=TCh2dF;
-  }
 
 //  karires.rad=TPar[1];
 

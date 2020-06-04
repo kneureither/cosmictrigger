@@ -7,25 +7,9 @@
 
 #endif //COSMICTRIGGER_RECONSTRUCTION_ACCURACY_H
 
+#include <math.h>
 #include "../3rdparty/karimaki/karimaki.h"
 
-
-void combinehits(std::vector<double> &xp, std::vector<double> &yp, std::vector<double> &zp, int nhits,
-        float (&x00)[TRIPLET_HIT_ARRAY_LENGTH], float (&x11)[TRIPLET_HIT_ARRAY_LENGTH],
-        float (&y00)[TRIPLET_HIT_ARRAY_LENGTH], float (&y11)[TRIPLET_HIT_ARRAY_LENGTH],
-        float (&z00)[TRIPLET_HIT_ARRAY_LENGTH], float (&z11)[TRIPLET_HIT_ARRAY_LENGTH]) {
-
-    for(int i=0; i<nhits-2; i++) {
-        xp.push_back(x00[i]);
-        yp.push_back(y00[i]);
-        zp.push_back(z00[i]);
-    }
-    for(int i=nhits-4; i<nhits-2; i++) {
-        xp.push_back(x11[i]);
-        yp.push_back(y11[i]);
-        zp.push_back(z11[i]);
-    }
-}
 
 int combinehits(std::vector<double> &xp, std::vector<double> &yp, std::vector<double> &zp, std::vector<int> &sids, int nhits, int ntriplets,
     float (&x00)[TRIPLET_HIT_ARRAY_LENGTH], float (&x10)[TRIPLET_HIT_ARRAY_LENGTH],
@@ -122,6 +106,15 @@ int counthitlayers(int nhits, float (&sid00)[TRIPLET_HIT_ARRAY_LENGTH], float (&
         layerhits[layer] += (layerhits[layer] < 2 ? 1 : 0);
     }
     return layerhits[0] + layerhits[1] + layerhits[2] + layerhits[3];
+}
+
+void correctKariDirection(KariFit &kari) {
+    if(kari.phi < 0) {
+        kari.rad = -kari.rad;
+        kari.r3d = -kari.r3d;
+        kari.phi = kari.phi + PI; //as phi<0 this is save
+        kari.theta = PI - kari.theta;
+    }
 }
 
 //Declaration for function defined in "../3rdparty/karimaki/karimaki_hit.c"
