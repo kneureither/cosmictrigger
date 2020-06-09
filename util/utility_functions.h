@@ -75,17 +75,3 @@ int get_charge_from_type(int type) {
         return 1;
     }
 }
-
-unsigned int get_layer(int sid) {
-    if(0 <= sid && sid < 1024) {
-        return 0;
-    } else if (1024 <= sid && sid < 2048) {
-        return 1;
-    } else if ((2000 <= sid && sid < 3000) || (10000 <= sid && sid < 11500) || (14000 <= sid && sid < 15200)) {
-        return 2;
-    } else if ((3000 <= sid && sid < 4000) || (11500 <= sid && sid < 12500) || (15200 <= sid && sid < 16500)) {
-        return 3;
-    } else {
-        return 100;
-    }
-}

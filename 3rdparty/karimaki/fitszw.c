@@ -22,6 +22,7 @@ ZPar[1]=b
     
   for (i=0;i<NumConstr;i++) {
     w2=pow(Weight[i],2);
+    printf("weight[%d] = %f", i, Weight[i]);
     Sum+=w2;
     SumS+=w2*ConstrS[i];
     SumZ+=w2*ConstrZ[i];
@@ -31,6 +32,7 @@ ZPar[1]=b
   }
   
   denom=SumS*SumS-Sum*SumS2;
+  printf("\nSumS = %f, SumS2 = %f\n", SumS, SumS2);
 
   if (denom==0) {
     printf("Error in  fitszw(): denominator is zero!\n");

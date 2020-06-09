@@ -27,6 +27,9 @@ void labelAxis(TH1 * h, const char * xtitle, const char * ytitle){
 
     h->GetXaxis()->SetLabelSize(0.03);
     h->GetYaxis()->SetLabelSize(0.03);
+
+//    h->GetXaxis()->SetMaxDigits(5);
+//    h->GetYaxis()->SetMaxDigits(5);
 }
 
 void labelAxis(TGraph * g, const char * xtitle, const char * ytitle) {
@@ -41,6 +44,10 @@ void labelAxis(TGraph * g, const char * xtitle, const char * ytitle) {
 
     g->GetXaxis()->SetLabelSize(0.03);
     g->GetYaxis()->SetLabelSize(0.03);
+
+//    g->GetXaxis()->SetMaxDigits(5);
+//    g->GetYaxis()->SetMaxDigits(5);
+
 }
 
 void setGraphRange(TGraph * g, float xrange_in, float xrange_out, float yrange_in, float yrange_out) {
@@ -77,11 +84,9 @@ void makeSimpleMultiCanvas(int height, int width, int count, RootGraph ** g,
         gPad->SetLeftMargin(0.15);
 
         if(std::is_same<RootGraph, TGraph>::value) {
-            std::cout << "its a Tgraph" << std::endl;
             g[i]->Draw("ap");
         }
         if(std::is_same<RootGraph, TH1F>::value) {
-            std::cout << "its a TH1F" << std::endl;
             g[i]->Draw();
         }
     }
@@ -97,12 +102,10 @@ void makeSimpleSingleCanvas(RootGraph * g, bool setlogy, bool setlogx, std::stri
     gPad->SetLeftMargin(0.15);
 
     if(std::is_same<RootGraph, TGraph>::value) {
-        std::cout << "its a Tgraph" << std::endl;
-        g[i]->Draw("ap");
+        g->Draw("ap");
     }
     if(std::is_same<RootGraph, TH1F>::value) {
-        std::cout << "its a TH1F" << std::endl;
-        g[i]->Draw();
+        g->Draw();
     }
     canvas->Print(plottingfile.c_str(), "pdf");
 }

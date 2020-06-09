@@ -3,6 +3,9 @@
 //
 #ifndef COSMICTRIGGER_RECONSTRUCTION_ACCURACY_H
 #define COSMICTRIGGER_RECONSTRUCTION_ACCURACY_H
+#ifndef TRIPLET_HIT_ARRAY_LENGTH
+#define TRIPLET_HIT_ARRAY_LENGTH 1024
+#endif //TRIPLET_HIT_ARRAY_LENGTH
 #endif //COSMICTRIGGER_RECONSTRUCTION_ACCURACY_H
 
 #ifndef PI
@@ -13,31 +16,42 @@
 #include "../3rdparty/karimaki/karimaki.h"
 
 
-int combinehits(std::vector<double> &xp, std::vector<double> &yp, std::vector<double> &zp, std::vector<int> &sids, int nhits, int ntriplets,
-    float (&x00)[TRIPLET_HIT_ARRAY_LENGTH], float (&x10)[TRIPLET_HIT_ARRAY_LENGTH],
-    float (&x01)[TRIPLET_HIT_ARRAY_LENGTH], float (&x20)[TRIPLET_HIT_ARRAY_LENGTH], float (&x21)[TRIPLET_HIT_ARRAY_LENGTH],
-    float (&y00)[TRIPLET_HIT_ARRAY_LENGTH], float (&y10)[TRIPLET_HIT_ARRAY_LENGTH],
-    float (&y01)[TRIPLET_HIT_ARRAY_LENGTH], float (&y20)[TRIPLET_HIT_ARRAY_LENGTH], float (&y21)[TRIPLET_HIT_ARRAY_LENGTH],
-    float (&z00)[TRIPLET_HIT_ARRAY_LENGTH], float (&z10)[TRIPLET_HIT_ARRAY_LENGTH],
-    float (&z01)[TRIPLET_HIT_ARRAY_LENGTH], float (&z20)[TRIPLET_HIT_ARRAY_LENGTH], float (&z21)[TRIPLET_HIT_ARRAY_LENGTH],
-    float (&sid00)[TRIPLET_HIT_ARRAY_LENGTH],float (&sid10)[TRIPLET_HIT_ARRAY_LENGTH],
-    float (&sid01)[TRIPLET_HIT_ARRAY_LENGTH],float (&sid20)[TRIPLET_HIT_ARRAY_LENGTH], float (&sid21)[TRIPLET_HIT_ARRAY_LENGTH]) {
+int combineHits(std::vector<double> &xp, std::vector<double> &yp, std::vector<double> &zp,
+                std::vector<int> &sids, std::vector<double> &phi_tracks, std::vector<double> &thetas, int nhits, int ntriplets,
+                float (&x00)[TRIPLET_HIT_ARRAY_LENGTH], float (&x10)[TRIPLET_HIT_ARRAY_LENGTH],
+                float (&x01)[TRIPLET_HIT_ARRAY_LENGTH], float (&x20)[TRIPLET_HIT_ARRAY_LENGTH], float (&x21)[TRIPLET_HIT_ARRAY_LENGTH],
+                float (&y00)[TRIPLET_HIT_ARRAY_LENGTH], float (&y10)[TRIPLET_HIT_ARRAY_LENGTH],
+                float (&y01)[TRIPLET_HIT_ARRAY_LENGTH], float (&y20)[TRIPLET_HIT_ARRAY_LENGTH], float (&y21)[TRIPLET_HIT_ARRAY_LENGTH],
+                float (&z00)[TRIPLET_HIT_ARRAY_LENGTH], float (&z10)[TRIPLET_HIT_ARRAY_LENGTH],
+                float (&z01)[TRIPLET_HIT_ARRAY_LENGTH], float (&z20)[TRIPLET_HIT_ARRAY_LENGTH], float (&z21)[TRIPLET_HIT_ARRAY_LENGTH],
+                float (&sid00)[TRIPLET_HIT_ARRAY_LENGTH], float (&sid10)[TRIPLET_HIT_ARRAY_LENGTH],
+                float (&sid01)[TRIPLET_HIT_ARRAY_LENGTH], float (&sid20)[TRIPLET_HIT_ARRAY_LENGTH], float (&sid21)[TRIPLET_HIT_ARRAY_LENGTH],
+                float (&tan01)[TRIPLET_HIT_ARRAY_LENGTH], float (&tan12)[TRIPLET_HIT_ARRAY_LENGTH],
+                float (&lam01)[TRIPLET_HIT_ARRAY_LENGTH], float (&lam12)[TRIPLET_HIT_ARRAY_LENGTH]) {
 
+
+    //These two loops add the basic ntriplets+2 hits
     for(int i=0; i<ntriplets; i++) {
     xp.push_back(x00[i]);
     yp.push_back(y00[i]);
     zp.push_back(z00[i]);
     sids.push_back((int) sid00[i]);
+    phi_tracks.push_back(tan01[(i == 0 ? 0 : i-1)]);
+    thetas.push_back(PI / 2 - lam01[(i == 0 ? 0 : i-1)]);
     }
     for(int i=ntriplets-2; i<ntriplets; i++) {
     xp.push_back(x20[i]);
     yp.push_back(y20[i]);
     zp.push_back(z20[i]);
     sids.push_back((int) sid20[i]);
+    phi_tracks.push_back(tan12[i-1]);
+    thetas.push_back(PI / 2 - lam12[i-1]);
     }
     int ncomhits = ntriplets+2;
 
+    //when this is true, all hits in the segments are searched for additional duplicate hits
     bool ADD_REDUNDANT_HITS = false;
+    //TODO extract tan and theta for these hits also
 
     if((ADD_REDUNDANT_HITS ? nhits > ntriplets+2 : false)) {
         printf("ntriplets = %d, nhits = %d\n", ntriplets, nhits);
@@ -73,9 +87,7 @@ int combinehits(std::vector<double> &xp, std::vector<double> &yp, std::vector<do
                 printf("Hit found in x21\n");
             }
         }
-
     }
-
     return ncomhits;
 }
 
@@ -110,11 +122,12 @@ int counthitlayers(int nhits, float (&sid00)[TRIPLET_HIT_ARRAY_LENGTH], float (&
     return layerhits[0] + layerhits[1] + layerhits[2] + layerhits[3];
 }
 
+
 void correctKariDirection(KariFit &kari) {
-    if(kari.phi < 0) {
+    if(kari.phi > 0) {
         kari.rad = -kari.rad;
         kari.r3d = -kari.r3d;
-        kari.phi = kari.phi + PI; //as phi<0 this is save
+        kari.phi = kari.phi + PI; //this is save as phi<0
         kari.theta = PI - kari.theta;
     }
 }

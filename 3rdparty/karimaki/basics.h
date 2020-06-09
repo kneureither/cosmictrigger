@@ -1,5 +1,7 @@
 // constants
+#ifndef PI
 #define PI 3.1415926535
+#endif
 //#define SCATTPAR 13.6   // scattering constant in MeV
 #define SCATTPAR 0.0136   // scattering constant in GeV
 #define SQRT12 sqrt(12.)

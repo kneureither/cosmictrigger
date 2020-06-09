@@ -91,6 +91,8 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
 
   printf("karimaki_hit result: rad=%f, chi2=%f \n",rad,TCh2dF );
 
+  //TODO arg mit sinus näherung, dann ist bogenlänge gleich radius
+
   // calculate arc length
   for (i=0;i<npoints;i++) {
     r_hit=sqrt(pow(ConstrX[i],2)+pow(ConstrY[i],2));
@@ -100,8 +102,8 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
 // hit reached ?
     if (fabs(arg)<1) {
       alpha=asin(arg);
-      ConstrS[i]=2*rad*alpha;  // arc length in 2d
-      ZWeight[i]=1.0;  // standard weight
+      ConstrS[i]=2*rad*alpha;  // arc length in 2d --> TODO radius einsetzen falls arg klein
+      ZWeight[i]=1.0/zres[i];
     } else {
       ConstrS[i]=0.0;
       ZWeight[i]=0.0;  // standard weight
@@ -130,6 +132,7 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
   theta=atan2(1.0,ZPar[1]);
   r3d=1.0/TPar[0]/sin(theta);
 
+//    karires.rad=TPar[0];
     karires.rad=rad;
     karires.r3d=r3d;
     karires.dca=TPar[1];

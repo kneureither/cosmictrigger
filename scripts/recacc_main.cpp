@@ -6,7 +6,7 @@
 int main(int argc, char *argv[]) {
     int run;
     if(argc < 2) {
-        std::cout << "ERR : No argument! Usage Mu3eRecAcc <run number> " << std::endl;
+        std::cout << "ERROR: No argument! Usage: Mu3eRecAcc <run number> " << std::endl;
         exit(0);
     } else {
         run = atoi(argv[1]);
@@ -16,4 +16,6 @@ int main(int argc, char *argv[]) {
 
     void reconstruction_accuracy(int);
     reconstruction_accuracy(run);
+
+    return 0;
 }
