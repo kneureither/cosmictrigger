@@ -44,8 +44,8 @@ int combineHits(std::vector<double> &xp, std::vector<double> &yp, std::vector<do
     yp.push_back(y20[i]);
     zp.push_back(z20[i]);
     sids.push_back((int) sid20[i]);
-    phi_tracks.push_back(tan12[i-1]);
-    thetas.push_back(PI / 2 - lam12[i-1]);
+    phi_tracks.push_back(tan12[i]);
+    thetas.push_back(PI / 2 - lam12[i]);
     }
     int ncomhits = ntriplets+2;
 
@@ -133,5 +133,5 @@ void correctKariDirection(KariFit &kari) {
 }
 
 //Declaration for function defined in "../3rdparty/karimaki/karimaki_hit.c"
-int karimaki_hit(KariFit&, int , double *, double *, double *, double *, double *, double *);
+int karimaki_hit(KariFit&, int , double *, double *, double *, double *, double*, double *, double *, double *);
 

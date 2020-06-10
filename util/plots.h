@@ -72,7 +72,7 @@ template <typename RootGraph>
 void makeSimpleMultiCanvas(int height, int width, int count, RootGraph ** g,
                            bool setlogy, bool setlogx, std::string plottingfile) {
     assert(height * width == count);
-    TCanvas * canvas = new TCanvas("canvas", "canvas", width*300, height*300);
+    TCanvas * canvas = new TCanvas("canvas", "canvas", width*300, (height > 1 ? height * 300 : 400));
 
     canvas->Divide(width, height);
 
@@ -91,6 +91,11 @@ void makeSimpleMultiCanvas(int height, int width, int count, RootGraph ** g,
         }
     }
     canvas->Print(plottingfile.c_str(), "pdf");
+}
+
+template <typename RootGraph>
+void makeSimpleMultiCanvas(int height, int width, int count, RootGraph * g, std::string plottingfile) {
+    makeSimpleMultiCanvas(height, width, count, g, false, false, plottingfile);
 }
 
 template <typename RootGraph>

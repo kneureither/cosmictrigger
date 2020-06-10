@@ -4,7 +4,10 @@
 #define TRIPLET_HIT_ARRAY_LENGTH 1024
 #ifndef PI
 #define PI 3.1415926535
+#ifndef DEBUG
+#define DEBUG false
 #endif
+#endif //PI
 
 #include <TFile.h>
 #include <TROOT.h>
@@ -35,7 +38,7 @@ void reconstruction_accuracy(int run) {
     const std::string pathtodata = "../data/";
     const std::string pathtoplots = "../plots/";
     const bool RECONSTRUCTION_PRINTS = false;
-    bool HIT_PRINTS = true;
+    bool HIT_PRINTS = DEBUG;
     const bool MAKE_PLOT = true;
     const bool ADDITIONAL_PLOTS = false;
     const int MAX_ENTRIES = 0;
@@ -152,7 +155,6 @@ void reconstruction_accuracy(int run) {
     t_segs->SetBranchAddress("nhit", &rec_nhit);
     t_segs->SetBranchAddress("n", &rec_ntriplet);
 
-
     t_segs->SetBranchAddress("p", &rec_p);
     t_segs->SetBranchAddress("r", &rec_r);
     t_segs->SetBranchAddress("rt", &rec_rt);
@@ -267,9 +269,14 @@ void reconstruction_accuracy(int run) {
     std::vector<float> p_inv_err_r_dcas[4];
     std::vector<float> p_inv_err_z_dcas[4];
 
+    //kari plots
+    std::vector<float> pt_kari_inv_err_nhits[3];
+    std::vector<float> pt_kari_inv_err_r_dcas[4];
+    std::vector<float> pt_kari_inv_err_z_dcas[4];
+
     int rec_hits_count[6] = {0};
 
-    float RMS = 80 * 1e-3 / sqrt(12);
+    double RMS = 80 * 1e-3 / sqrt(12); //RMS in mm
     float BFIELD = 1.0;
 
     unsigned int mu3e_index = 1;
@@ -280,17 +287,19 @@ void reconstruction_accuracy(int run) {
     for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); i++) {
         t_segs->GetEntry(i);
 
+        if(HIT_PRINTS) printf("\nRECONSTRUCTION ACCURACY ENTRY\n------------------------------\n\n");
+
         //find corresponding entry in mu3e tree
         while (rec_event > header[0]) {
             t_mu3e->GetEntry(mu3e_index);
             mu3e_index++;
         }
-        //if there is no corresponding found, skip
+        //if there is no corresponding entry found, skip
         if(rec_event != header[0]) continue;
 
         if(HIT_PRINTS) {
             //some status prints for debugging
-            cout << "segs_index=" << i << "\tmu3e_index=" << mu3e_index;
+            cout << "\tsegs_index=" << i << "\tmu3e_index=" << mu3e_index;
             cout << "\trec_event=" << rec_event << "\tmu3e_event= " << header[0];
             cout << "\trec_nhits=" << rec_nhit << "\tmu3e_nhit=" << mu3e_nhits << endl;
         }
@@ -316,7 +325,7 @@ void reconstruction_accuracy(int run) {
 
         //print triplet data from segs tree
         if (HIT_PRINTS) {
-            cout << "segs tree data:" << endl;
+            cout << "\tsegs tree data:" << endl;
 
             for(int j=0; j<rec_ntriplet; j++) {
                 cout << "\ttriplet index" << j << endl;
@@ -326,6 +335,8 @@ void reconstruction_accuracy(int run) {
                 cout << "\ttriplet 01: " << "\tsid=" << sid01[j] << "\tx01=" << x01[j] << "\ty01=" << y01[j] << endl;
                 cout << "\ttriplet 11: " << "\tsid=" << sid11[j] << "\tx11=" << x11[j] << "\ty11=" << y11[j] << endl;
                 cout << "\ttriplet 21: " << "\tsid=" << sid21[j] << "\tx21=" << x21[j] << "\ty21=" << y21[j] << endl;
+                cout << "\tangles    : " << "\ttan01=" << rec_tan01[j] << "\ttan12=" << rec_tan12[j] <<  endl;
+
             }
             cout << endl;
         }
@@ -342,23 +353,26 @@ void reconstruction_accuracy(int run) {
         std::vector<int> sids;
         std::vector<double> phi_hits;
         std::vector<double> thetas;
-        std::vector<double> tres;
-        std::vector<double> zres;
-        std::vector<double> rres;
+//        std::vector<double> tres;
+//        std::vector<double> zres;
+//        std::vector<double> rres;
+        double tres[16] = {RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS};
+        double zres[16] = {RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS};
+        double rres[16] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
 
         int ncombinedhits = combineHits(xp, yp, zp, sids, phi_hits, thetas, rec_nhit, rec_ntriplet,
                                         x00, x10, x01, x20, x21, y00, y10, y01, y20, y21, z00, z10, z01, z20, z21,
                                         sid00, sid10, sid01, sid20, sid21, rec_tan01, rec_tan12, rec_lam01, rec_lam12);
 
-        getResolutionArrs(ncombinedhits, RMS, tres, zres, rres, xp, yp, phi_hits, (double) rec_theta);
-        assert(tres.size() == ncombinedhits);
+//        getResolutionArrs(ncombinedhits, RMS, tres, zres, rres, xp, yp, phi_hits, (double) rec_theta);
+//        assert(tres.size() == ncombinedhits);
 
         if(HIT_PRINTS) {
             for(int i = 0; i < ncombinedhits; i++) {
-                cout << "\tHits sorted for kari:  sid=" << sids[i] << " x=" << xp[i] << "  y=" << yp[i] << "  z=" << zp[i] << endl;
+                cout << "\tHits sorted for kari:  sid=" << sids[i] << " x=" << xp[i] << "  y=" << yp[i] << "  z=" << zp[i] <<" phi=" << phi_hits[i] << " theta=" << thetas[i] << endl;
             }
         }
-        karimaki_hit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], &tres[0], &zres[0], &rres[0]);
+        karimaki_hit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], &phi_hits[0], &thetas[0], &tres[0], &zres[0], &rres[0]);
         correctKariDirection(karires);
 
         if (mc_p == 0 || mc_pt == 0 || rec_p == 0 || rec_pt == 0) {
@@ -409,7 +423,6 @@ void reconstruction_accuracy(int run) {
                 mc_inv_ps.push_back(mc_inv_p);
 
 
-
                 //reconstruction data
                 rec_ps.push_back(rec_p);
                 rec_rs.push_back(rec_r);
@@ -454,59 +467,73 @@ void reconstruction_accuracy(int run) {
                         p_inv_err_nhits[0].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[0].push_back(pt_inv_error);
                         rec_rdca_nhits[0].push_back(rec_zpca_r);
+                        pt_kari_inv_err_nhits[0].push_back(pt_kari_inv_err);
                         break;
                     case 5:
                         p_inv_rel_errors_hits[1].push_back(p_inv_abs_error);
                         p_inv_err_nhits[0].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[0].push_back(pt_inv_error);
                         rec_rdca_nhits[0].push_back(rec_zpca_r);
+                        pt_kari_inv_err_nhits[0].push_back(pt_kari_inv_err);
                         break;
                     case 6:
                         p_inv_rel_errors_hits[2].push_back(p_inv_abs_error);
                         p_inv_err_nhits[1].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[1].push_back(pt_inv_error);
                         rec_rdca_nhits[1].push_back(rec_zpca_r);
+                        pt_kari_inv_err_nhits[1].push_back(pt_kari_inv_err);
                         break;
                     case 7:
                         p_inv_rel_errors_hits[3].push_back(p_inv_abs_error);
                         p_inv_err_nhits[1].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[1].push_back(pt_inv_error);
                         rec_rdca_nhits[1].push_back(rec_zpca_r);
+                        pt_kari_inv_err_nhits[1].push_back(pt_kari_inv_err);
                         break;
                     case 8:
                         p_inv_rel_errors_hits[4].push_back(p_inv_abs_error);
                         p_inv_err_nhits[2].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[2].push_back(pt_inv_error);
                         rec_rdca_nhits[2].push_back(rec_zpca_r);
+                        pt_kari_inv_err_nhits[2].push_back(pt_kari_inv_err);
                         break;
                     default:
                         p_inv_rel_errors_hits[5].push_back(p_inv_abs_error);
                         p_inv_err_nhits[2].push_back(p_inv_abs_error);
                         pt_inv_err_nhits[2].push_back(pt_inv_error);
                         rec_rdca_nhits[2].push_back(rec_zpca_r);
+                        pt_kari_inv_err_nhits[2].push_back(pt_kari_inv_err);
                 }
 
                 //filling data for histograms of errors depending on dca r
                 if(0 <= rec_zpca_r && rec_zpca_r < 40 ) {
                     p_inv_err_r_dcas[0].push_back(p_inv_abs_error);
+                    pt_kari_inv_err_r_dcas[0].push_back(pt_kari_inv_err);
                 } else if (40 <= rec_zpca_r && rec_zpca_r < 50) {
                     p_inv_err_r_dcas[1].push_back(p_inv_abs_error);
+                    pt_kari_inv_err_r_dcas[1].push_back(pt_kari_inv_err);
                 } else if (50 <= rec_zpca_r && rec_zpca_r < 60) {
                     p_inv_err_r_dcas[2].push_back(p_inv_abs_error);
+                    pt_kari_inv_err_r_dcas[2].push_back(pt_kari_inv_err);
                 } else {
                     p_inv_err_r_dcas[3].push_back(p_inv_abs_error);
+                    pt_kari_inv_err_r_dcas[3].push_back(pt_kari_inv_err);
                 }
 
                 //filling data for histograms of errors depending on dca z
                 int abs_dca_z = abs(rec_zpca_z);
                 if(abs_dca_z < 50) {
                     p_inv_err_z_dcas[0].push_back(p_inv_abs_error);
+                    pt_kari_inv_err_z_dcas[0].push_back(pt_kari_inv_err);
                 } else if(50 <= abs_dca_z && abs_dca_z < 100) {
                     p_inv_err_z_dcas[1].push_back(p_inv_abs_error);
+                    pt_kari_inv_err_z_dcas[1].push_back(pt_kari_inv_err);
                 } else if(100 <= abs_dca_z && abs_dca_z < 200) {
                     p_inv_err_z_dcas[2].push_back(p_inv_abs_error);
+                    pt_kari_inv_err_z_dcas[2].push_back(pt_kari_inv_err);
                 } else {
                     p_inv_err_z_dcas[3].push_back(p_inv_abs_error);
+                    pt_kari_inv_err_z_dcas[3].push_back(pt_kari_inv_err);
                 }
 
                 ////PRINT SECTION PER ENTRY IN TREE
@@ -542,6 +569,9 @@ void reconstruction_accuracy(int run) {
         std::string filename_template = pathtorunplots + "reconstruction-accuracy_run" +
                 get_padded_string(run, 3, '0');
         std::string plottingfile = filename_template + "_plots.pdf";
+        std::string plottingfilekari = filename_template + "_karifit_plots.pdf";
+        std::string plottingfilerec = filename_template + "_msfit_plots.pdf";
+        std::string plottingfilecomparison = filename_template + "_comparison_plots.pdf";
 
 
 
@@ -585,12 +615,12 @@ void reconstruction_accuracy(int run) {
         labelAxis(h_phi, "#phi", "count");
         fillHistWithVector(h_phi, rec_phis);
 
-        TH1F *h_theta = new TH1F("h_theta", "reconstruction #Theta", 30, -3.2, 3.2 );
-        labelAxis(h_theta, "#Theta", "count");
+        TH1F *h_theta = new TH1F("h_theta", "reconstruction #Theta_{msfit}", 30, -3.2, 3.2 );
+        labelAxis(h_theta, "#Theta_{msfit}", "count");
         fillHistWithVector(h_theta, rec_thetas);
 
         //rec pt
-        TH1F *h_pt_inv_err = new TH1F("h_pt_inv_err", "pt_{rec}^{-1} #minus pt_{mc}^{-1} histogram", 30, -5e-4,5e-4);
+        TH1F *h_pt_inv_err = new TH1F("h_pt_inv_err", "pt_{rec}^{-1} #minus pt_{mc}^{-1} transverse momentum error", 30, -5e-4,5e-4);
         labelAxis(h_pt_inv_err, "pt_{rec}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]", "count");
         fillHistWithVector(h_pt_inv_err, pt_inv_errors);
 
@@ -653,7 +683,7 @@ void reconstruction_accuracy(int run) {
             std::string histtitle = "pt_{rec}^{-1} #minus pt_{mc}^{-1} for " + get_string(2*i+4) + " and " +
                     (i==2 ? " more" : get_string(2*i+5)) + " hits";
             std::string histhandle = "h_ptinv_" + get_string(2*i+4) + "hits";
-            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0003, 0.0003);
+            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0005, 0.0005);
             labelAxis(h, "pt_{rec}^{-1} #minus pt_{mc}^{-1} [Mev^{-1}]", "count");
             fillHistWithVector(h, pt_inv_err_nhits[i]);
             h_ptinv_errhits.push_back(h);
@@ -671,13 +701,13 @@ void reconstruction_accuracy(int run) {
             h_rdca_errhits.push_back(h);
         }
 
-        //pt nhit dependent error histograms
+        //p nhit dependent error histograms
         std::vector<TH1F*> h_pinv_errhits;
         for(int i=0; i<3; i++) {
             std::string histtitle = "p_{rec}^{-1} #minus p_{mc}^{-1} for " + get_string(2*i+4) + " and " +
                                     (i==2 ? " more" : get_string(2*i+5)) + " hits";
             std::string histhandle = "h_pinv_" + get_string(2*i+4) + "hits";
-            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0003, 0.0003);
+            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0005, 0.0005);
             labelAxis(h, "p_{rec}^{-1} #minus p_{mc}^{-1} [Mev^{-1}]", "count");
             fillHistWithVector(h, p_inv_err_nhits[i]);
             h_pinv_errhits.push_back(h);
@@ -689,7 +719,7 @@ void reconstruction_accuracy(int run) {
         for(int i=0; i<4; i++) {
             std::string histtitle = "p_{rec}^{-1} #minus p_{mc}^{-1} for r-dca_{rec} " + radialintervals[i] + " cm";
             std::string histhandle = "h_pinv_r_" + radialintervals[i] + "cm";
-            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0003, 0.0003);
+            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0005, 0.0005);
             labelAxis(h, "p_{rec}^{-1} #minus p_{mc}^{-1} [Mev^{-1}]", "count");
             fillHistWithVector(h, p_inv_err_r_dcas[i]);
             h_pinv_err_rdca.push_back(h);
@@ -701,7 +731,7 @@ void reconstruction_accuracy(int run) {
         for(int i=0; i<4; i++) {
             std::string histtitle = "p_{rec}^{-1} #minus p_{mc}^{-1} for abs(z-dca_{rec}) " + zdcaintervals[i] + " cm";
             std::string histhandle = "h_pinv_z_" + zdcaintervals[i] + "cm";
-            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0003, 0.0003);
+            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0005, 0.0005);
             labelAxis(h, "p_{rec}^{-1} #minus p_{mc}^{-1} [Mev^{-1}]", "count");
             fillHistWithVector(h, p_inv_err_z_dcas[i]);
             h_pinv_err_zdca.push_back(h);
@@ -735,7 +765,7 @@ void reconstruction_accuracy(int run) {
         labelAxis(h_dcakari, "DCA [mm]", "count");
         fillHistWithVector(h_dcakari, kari_dcas);
 
-        TH1F *h_tchi2nkari = new TH1F("h_tchi2nkari", "transverse #chi^{2}_{kari}", 30, 0, 0.05);
+        TH1F *h_tchi2nkari = new TH1F("h_tchi2nkari", "transverse #chi^{2}_{kari}", 30, 0, 5);
         labelAxis(h_tchi2nkari, "#chi^{2}", "count");
         fillHistWithVector(h_tchi2nkari, kari_tchi2ns);
 
@@ -747,7 +777,7 @@ void reconstruction_accuracy(int run) {
         labelAxis(h_thetakari, "#Theta", "count");
         fillHistWithVector(h_thetakari, kari_thetas);
 
-        TH1F *h_zchi2kari = new TH1F("h_zchi2kari", "longitudinal #chi^{2}_{kari}", 30,0, 10000);
+        TH1F *h_zchi2kari = new TH1F("h_zchi2kari", "longitudinal #chi^{2}_{kari}", 30,0, 5);
         labelAxis(h_zchi2kari, "#chi^{2}", "count");
         fillHistWithVector(h_zchi2kari, kari_zchi2ns);
 
@@ -755,13 +785,49 @@ void reconstruction_accuracy(int run) {
         labelAxis(h_ptkari, "pt [MeV]", "count");
         fillHistWithVector(h_ptkari, kari_pts);
 
-        TH1F *h_ptkari_inv = new TH1F("h_ptkari", "pt^{-1}_{kari} inv. transverse momentum", 30, -1e-3, 1e-3);
+        TH1F *h_ptkari_inv = new TH1F("h_ptkari_inv", "karimaki pt^{-1}_{kari}", 30, -1e-3, 1e-3);
         labelAxis(h_ptkari_inv, "pt^{-1} [MeV^{-1}]", "count");
         fillHistWithVector(h_ptkari_inv, kari_inv_pts);
 
         TH1F *h_pterr_kari = new TH1F("h_pterr_kari", "pt^{-1}_{kari} #minus pt^{-1}_{mc} transverse momentum error", 30, -0.0003, 0.0003);
         labelAxis(h_pterr_kari, "pt^{-1}_{kari} #minus pt^{-1}_{mc} [MeV^{-1}]", "count");
         fillHistWithVector(h_pterr_kari, p_inv_kari_errors);
+
+        //KARIMAKI DCA, NHIT, Z0 HISTOGRAMS
+
+        //kari pt nhit dependent error histograms
+        std::vector<TH1F*> h_kari_ptinv_errhits;
+        for(int i=0; i<3; i++) {
+            std::string histtitle = "pt_{kari}^{-1} #minus pt_{mc}^{-1} for " + get_string(2*i+4) + " and " +
+                                    (i==2 ? " more" : get_string(2*i+5)) + " hits";
+            std::string histhandle = "h_k_ptinv_" + get_string(2*i+4) + "hits";
+            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0005, 0.0005);
+            labelAxis(h, "pt_{kari}^{-1} #minus pt_{mc}^{-1} [Mev^{-1}]", "count");
+            fillHistWithVector(h, pt_kari_inv_err_nhits[i]);
+            h_kari_ptinv_errhits.push_back(h);
+        }
+
+        //kari pt r dca dependent error histograms
+        std::vector<TH1F*> h_kari_ptinv_err_rdca;
+        for(int i=0; i<4; i++) {
+            std::string histtitle = "p_{kari}^{-1} #minus p_{mc}^{-1} for r-dca_{kari} " + radialintervals[i] + " cm";
+            std::string histhandle = "h_k_pinv_r_" + radialintervals[i] + "cm";
+            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0005, 0.0005);
+            labelAxis(h, "p_{rec}^{-1} #minus p_{mc}^{-1} [Mev^{-1}]", "count");
+            fillHistWithVector(h, pt_kari_inv_err_r_dcas[i]);
+            h_kari_ptinv_err_rdca.push_back(h);
+        }
+
+        //kari pt z dca dependent error histograms
+        std::vector<TH1F*> h_kari_ptinv_err_zdca;
+        for(int i=0; i<4; i++) {
+            std::string histtitle = "p_{kari}^{-1} #minus p_{mc}^{-1} for abs(z-dca_{kari}) " + zdcaintervals[i] + " cm";
+            std::string histhandle = "h_k_pinv_z_" + zdcaintervals[i] + "cm";
+            TH1F *h = new TH1F(histhandle.c_str(), histtitle.c_str(), BIN_COUNT, -0.0005, 0.0005);
+            labelAxis(h, "p_{kari}^{-1} #minus p_{mc}^{-1} [Mev^{-1}]", "count");
+            fillHistWithVector(h, pt_kari_inv_err_z_dcas[i]);
+            h_kari_ptinv_err_zdca.push_back(h);
+        }
 
         ///FILLING SCATTER PLOTS
 
@@ -819,6 +885,22 @@ void reconstruction_accuracy(int run) {
         labelAxis(g_ptkaridev_ptmc, "pt_{mc}^{-1} [MeV^{-1}]", "pt_{kari}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
         setGraphRange(g_ptkaridev_ptmc,-5e-4,5e-4, -1e-3,1e-3);
 
+        TGraph *g_theta_kvsms = new TGraph(rec_thetas.size(),&rec_thetas[0],&kari_thetas[0]);
+        g_theta_kvsms->SetTitle("#Theta_{kari} vs #Theta_{msfit} correlation");
+        labelAxis(g_theta_kvsms, "#Theta_{msfit}", "#Theta_{kari}");
+        setGraphRange(g_theta_kvsms,0,3.2, 0,3.2);
+
+        //perr rdca
+        TGraph *g_ptkaridev_rdca = new TGraph(p_inv_kari_errors.size(),&kari_dcas[0],&p_inv_kari_errors[0]);
+        g_ptkaridev_rdca->SetTitle("pt_{kari}^{-1} #minus pt_{mc}^{-1} over r-dca_{kari} correlation");
+        labelAxis(g_ptkaridev_rdca, "r-dca_{kari}", "pt_{kari}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
+        setGraphRange(g_ptkaridev_rdca,-80,80, -4e-4,4e-4);
+
+        //perr zdca
+        TGraph *g_ptkaridev_zdca = new TGraph(p_inv_kari_errors.size(),&kari_z0s[0],&p_inv_kari_errors[0]);
+        g_ptkaridev_zdca->SetTitle("pt_{kari}^{-1} #minus pt_{mc}^{-1} over z-dca_{kari} correlation");
+        labelAxis(g_ptkaridev_zdca, "z-dca_{kari}", "pt_{kari}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
+        setGraphRange(g_ptkaridev_zdca,-500,500, -4e-4,4e-4);
 
         // x-axis p_rec / p_mc plots
         //vlt nicht nötig
@@ -982,121 +1064,28 @@ void reconstruction_accuracy(int run) {
         }
 
         //pt hist plots (1x3 canvas)
-        auto *c_multi6 = new TCanvas("cmulti6", "cmulti6", 1200, 600);
-        c_multi6->SetWindowPosition(0, 400);
-
-        c_multi6->Divide(3,1);
-        {
-            c_multi6->cd(1);
-            gPad->SetLeftMargin(0.15);
-            h_pt_inv_err->Draw();
-
-            c_multi6->cd(2);
-            gPad->SetLeftMargin(0.15);
-            h_invptrec->Draw();
-
-            c_multi6->cd(3);
-            gPad->SetLeftMargin(0.15);
-            h_invptmc->Draw();
-
-            c_multi6->Print(plottingfile.c_str(), "pdf");
-        }
+        TH1F * graph5[3] = {h_pt_inv_err, h_invptrec, h_invptmc};
+        makeSimpleMultiCanvas(1,3,3,graph5, plottingfile);
 
         //p error histograms for nhit=4,6,8 (1x3 canvas)
-        auto *c_multi9 = new TCanvas("cmulti9", "cmulti9", 1200, 600);
-        c_multi9->SetWindowPosition(0, 400);
-
-        c_multi9->Divide(3,1);
-        {
-            for(int i=0; i<3; i++) {
-                c_multi9->cd(i+1);
-                gPad->SetLeftMargin(0.15);
-                h_pinv_errhits[i]->Draw();
-            }
-            c_multi9->Print(plottingfile.c_str(), "pdf");
-        }
+        makeSimpleMultiCanvas(1,3,3, &h_pinv_errhits[0], plottingfile);
 
         //pt error histograms for nhit=4,6,8 (1x3 canvas)
-        auto *c_multi7 = new TCanvas("cmulti7", "cmulti7", 1200, 600);
-        c_multi7->SetWindowPosition(0, 400);
-
-        c_multi7->Divide(3,1);
-        {
-            for(int i=0; i<3; i++) {
-                c_multi7->cd(i+1);
-                gPad->SetLeftMargin(0.15);
-                h_ptinv_errhits[i]->Draw();
-            }
-            c_multi7->Print(plottingfile.c_str(), "pdf");
-        }
+        makeSimpleMultiCanvas(1,3,3, &h_ptinv_errhits[0], plottingfile);
 
         //rdca error histograms for nhit=4,6,8 (1x3 canvas)
-        auto *c_multi8 = new TCanvas("cmulti8", "cmulti8", 1200, 600);
-        c_multi8->SetWindowPosition(0, 400);
+        makeSimpleMultiCanvas(1,3,3, &h_rdca_errhits[0], plottingfile);
 
-        c_multi8->Divide(3,1);
-        {
-            for(int i=0; i<3; i++) {
-                c_multi8->cd(i+1);
-                gPad->SetLeftMargin(0.15);
-                h_rdca_errhits[i]->Draw();
-            }
-            c_multi8->Print(plottingfile.c_str(), "pdf");
-        }
 
         //p error histograms for rdca intervals (2x2 canvas)
-        auto *c_multi12 = new TCanvas("cmulti12", "cmulti12", 1200, 1200);
-        c_multi12->SetWindowPosition(0, 400);
-
-        c_multi12->Divide(2,2);
-        {
-            for(int i=0; i<4; i++) {
-                c_multi12->cd(i+1);
-                gPad->SetLeftMargin(0.15);
-                h_pinv_err_rdca[i]->Draw();
-            }
-            c_multi12->Print(plottingfile.c_str(), "pdf");
-        }
+        makeSimpleMultiCanvas(2,2,4, &h_pinv_err_rdca[0], plottingfile);
 
         //p error histograms for zdca intervals (2x2 canvas)
-        auto *c_multi13 = new TCanvas("cmulti13", "cmulti13", 1200, 1200);
-        c_multi13->SetWindowPosition(0, 400);
-
-        c_multi13->Divide(2,2);
-        {
-            for(int i=0; i<4; i++) {
-                c_multi13->cd(i+1);
-                gPad->SetLeftMargin(0.15);
-                h_pinv_err_zdca[i]->Draw();
-            }
-            c_multi13->Print(plottingfile.c_str(), "pdf");
-        }
+        makeSimpleMultiCanvas(2,2,4, &h_pinv_err_zdca[0], plottingfile);
 
         //rec dca plots (2x2 canvas)
-        auto *c_multi4 = new TCanvas("cmulti4", "cmulti4", 900, 600);
-        c_multi4->SetWindowPosition(0, 400);
-
-        c_multi4->Divide(2,2);
-        {
-            c_multi4->cd(1);
-            gPad->SetLeftMargin(0.15);
-            h_xdca->Draw();
-
-            c_multi4->cd(2);
-            gPad->SetLeftMargin(0.15);
-            h_ydca->Draw();
-
-            c_multi4->cd(3);
-            gPad->SetLeftMargin(0.15);
-            h_zdca->Draw();
-
-            c_multi4->cd(4);
-            gPad->SetLeftMargin(0.15);
-            h_rdca->Draw();
-
-            c_multi4->Print(plottingfile.c_str(), "pdf");
-
-        }
+        TH1F * graph6[4] = {h_xdca, h_ydca, h_zdca, h_rdca};
+        makeSimpleMultiCanvas(2,2,4,graph6, plottingfile);
 
         //p/p_mc plots with ref line (1x3 canvas)
         auto *c_multi3 = new TCanvas("cmulti2", "cmulti2", 1200, 600);
@@ -1134,6 +1123,9 @@ void reconstruction_accuracy(int run) {
             c_multi3->Print(plottingfile.c_str(), "pdf");
         }
 
+        TGraph* graph7[2] = {g_pdev_z_dca, g_pdev_dca};
+        makeSimpleMultiCanvas(1, 2, 2, graph7, plottingfile);
+
         //karimaki histograms (2x2 canvas)
         TH1F* graph1[4] = {h_r3dkari, h_rinvkari, h_phikari, h_thetakari};
         makeSimpleMultiCanvas( 2, 2, 4, graph1, false, false, plottingfile);
@@ -1142,7 +1134,28 @@ void reconstruction_accuracy(int run) {
         TH1F* graph2[4] = {h_dcakari, h_tchi2nkari, h_z0kari, h_zchi2kari};
         makeSimpleMultiCanvas( 2, 2, 4, graph2, false, false, plottingfile);
 
-        //karimaki histograms 3 (3x1 canvas)
+        //karimaki vs ms theta histograms (1x2 canvas)
+        TH1F* graph8[2] = {h_thetakari, h_theta};
+        makeSimpleMultiCanvas( 1, 2, 2, graph8, plottingfile);
+
+        // karimaki theta vs rec theta correlation plot
+        auto *c_single4 = new TCanvas("cmulti4", "cmulti4", 900, 900);
+        {
+            c_single4->SetLeftMargin(0.15);
+            g_theta_kvsms->Draw("AP");
+
+            c_single4->Update();
+            TLine *l1=new TLine(0,0,PI,PI);
+            TLine *l2=new TLine(0,PI,PI,0);
+            l1->SetLineColor(kBlue);
+            l2->SetLineColor(kBlue);
+            l1->Draw();
+            l2->Draw();
+
+            c_single4->Print(plottingfile.c_str(), "pdf");
+        }
+
+        //karimaki pt histograms 3 (3x1 canvas)
         TH1F* graph3[3] = {h_ptkari, h_ptkari_inv, h_pterr_kari};
         makeSimpleMultiCanvas(1, 3, 3, graph3, false, false, plottingfile);
 
@@ -1150,18 +1163,31 @@ void reconstruction_accuracy(int run) {
         TGraph* graph4[4] = {g_ptkari_ptmc, g_ptkaridev_ptmc, g_invpt_invptmc, g_ptdev_ptmc};
         makeSimpleMultiCanvas(2, 2, 4, graph4, false, false, plottingfile);
 
+        //karimaki nhit histograms
+        makeSimpleMultiCanvas(1,3,3, &h_kari_ptinv_errhits[0], false, false, plottingfile);
+
+        //karimaki r dca histograms
+        makeSimpleMultiCanvas(2, 2, 4, &h_kari_ptinv_err_rdca[0], false, false, plottingfile);
+
+        //karimaki z dca histograms
+        makeSimpleMultiCanvas(2, 2, 4, &h_kari_ptinv_err_zdca[0], false, false, plottingfile);
+
+        //karimaki pterr over rdca and zdca scatter plots (1x2 canvas)
+        TGraph* graph9[2] = {g_ptkaridev_zdca, g_ptkaridev_rdca};
+        makeSimpleMultiCanvas(1, 2, 2, graph9, plottingfile);
+
 
         //     ####### SINGLE PLOTS #######
 
-        auto *c_single1 = new TCanvas("csinlge1", "csinlge1");
-        c_single1->SetLeftMargin(0.15);
-        g_pdev_dca->Draw("AP");
-        c_single1->Print(plottingfile.c_str(), "pdf");
-
-        auto *c_single2 = new TCanvas("csinlge2", "csinlge2");
-        c_single2->SetLeftMargin(0.15);
-        g_pdev_z_dca->Draw("AP");
-        c_single2->Print(plottingfile.c_str(), "pdf");
+//        auto *c_single1 = new TCanvas("csinlge1", "csinlge1");
+//        c_single1->SetLeftMargin(0.15);
+//        g_pdev_dca->Draw("AP");
+//        c_single1->Print(plottingfile.c_str(), "pdf");
+//
+//        auto *c_single2 = new TCanvas("csinlge2", "csinlge2");
+//        c_single2->SetLeftMargin(0.15);
+//        g_pdev_z_dca->Draw("AP");
+//        c_single2->Print(plottingfile.c_str(), "pdf");
 
         auto *c_single3 = new TCanvas("csinlge3", "csinlge3");
         c_single3->SetLeftMargin(0.15);
@@ -1209,7 +1235,6 @@ void reconstruction_accuracy(int run) {
 
         //Single histogram for different nhits
         auto  *c_single10 = new TCanvas();
-
         {
             c_single10->SetWindowPosition(0, 500 );
             c_single10->SetLogy(1);
@@ -1244,6 +1269,37 @@ void reconstruction_accuracy(int run) {
         auto *c_final = new TCanvas("c_final", "c_final");
         filename = plottingfile + ")";
         c_final->Print(filename.c_str(), "pdf");
+
+
+        ////###### COMPARISON PLOTS ##################################################
+
+        TGraph * graphs[4];
+        TH1F * hists[4];
+
+        graphs[0] = g_ptdev_ptmc; graphs[1]= g_ptkaridev_ptmc;
+        makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfilecomparison + "(");
+
+        graphs[0] = g_invpt_invptmc; graphs[1]= g_ptkari_ptmc;
+        makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfilecomparison);
+
+        hists[0] = h_pt_inv_err; hists[1]= h_pterr_kari;
+        makeSimpleMultiCanvas(1, 2, 2, hists, plottingfilecomparison);
+
+        hists[0] =h_invptmc; hists[1]= h_invptrec; hists[2]= h_ptkari_inv;
+        makeSimpleMultiCanvas(1, 3, 3, hists, plottingfilecomparison);
+
+        hists[0] = h_rdca; hists[1]= h_dcakari;
+        makeSimpleMultiCanvas(1, 2, 2, hists, plottingfilecomparison);
+
+        graphs[0] = g_pdev_z_dca; graphs[1]= g_ptkaridev_zdca;
+        makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfilecomparison);
+
+        graphs[0] = g_pdev_dca; graphs[1]= g_ptkaridev_rdca;
+        makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfilecomparison);
+
+        hists[0] = h_theta; hists[1]= h_thetakari;
+        makeSimpleMultiCanvas(1, 2, 2, hists, plottingfilecomparison + ")");
+
 
         ////###########################################################################
 
