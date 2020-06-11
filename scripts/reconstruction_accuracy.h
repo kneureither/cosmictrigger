@@ -128,7 +128,7 @@ void correctKariDirection(KariFit &kari) {
         printf("\tKARI CORRECT OLD: \t rad %f \tr3d %f phi %f \t theta %f\n", kari.rad, kari.r3d, kari.phi, kari.theta);
         kari.rad = -kari.rad;
         kari.r3d = -kari.r3d;
-        kari.phi = kari.phi - PI; //this is save as phi<0
+        kari.phi = kari.phi - PI; //this is save as phi>0
         kari.theta = PI - kari.theta;
         printf("\tKARI CORRECT NEW: \t rad %f \tr3d %f phi %f \t theta %f\n", kari.rad, kari.r3d, kari.phi, kari.theta);
 

@@ -5,7 +5,7 @@
 #ifndef PI
 #define PI 3.1415926535
 #ifndef DEBUG
-#define DEBUG false
+#define DEBUG true
 #endif
 #endif //PI
 
@@ -871,6 +871,12 @@ void reconstruction_accuracy(int run) {
         labelAxis(g_ptdev_ptmc, "pt_{mc}^{-1} [MeV^{-1}]", "pt_{rec}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
         setGraphRange(g_ptdev_ptmc,-5e-4,5e-4, -1e-3,1e-3);
 
+        //phi ms vs phi mc
+        TGraph *g_phi_msvsmc = new TGraph(mc_phis.size(),&mc_phis[0],&rec_phis[0]);
+        g_phi_msvsmc->SetTitle("#Phi_{msfit} vs #Phi_{mc} correlation");
+        labelAxis(g_phi_msvsmc, "#Phi_{mc}", "#Phi_{msfit}");
+        setGraphRange(g_phi_msvsmc,-3.2,0, -3.2,0);
+
         //KARI Scatter plots
 
         //pkari-pmc
@@ -885,22 +891,50 @@ void reconstruction_accuracy(int run) {
         labelAxis(g_ptkaridev_ptmc, "pt_{mc}^{-1} [MeV^{-1}]", "pt_{kari}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
         setGraphRange(g_ptkaridev_ptmc,-5e-4,5e-4, -1e-3,1e-3);
 
+        //theta kari vs rec theta
         TGraph *g_theta_kvsms = new TGraph(rec_thetas.size(),&rec_thetas[0],&kari_thetas[0]);
         g_theta_kvsms->SetTitle("#Theta_{kari} vs #Theta_{msfit} correlation");
         labelAxis(g_theta_kvsms, "#Theta_{msfit}", "#Theta_{kari}");
         setGraphRange(g_theta_kvsms,0,3.2, 0,3.2);
 
+        //phi kari vs phi mc
+        TGraph *g_phi_kvsmc = new TGraph(mc_phis.size(),&mc_phis[0],&kari_phis[0]);
+        g_phi_kvsmc->SetTitle("#Phi_{kari} vs #Phi_{mc} correlation");
+        labelAxis(g_phi_kvsmc, "#Phi_{mc}", "#Phi_{kari}");
+        setGraphRange(g_phi_kvsmc,-3.2,0, -3.2,0);
+
+        //phi kari vs phi ms
+        TGraph *g_phi_kvsms = new TGraph(rec_phis.size(),&rec_phis[0],&kari_phis[0]);
+        g_phi_kvsms->SetTitle("#Phi_{kari} vs #Phi_{msfit} correlation");
+        labelAxis(g_phi_kvsms, "#Phi_{msfit}", "#Phi_{kari}");
+        setGraphRange(g_phi_kvsms,-5,0, -3.2,0);
+
+        //phi kari vs phi kari
+        TGraph *g_phi_kvsk = new TGraph(rec_phis.size(),&kari_phis[0],&kari_phis[0]);
+        g_phi_kvsk->SetTitle("#Phi_{kari} vs #Phi_{kari} correlation");
+        labelAxis(g_phi_kvsk, "#Phi_{kari}", "#Phi_{kari}");
+        setGraphRange(g_phi_kvsk,-3.2,0, -3.2,0);
+
         //perr rdca
         TGraph *g_ptkaridev_rdca = new TGraph(p_inv_kari_errors.size(),&kari_dcas[0],&p_inv_kari_errors[0]);
         g_ptkaridev_rdca->SetTitle("pt_{kari}^{-1} #minus pt_{mc}^{-1} over r-dca_{kari} correlation");
-        labelAxis(g_ptkaridev_rdca, "r-dca_{kari}", "pt_{kari}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
+        labelAxis(g_ptkaridev_rdca, "r-dca_{kari} [mm]", "pt_{kari}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
         setGraphRange(g_ptkaridev_rdca,-80,80, -4e-4,4e-4);
 
         //perr zdca
         TGraph *g_ptkaridev_zdca = new TGraph(p_inv_kari_errors.size(),&kari_z0s[0],&p_inv_kari_errors[0]);
         g_ptkaridev_zdca->SetTitle("pt_{kari}^{-1} #minus pt_{mc}^{-1} over z-dca_{kari} correlation");
-        labelAxis(g_ptkaridev_zdca, "z-dca_{kari}", "pt_{kari}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
+        labelAxis(g_ptkaridev_zdca, "z-dca_{kari} [mm]", "pt_{kari}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
         setGraphRange(g_ptkaridev_zdca,-500,500, -4e-4,4e-4);
+
+        //perr phi_mc
+        TGraph *g_ptkaridev_mcphi = new TGraph(p_inv_kari_errors.size(),&mc_phis[0],&p_inv_kari_errors[0]);
+        g_ptkaridev_mcphi->SetTitle("pt_{kari}^{-1} #minus pt_{mc}^{-1} over #Phi_{mc} correlation");
+        labelAxis(g_ptkaridev_mcphi, " #Phi_{mc}", "pt_{kari}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
+        setGraphRange(g_ptkaridev_mcphi,-3.2, 3.2, -5e-4,5e-4);
+
+
+        ////SOME MORE PLOTS
 
         // x-axis p_rec / p_mc plots
         //vlt nicht nötig
@@ -1154,6 +1188,14 @@ void reconstruction_accuracy(int run) {
 
             c_single4->Print(plottingfile.c_str(), "pdf");
         }
+
+        // phi kari vs mc and ms vs mc
+        TGraph * graph10[3] = {g_phi_kvsmc, g_phi_msvsmc};
+        makeSimpleMultiCanvas( 1, 2, 2, graph10, plottingfile);
+
+        //perr kari vs phi mc
+        TGraph * graph11[2] = {g_phi_kvsms, g_ptkaridev_mcphi};
+        makeSimpleMultiCanvas(1,2,2,graph11, plottingfile);
 
         //karimaki pt histograms 3 (3x1 canvas)
         TH1F* graph3[3] = {h_ptkari, h_ptkari_inv, h_pterr_kari};
