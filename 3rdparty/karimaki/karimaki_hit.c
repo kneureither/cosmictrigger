@@ -31,7 +31,7 @@ Add s-z fit subsequently
 
 #include "c_wrappedcode.h"
 
-const bool DEBUG_CONSOLE_LOG = false;
+const bool DEBUG_CONSOLE_LOG = true;
 
 //#define CALCWEIGHT
 #define WEIGHTMAX 10.0
@@ -109,12 +109,13 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
 // hit reached ? -- OBSOLETE! TODO
     if (fabs(arg)<1) {
       alpha=asin(arg);
-      ConstrS[i]=2*rad*alpha;  // arc length in 2d --> TODO radius einsetzen falls arg klein
+      ConstrS[i]=2*rad*alpha;  // arc length in 2d
+//      ConstrS[i]=r_hit;  // arc length in 2d for small arg
       ZWeight[i]=zres[i];
       if(DEBUG_CONSOLE_LOG) printf("\tZweight as in call (RMS)=%f theta from ms=%f \t alpha=%f arg=%f Constr[%d]=%f\n", ZWeight[i], thetas[i], alpha, arg, i, ConstrS[i]);
     } else {
       ConstrS[i]=0.0;
-      ZWeight[i]=1.0;  // standard weight
+      ZWeight[i]=0.0;  // standard weight
       if(DEBUG_CONSOLE_LOG) printf("\tSomething went wrong!\n");
     }
   }
