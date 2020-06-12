@@ -274,8 +274,6 @@ void reconstruction_accuracy(int run) {
     std::vector<float> pt_kari_inv_err_r_dcas[4];
     std::vector<float> pt_kari_inv_err_z_dcas[4];
 
-    int rec_hits_count[6] = {0};
-
     double RMS = 80 * 1e-3 / sqrt(12); //RMS in mm
     float BFIELD = 1.0;
 
@@ -353,9 +351,6 @@ void reconstruction_accuracy(int run) {
         std::vector<int> sids;
         std::vector<double> phi_hits;
         std::vector<double> thetas;
-//        std::vector<double> tres;
-//        std::vector<double> zres;
-//        std::vector<double> rres;
         double tres[16] = {RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS};
         double zres[16] = {RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS};
         double rres[16] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
@@ -378,31 +373,39 @@ void reconstruction_accuracy(int run) {
         if (mc_p == 0 || mc_pt == 0 || rec_p == 0 || rec_pt == 0) {
             p_fail_count++;
         } else {
+
+            float mc_p_corr = mc_p * sgn(mc_pid);
+            float mc_pt_corr = mc_pt * sgn(mc_pid);
+            float rec_p_corr = rec_p * sgn(rec_r);
+            float rec_pt_corr = rec_pt;
+            float kari_pt = 0.3 * karires.rad * BFIELD;
+
+            float mc_inv_p = 1. / mc_p_corr;
+            float mc_inv_pt = 1. / mc_pt_corr;
+            float rec_inv_p = 1. / rec_p;
+            float rec_inv_pt = 1. / rec_pt;
+            float kari_inv_pt = 1. / kari_pt;
+            float kari_inv_rad = 1. / karires.rad;
+            float p_inv_abs_error = (rec_inv_p - mc_inv_p); //this will mostly be used as estimator for deviation
+            float p_abs_error = (mc_p_corr - rec_p);
+            float p_over_pmc = rec_p / mc_p_corr;
+            float mc_z_dca = std::sin(mc_vpca_phi) * mc_vpca_offset;
+            float pt_inv_error = (1./rec_pt_corr) - (1./mc_pt_corr);
+            float pt_kari_inv_err = kari_inv_pt - (1./mc_pt_corr);
+
+//            karires.dca = -karires.dca;
+//            if(karires.phi > 0) {
+//                rec_zpca_r = -rec_zpca_r;
+//            }
+
+
             if (true) {
+//            if (karires.phi > 0 && karires.phi < PI/2 && (pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2)) {
+//            if ( (pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2)) {
 
                 //The charge of the particle is given by the sign of the traj radius (rec_r)
                 //This is used to correct the p_mc_corr = sgn(r) * p_mc, because the monte carlo
                 //momenta are only given as absolutes.
-
-                float mc_p_corr = mc_p * sgn(mc_pid);
-                float mc_pt_corr = mc_pt * sgn(mc_pid);
-                float rec_p_corr = rec_p * sgn(rec_r);
-                float rec_pt_corr = rec_pt;
-                float kari_pt = 0.3 * karires.rad * BFIELD;
-
-                float mc_inv_p = 1. / mc_p_corr;
-                float mc_inv_pt = 1. / mc_pt_corr;
-                float rec_inv_p = 1. / rec_p;
-                float rec_inv_pt = 1. / rec_pt;
-                float kari_inv_pt = 1. / kari_pt;
-                float kari_inv_rad = 1. / karires.rad;
-                float p_inv_abs_error = (rec_inv_p - mc_inv_p); //this will mostly be used as estimator for deviation
-                float p_abs_error = (mc_p_corr - rec_p);
-                float p_over_pmc = rec_p / mc_p_corr;
-                float mc_z_dca = std::sin(mc_vpca_phi) * mc_vpca_offset;
-                float pt_inv_error = (1./rec_pt_corr) - (1./mc_pt_corr);
-                float pt_kari_inv_err = kari_inv_pt - (1./mc_pt_corr);
-
 
                 //calculated data
                 rec_inv_ps.push_back(rec_inv_p);
@@ -565,6 +568,11 @@ void reconstruction_accuracy(int run) {
         const float RIGHT_BOUNDARY = 3e4 ;
         const int BIN_COUNT = 50;
 
+        const bool MAKE_468HIT_HISTOGRAMS = true;
+        const bool MAKE_DCA_AREA_HISTOGRAMS = false;
+        const bool MAKE_P_REL_PLOTS = false;
+        const bool MAKE_STRANGE_BAND_CORR_PLOTS = true;
+
         std::string filename;
         std::string filename_template = pathtorunplots + "reconstruction-accuracy_run" +
                 get_padded_string(run, 3, '0');
@@ -648,7 +656,7 @@ void reconstruction_accuracy(int run) {
         fillHistWithVector(h_poverpmc, p_over_pmcs);
 
         //DCAs Monte Carlo
-        TH1F *h_dcamc = new TH1F("h_dcamc", "dca monte carlo (var: mc_vpca_offset)", 30, 0, 100);
+        TH1F *h_dcamc = new TH1F("h_dcamc", "dca monte carlo (var: mc_vpca_offset)", 30, -100, 100);
         labelAxis(h_dcamc, "dca [mm]", "count");
         fillHistWithVector(h_dcamc, mc_dcas);
 
@@ -673,7 +681,7 @@ void reconstruction_accuracy(int run) {
         labelAxis(h_ydca, "dca_{y} [mm]", "count");
         fillHistWithVector(h_ydca, rec_dca_ys);
 
-        TH1F *h_zdca = new TH1F("h_zdca", "dca_{reconstruction} along z-axis", 30, -150, 150);
+        TH1F *h_zdca = new TH1F("h_zdca", "dca_{reconstruction} along z-axis", 30, -600, 600);
         labelAxis(h_zdca, "dca_{z} [mm]", "count");
         fillHistWithVector(h_zdca, rec_dca_zs);
 
@@ -769,7 +777,7 @@ void reconstruction_accuracy(int run) {
         labelAxis(h_tchi2nkari, "#chi^{2}", "count");
         fillHistWithVector(h_tchi2nkari, kari_tchi2ns);
 
-        TH1F *h_z0kari = new TH1F("h_z0kari", "z0_{kari}", 30, -1000, 1000);
+        TH1F *h_z0kari = new TH1F("h_z0kari", "z0_{kari}", 30, -600, 600);
         labelAxis(h_z0kari, "z0 [mm]", "count");
         fillHistWithVector(h_z0kari, kari_z0s);
 
@@ -933,6 +941,116 @@ void reconstruction_accuracy(int run) {
         labelAxis(g_ptkaridev_mcphi, " #Phi_{mc}", "pt_{kari}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
         setGraphRange(g_ptkaridev_mcphi,-3.2, 3.2, -5e-4,5e-4);
 
+        ////DCA, PHI, 1/PT CORR PLOTS
+
+        // MC pt vs phi
+        TGraph *g_mcpt_phi = new TGraph(mc_inv_pts.size(),&mc_phis[0],&mc_inv_pts[0]);
+        g_mcpt_phi->SetTitle("pt_{mc}^{-1} over #Phi_{mc} correlation");
+        labelAxis(g_mcpt_phi, " #Phi_{mc}", "pt_{mc}^{-1} [MeV^{-1}]");
+        setGraphRange(g_mcpt_phi,-3.2, 3.2, -1e-3,1e-3);
+        // REC pt vs phi
+        TGraph *g_recpt_phi = new TGraph(rec_inv_pts.size(),&rec_phis[0],&rec_inv_pts[0]);
+        g_recpt_phi->SetTitle("pt_{rec}^{-1} over #Phi_{rec} correlation");
+        labelAxis(g_recpt_phi, " #Phi_{rec}", "pt_{rec}^{-1} [MeV^{-1}]");
+        setGraphRange(g_recpt_phi,-3.2, 3.2, -1e-3,1e-3);
+        // KARI pt vs phi
+        TGraph *g_kaript_phi = new TGraph(kari_inv_pts.size(),&kari_phis[0],&kari_inv_pts[0]);
+        g_kaript_phi->SetTitle("pt_{kari}^{-1} over #Phi_{kari} correlation");
+        labelAxis(g_kaript_phi, " #Phi_{kari}", "pt_{kari}^{-1} [MeV^{-1}]");
+        setGraphRange(g_kaript_phi,-3.2, 3.2, -1e-3,1e-3);
+
+        // MC pt vs zdca
+        TGraph *g_mcpt_zdca = new TGraph(mc_z_dcas.size(),&mc_z_dcas[0],&mc_inv_pts[0]);
+        g_mcpt_zdca->SetTitle("pt_{mc}^{-1} over z-dca_{mc} correlation");
+        labelAxis(g_mcpt_zdca, "z-dca_{mc}", "pt_{mc}^{-1} [MeV^{-1}]");
+        setGraphRange(g_mcpt_zdca,-500, 500, -1e-3,1e-3);
+        // REC pt vs zdca
+        TGraph *g_recpt_zdca = new TGraph(rec_dca_zs.size(),&rec_dca_zs[0],&rec_inv_pts[0]);
+        g_recpt_zdca->SetTitle("pt_{rec}^{-1} over z-dca_{rec} correlation");
+        labelAxis(g_recpt_zdca, "z-dca_{rec}", "pt_{rec}^{-1} [MeV^{-1}]");
+        setGraphRange(g_recpt_zdca,-500, 500, -1e-3,1e-3);
+        // KARI pt vs zdca
+        TGraph *g_kaript_zdca = new TGraph(kari_z0s.size(),&kari_z0s[0],&kari_inv_pts[0]);
+        g_kaript_zdca->SetTitle("pt_{kari}^{-1} over z0_{kari} correlation");
+        labelAxis(g_kaript_zdca, "z0_{kari}", "pt_{kari}^{-1} [MeV^{-1}]");
+        setGraphRange(g_kaript_zdca,-500, 500, -1e-3,1e-3);
+
+        // MC pt vs rdca
+        TGraph *g_mcpt_rdca = new TGraph(mc_dcas.size(),&mc_dcas[0],&mc_inv_pts[0]);
+        g_mcpt_rdca->SetTitle("pt_{mc}^{-1} over dca_{mc} correlation");
+        labelAxis(g_mcpt_rdca, "dca_{mc}", "pt_{mc}^{-1} [MeV^{-1}]");
+        setGraphRange(g_mcpt_rdca,-80, 80, -1e-3,1e-3);
+        // REC pt vs rdca
+        TGraph *g_recpt_rdca = new TGraph(rec_dca_rs.size(),&rec_dca_rs[0],&rec_inv_pts[0]);
+        g_recpt_rdca->SetTitle("pt_{rec}^{-1} over r-dca_{rec} correlation");
+        labelAxis(g_recpt_rdca, "r-dca_{rec}", "pt_{rec}^{-1} [MeV^{-1}]");
+        setGraphRange(g_recpt_rdca,-80, 80, -1e-3,1e-3);
+        // KARI pt vs rdca
+        TGraph *g_kaript_rdca = new TGraph(kari_dcas.size(),&kari_dcas[0],&kari_inv_pts[0]);
+        g_kaript_rdca->SetTitle("pt_{kari}^{-1} over dca_{kari} correlation");
+        labelAxis(g_kaript_rdca, "dca_{kari}", "pt_{kari}^{-1} [MeV^{-1}]");
+        setGraphRange(g_kaript_rdca,-500, 500, -1e-3,1e-3);
+
+        // MC phi vs zdca
+        TGraph *g_mcphi_zdca = new TGraph(mc_z_dcas.size(),&mc_z_dcas[0],&mc_phis[0]);
+        g_mcphi_zdca->SetTitle("#phi_{mc} over z-dca_{mc} correlation");
+        labelAxis(g_mcphi_zdca, "z-dca_{mc}", "#phi_{mc}");
+        setGraphRange(g_mcphi_zdca,-500, 500, -3.2,3.2);
+        // REC phi vs zdca
+        TGraph *g_recphi_zdca = new TGraph(rec_dca_zs.size(),&rec_dca_zs[0],&rec_phis[0]);
+        g_recphi_zdca->SetTitle("#phi_{rec} over z-dca_{rec} correlation");
+        labelAxis(g_recphi_zdca, "z-dca_{rec}", "#phi_{rec}");
+        setGraphRange(g_recphi_zdca,-500, 500, -3.2,3.2);
+        // KARI phi vs zdca
+        TGraph *g_kariphi_zdca = new TGraph(kari_z0s.size(),&kari_z0s[0],&kari_phis[0]);
+        g_kariphi_zdca->SetTitle("#phi_{kari} over z0_{kari} correlation");
+        labelAxis(g_kariphi_zdca, "z0_{kari}", "#phi_{kari}");
+        setGraphRange(g_kariphi_zdca,-500, 500, -3.2,3.2);
+
+        // MC phi vs rdca
+        TGraph *g_mcphi_rdca = new TGraph(mc_dcas.size(),&mc_dcas[0],&mc_phis[0]);
+        g_mcphi_rdca->SetTitle("#phi_{mc} over dca_{mc} correlation");
+        labelAxis(g_mcphi_rdca, "dca_{mc}", "#phi_{mc}");
+        setGraphRange(g_mcphi_rdca,-80, 80,  -3.2,3.2);
+        // REC phi vs rdca
+        TGraph *g_recphi_rdca = new TGraph(rec_dca_rs.size(),&rec_dca_rs[0],&rec_phis[0]);
+        g_recphi_rdca->SetTitle("#phi_{rec} over r-dca_{rec} correlation");
+        labelAxis(g_recphi_rdca, "r-dca_{rec}", "#phi_{rec}");
+        setGraphRange(g_recphi_rdca,-80, 80,  -3.2,3.2);
+        // KARI phi vs rdca
+        TGraph *g_kariphi_rdca = new TGraph(kari_dcas.size(),&kari_dcas[0],&kari_phis[0]);
+        g_kariphi_rdca->SetTitle("#phi_{kari} over dca_{kari} correlation");
+        labelAxis(g_kariphi_rdca, "dca_{kari}", "#phi_{kari}");
+        setGraphRange(g_kariphi_rdca,-500, 500, -3.2,3.2);
+
+
+        //DCAz kari vs rec
+        TGraph *g_karizdca_mczdca = new TGraph(kari_z0s.size(),&rec_dca_zs[0],&kari_z0s[0]);
+        g_karizdca_mczdca->SetTitle("z-dca_{kari} over z-dca_{rec}  correlation");
+        labelAxis(g_karizdca_mczdca, "z-dca_{rec}", "z-dca_{kari}");
+        setGraphRange(g_karizdca_mczdca,-600, 600, -600, 600);
+        //DCAr kari vs rec
+        TGraph *g_karirdca_mcrdca = new TGraph(kari_dcas.size(),&rec_dca_rs[0],&kari_dcas[0]);
+        g_karirdca_mcrdca->SetTitle("r-dca_{kari} over r-dca_{rec}  correlation");
+        labelAxis(g_karirdca_mcrdca, "r-dca_{rec}", "r-dca_{kari}");
+        setGraphRange(g_karirdca_mcrdca,-80, 80, -80, 80);
+        //phi kari vs rec
+        TGraph *g_kariphi_mcphi = new TGraph(kari_phis.size(),&rec_phis[0],&kari_phis[0]);
+        g_kariphi_mcphi->SetTitle("#phi_{kari} over #phi_{rec}  correlation");
+        labelAxis(g_kariphi_mcphi, "#phi_{rec}", "#phi_{kari}");
+        setGraphRange(g_kariphi_mcphi,-3.2, 3.2,  -3.2,3.2);
+
+        //rdca rec vs phi kari
+        TGraph *g_recrdca_kariphi = new TGraph(kari_phis.size(),&kari_phis[0],&rec_dca_rs[0]);
+        g_recrdca_kariphi->SetTitle("r-dca_{rec} over #phi_{kari}  correlation");
+        labelAxis(g_recrdca_kariphi, "#phi_{kari}", "r-dca_{rec} [mm]");
+        setGraphRange(g_recrdca_kariphi,-3.2, 3.2,  -80,80);
+
+        //rdca kari vs phi kari
+        TGraph *g_karirdca_kariphi = new TGraph(kari_phis.size(),&kari_phis[0],&kari_dcas[0]);
+        g_karirdca_kariphi->SetTitle("dca_{kari} over #phi_{kari}  correlation");
+        labelAxis(g_karirdca_kariphi, "#phi_{kari}", "dca_{kari} [mm]");
+        setGraphRange(g_karirdca_kariphi,-3.2, 3.2,  -80,80);
 
         ////SOME MORE PLOTS
 
@@ -1101,61 +1219,68 @@ void reconstruction_accuracy(int run) {
         TH1F * graph5[3] = {h_pt_inv_err, h_invptrec, h_invptmc};
         makeSimpleMultiCanvas(1,3,3,graph5, plottingfile);
 
-        //p error histograms for nhit=4,6,8 (1x3 canvas)
-        makeSimpleMultiCanvas(1,3,3, &h_pinv_errhits[0], plottingfile);
+        if(MAKE_468HIT_HISTOGRAMS) {
+            //p error histograms for nhit=4,6,8 (1x3 canvas)
+            makeSimpleMultiCanvas(1,3,3, &h_pinv_errhits[0], plottingfile);
 
-        //pt error histograms for nhit=4,6,8 (1x3 canvas)
-        makeSimpleMultiCanvas(1,3,3, &h_ptinv_errhits[0], plottingfile);
+            //pt error histograms for nhit=4,6,8 (1x3 canvas)
+            makeSimpleMultiCanvas(1,3,3, &h_ptinv_errhits[0], plottingfile);
 
-        //rdca error histograms for nhit=4,6,8 (1x3 canvas)
-        makeSimpleMultiCanvas(1,3,3, &h_rdca_errhits[0], plottingfile);
+            //rdca error histograms for nhit=4,6,8 (1x3 canvas)
+            makeSimpleMultiCanvas(1,3,3, &h_rdca_errhits[0], plottingfile);
+        }
 
+        if(MAKE_DCA_AREA_HISTOGRAMS) {
+            //p error histograms for rdca intervals (2x2 canvas)
+            makeSimpleMultiCanvas(2,2,4, &h_pinv_err_rdca[0], plottingfile);
 
-        //p error histograms for rdca intervals (2x2 canvas)
-        makeSimpleMultiCanvas(2,2,4, &h_pinv_err_rdca[0], plottingfile);
+            //p error histograms for zdca intervals (2x2 canvas)
+            makeSimpleMultiCanvas(2,2,4, &h_pinv_err_zdca[0], plottingfile);
+        }
 
-        //p error histograms for zdca intervals (2x2 canvas)
-        makeSimpleMultiCanvas(2,2,4, &h_pinv_err_zdca[0], plottingfile);
 
         //rec dca plots (2x2 canvas)
         TH1F * graph6[4] = {h_xdca, h_ydca, h_zdca, h_rdca};
         makeSimpleMultiCanvas(2,2,4,graph6, plottingfile);
 
-        //p/p_mc plots with ref line (1x3 canvas)
-        auto *c_multi3 = new TCanvas("cmulti2", "cmulti2", 1200, 600);
-        c_multi3->SetWindowPosition(0, 400);
+        if(MAKE_P_REL_PLOTS) {
+            //p/p_mc plots with ref line (1x3 canvas)
+            auto *c_multi3 = new TCanvas("cmulti2", "cmulti2", 1200, 600);
+            c_multi3->SetWindowPosition(0, 400);
 
-        c_multi3->Divide(3,1);
-        {
-            c_multi3->cd(1);
-            gPad->SetLeftMargin(0.15);
-            g_ppmc_phi->Draw("AP");
+            c_multi3->Divide(3,1);
+            {
+                c_multi3->cd(1);
+                gPad->SetLeftMargin(0.15);
+                g_ppmc_phi->Draw("AP");
 
-            gPad->Update();
-            TLine *l=new TLine(1,gPad->GetUymin(),1,gPad->GetUymax());
-            l->SetLineColor(kBlue);
-            l->Draw();
+                gPad->Update();
+                TLine *l=new TLine(1,gPad->GetUymin(),1,gPad->GetUymax());
+                l->SetLineColor(kBlue);
+                l->Draw();
 
-            c_multi3->cd(2);
-            gPad->SetLeftMargin(0.15);
-            g_ppmc_dca->Draw("AP");
+                c_multi3->cd(2);
+                gPad->SetLeftMargin(0.15);
+                g_ppmc_dca->Draw("AP");
 
-            gPad->Update();
-            TLine *l1=new TLine(1,gPad->GetUymin(),1,gPad->GetUymax());
-            l1->SetLineColor(kBlue);
-            l1->Draw();
+                gPad->Update();
+                TLine *l1=new TLine(1,gPad->GetUymin(),1,gPad->GetUymax());
+                l1->SetLineColor(kBlue);
+                l1->Draw();
 
-            c_multi3->cd(3);
-            gPad->SetLeftMargin(0.15);
-            g_ppmc_p->Draw("AP");
+                c_multi3->cd(3);
+                gPad->SetLeftMargin(0.15);
+                g_ppmc_p->Draw("AP");
 
-            gPad->Update();
-            TLine *l2=new TLine(1,gPad->GetUymin(),1,gPad->GetUymax());
-            l2->SetLineColor(kBlue);
-            l2->Draw();
+                gPad->Update();
+                TLine *l2=new TLine(1,gPad->GetUymin(),1,gPad->GetUymax());
+                l2->SetLineColor(kBlue);
+                l2->Draw();
 
-            c_multi3->Print(plottingfile.c_str(), "pdf");
+                c_multi3->Print(plottingfile.c_str(), "pdf");
+            }
         }
+
 
         TGraph* graph7[2] = {g_pdev_z_dca, g_pdev_dca};
         makeSimpleMultiCanvas(1, 2, 2, graph7, plottingfile);
@@ -1189,6 +1314,23 @@ void reconstruction_accuracy(int run) {
             c_single4->Print(plottingfile.c_str(), "pdf");
         }
 
+        // karimaki perr vs kappa correlation plot
+        auto *c_single5 = new TCanvas("cmulti5", "cmulti5", 900, 900);
+        {
+            c_single5->SetLeftMargin(0.15);
+            g_ptkaridev_ptmc->Draw("AP");
+
+            c_single5->Update();
+            TLine *l1=new TLine(-0.25e-3,0.00045,0.25e-3,-0.00055);
+            TLine *l2=new TLine(-0.25e-3,0.00055,0.25e-3,-0.00045);
+            l1->SetLineColor(kBlue);
+            l2->SetLineColor(kBlue);
+            l1->Draw();
+            l2->Draw();
+
+            c_single5->Print(plottingfile.c_str(), "pdf");
+        }
+
         // phi kari vs mc and ms vs mc
         TGraph * graph10[3] = {g_phi_kvsmc, g_phi_msvsmc};
         makeSimpleMultiCanvas( 1, 2, 2, graph10, plottingfile);
@@ -1206,18 +1348,52 @@ void reconstruction_accuracy(int run) {
         makeSimpleMultiCanvas(2, 2, 4, graph4, false, false, plottingfile);
 
         //karimaki nhit histograms
-        makeSimpleMultiCanvas(1,3,3, &h_kari_ptinv_errhits[0], false, false, plottingfile);
+        if(MAKE_468HIT_HISTOGRAMS) makeSimpleMultiCanvas(1,3,3, &h_kari_ptinv_errhits[0], false, false, plottingfile);
 
         //karimaki r dca histograms
-        makeSimpleMultiCanvas(2, 2, 4, &h_kari_ptinv_err_rdca[0], false, false, plottingfile);
+        if (MAKE_DCA_AREA_HISTOGRAMS) makeSimpleMultiCanvas(2, 2, 4, &h_kari_ptinv_err_rdca[0], false, false, plottingfile);
 
         //karimaki z dca histograms
-        makeSimpleMultiCanvas(2, 2, 4, &h_kari_ptinv_err_zdca[0], false, false, plottingfile);
+        if( MAKE_DCA_AREA_HISTOGRAMS) makeSimpleMultiCanvas(2, 2, 4, &h_kari_ptinv_err_zdca[0], false, false, plottingfile);
 
         //karimaki pterr over rdca and zdca scatter plots (1x2 canvas)
         TGraph* graph9[2] = {g_ptkaridev_zdca, g_ptkaridev_rdca};
         makeSimpleMultiCanvas(1, 2, 2, graph9, plottingfile);
 
+        ////DCA, PHI, 1/PT CORR PLOTS
+        if(MAKE_STRANGE_BAND_CORR_PLOTS) {
+            TGraph * graphs1[6];
+            TH1F * hists1[6];
+
+            graphs1[0] = g_karirdca_mcrdca; graphs1[1] = g_karizdca_mczdca;
+            makeSimpleMultiCanvas(1, 2, 2, graphs1, plottingfile);
+
+            graphs1[0] = g_recrdca_kariphi; graphs1[1] = g_karirdca_kariphi;
+            makeSimpleMultiCanvas(1, 2, 2, graphs1, plottingfile);
+
+            graphs1[0] = g_theta_kvsms; graphs1[1] = g_phi_kvsms;
+            makeSimpleMultiCanvas(1, 2, 2, graphs1, plottingfile);
+
+            hists1[0] = h_dcamc; hists1[1] = h_rdca; hists1[2] = h_dcakari;
+            makeSimpleMultiCanvas(1, 3, 3, hists1, plottingfile);
+
+            hists1[0] = h_zdcamc; hists1[1] = h_zdca; hists1[2] = h_z0kari;
+            makeSimpleMultiCanvas(1, 3, 3, hists1, plottingfile);
+
+            // pt vs phi rec and mc
+            graphs1[0] = g_mcpt_phi; graphs1[1]= g_recpt_phi; graphs1[2]= g_kaript_phi;
+            makeSimpleMultiCanvas(1, 3, 3, graphs1, plottingfile);
+
+            // pt vs zdca and rdca rec and mc
+            graphs1[0] = g_mcpt_rdca; graphs1[1]= g_recpt_rdca; graphs1[2]= g_kaript_rdca;
+            graphs1[3] = g_mcpt_zdca; graphs1[4]= g_recpt_zdca; graphs1[5]= g_kaript_zdca;
+            makeSimpleMultiCanvas(2, 3, 6, graphs1, plottingfile);
+
+            // phi vs zdca and rdca rec and mc
+            graphs1[0] = g_mcphi_rdca; graphs1[1]= g_recphi_rdca; graphs1[2]= g_kariphi_rdca;
+            graphs1[3] = g_mcphi_zdca; graphs1[4]= g_recphi_zdca; graphs1[5]= g_kariphi_zdca;
+            makeSimpleMultiCanvas(2, 3, 6, graphs1, plottingfile);
+        }
 
         //     ####### SINGLE PLOTS #######
 
