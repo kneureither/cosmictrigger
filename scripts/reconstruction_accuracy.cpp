@@ -215,9 +215,15 @@ void reconstruction_accuracy(int run) {
 
     //stats data definitions
     int p_fail_count = 0;
+    int rkari_swap_count = 0;
+    int mckari_wrong_sign_count = 0;
+    int mcrec_wrong_sign_count = 0;
+    int reckari_wrong_sign_count = 0;
+
     std::vector<float> p_rel_errors;
     std::vector<float> p_inv_rel_errors;
     std::vector<float> p_inv_kari_errors;
+    std::vector<float> pt_inv_kvsms_errors;
     std::vector<float> pt_inv_errors;
     std::vector<float> p_over_pmcs;
     std::vector<float> rec_rs;
@@ -368,7 +374,8 @@ void reconstruction_accuracy(int run) {
             }
         }
         karimaki_hit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], &phi_hits[0], &thetas[0], &tres[0], &zres[0], &rres[0]);
-        correctKariDirection(karires);
+        correctKariDirection(karires, rec_zpca_r);
+//        swapKariMomentum(karires, mc_pt * sgn(mc_pid), rkari_swap_count);
 
         if (mc_p == 0 || mc_pt == 0 || rec_p == 0 || rec_pt == 0) {
             p_fail_count++;
@@ -392,6 +399,7 @@ void reconstruction_accuracy(int run) {
             float mc_z_dca = std::sin(mc_vpca_phi) * mc_vpca_offset;
             float pt_inv_error = (1./rec_pt_corr) - (1./mc_pt_corr);
             float pt_kari_inv_err = kari_inv_pt - (1./mc_pt_corr);
+            float pt_kvsms_inv_err = kari_inv_pt - rec_inv_pt;
 
 //            karires.dca = -karires.dca;
 //            if(karires.phi > 0) {
@@ -399,9 +407,10 @@ void reconstruction_accuracy(int run) {
 //            }
 
 
-            if (true) {
+//            if (true) {
 //            if (karires.phi > 0 && karires.phi < PI/2 && (pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2)) {
 //            if ( (pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2)) {
+            if (sgn(karires.rad) != sgn(mc_p_corr)) {
 
                 //The charge of the particle is given by the sign of the traj radius (rec_r)
                 //This is used to correct the p_mc_corr = sgn(r) * p_mc, because the monte carlo
@@ -449,6 +458,7 @@ void reconstruction_accuracy(int run) {
                 kari_inv_pts.push_back(kari_inv_pt);
                 p_inv_kari_errors.push_back(pt_kari_inv_err);
                 kari_inv_rads.push_back(kari_inv_rad);
+                pt_inv_kvsms_errors.push_back(pt_kvsms_inv_err);
 
                 //monte carlo data
                 mc_ps.push_back(mc_p);
@@ -462,6 +472,10 @@ void reconstruction_accuracy(int run) {
                 sim_nhits.push_back(mu3e_nhits);
                 rec_nhits.push_back(rec_nhit);
                 rec_nhits_float.push_back((float)rec_nhit);
+
+                if(rec_p_corr / mc_p_corr < 0) mcrec_wrong_sign_count++;
+                if(karires.rad / mc_p_corr < 0) mckari_wrong_sign_count++;
+                if(karires.rad / rec_p_corr < 0) reckari_wrong_sign_count++;
 
 
                 switch(rec_nhit) {
@@ -939,7 +953,14 @@ void reconstruction_accuracy(int run) {
         TGraph *g_ptkaridev_mcphi = new TGraph(p_inv_kari_errors.size(),&mc_phis[0],&p_inv_kari_errors[0]);
         g_ptkaridev_mcphi->SetTitle("pt_{kari}^{-1} #minus pt_{mc}^{-1} over #Phi_{mc} correlation");
         labelAxis(g_ptkaridev_mcphi, " #Phi_{mc}", "pt_{kari}^{-1} #minus pt_{mc}^{-1} [MeV^{-1}]");
-        setGraphRange(g_ptkaridev_mcphi,-3.2, 3.2, -5e-4,5e-4);
+        setGraphRange(g_ptkaridev_mcphi,-3.2, 3.2, -1e-3,1e-3);
+
+        //pterr kari - rec over pt rec
+        TGraph *g_ptdevkvsms_ptms = new TGraph(pt_inv_kvsms_errors.size(),&rec_inv_pts[0],&pt_inv_kvsms_errors[0]);
+        g_ptdevkvsms_ptms->SetTitle("pt_{kari}^{-1} #minus pt_{msfit}^{-1} over #pt_{msfit}^{-1} correlation");
+        labelAxis(g_ptdevkvsms_ptms, "#pt_{msfit}^{-1} [MeV^{-1}]", "pt_{kari}^{-1} #minus pt_{msfit}^{-1} [MeV^{-1}]");
+        setGraphRange(g_ptdevkvsms_ptms,-5e-4,5e-4, -1e-3,1e-3);
+
 
         ////DCA, PHI, 1/PT CORR PLOTS
 
@@ -1393,6 +1414,8 @@ void reconstruction_accuracy(int run) {
             graphs1[0] = g_mcphi_rdca; graphs1[1]= g_recphi_rdca; graphs1[2]= g_kariphi_rdca;
             graphs1[3] = g_mcphi_zdca; graphs1[4]= g_recphi_zdca; graphs1[5]= g_kariphi_zdca;
             makeSimpleMultiCanvas(2, 3, 6, graphs1, plottingfile);
+
+            makeSimpleSingleCanvas(g_ptdevkvsms_ptms, plottingfile);
         }
 
         //     ####### SINGLE PLOTS #######
@@ -1529,6 +1552,10 @@ void reconstruction_accuracy(int run) {
     cout << "(p_mc == 0 || pt_mc == 0 || p_rec == 0 || pt_rec == 0) --- count: " << p_fail_count ;
     cout << " fails of total: " << segs_entries << ", fail rate: ";
     cout << (p_fail_count / (float) segs_entries) * 100 << " %" << endl;
+    printf("Radius swaps: %d of %d\n", rkari_swap_count, segs_entries);
+    printf("MC vs Kari sign fails: %d of %d\n", mckari_wrong_sign_count, segs_entries);
+    printf("MC vs REC sign fails: %d of %d\n", mcrec_wrong_sign_count, segs_entries);
+    printf("KARI vs REC sign fails: %d of %d\n", reckari_wrong_sign_count, segs_entries);
     //cout << "1 / p reconstruction error mean: "  << p_inv_rec_error_mean * 100 << "% " << endl;
 
     for(int i=0; i < 6; i++) {
