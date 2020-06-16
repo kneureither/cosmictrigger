@@ -101,8 +101,7 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
 
 //  printf("karimaki_hit result: rad=%f, chi2=%f \n",rad,TCh2dF );
 
-  //TODO arg mit sinus Näherung, dann ist bogenlänge gleich radius
-  // calculate arc length
+  //TODO calculate hit in 0,0 plane correctly
 
   //calculate approx for hit in x,z plane
   float x1 = ConstrX[1];

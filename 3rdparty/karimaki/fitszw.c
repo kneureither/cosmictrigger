@@ -8,8 +8,6 @@ int fitszw (float *ConstrS,float *ConstrZ,float *Weight,int NumConstr,float *ZPa
 Simple linear fit with weights:  z=z0+b*s
 ZPar[0]=z0
 ZPar[1]=b
-
- TODO Enter weights as 1/sigma or as sigma?? Problem with thetas to be solved!
 ***************************************************************************************************/
 
 //    if(DEBUG_CONSOLE_LOG) printf("\n\tFITSZW\n");
