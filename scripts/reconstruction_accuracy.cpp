@@ -33,15 +33,19 @@ using std::cout;
 using std::endl;
 
 
-void reconstruction_accuracy(int run) {
+void reconstruction_accuracy(int run, int FILTER) {
 
     const std::string pathtodata = "../data/";
     const std::string pathtoplots = "../plots/";
     const bool RECONSTRUCTION_PRINTS = false;
-    bool HIT_PRINTS = DEBUG;
+    const bool HIT_PRINTS = DEBUG;
     const bool MAKE_PLOT = true;
     const bool ADDITIONAL_PLOTS = false;
     const int MAX_ENTRIES = 0;
+    const bool USE_MC_TYPE = true;
+    //const int FILTER = 0; // 0:all 1:kari outliers 2:mu+ 3:mu- 4:
+
+    std::string filtertag;
 
     check_create_directory(pathtodata);
     check_create_directory(pathtoplots);
@@ -84,7 +88,6 @@ void reconstruction_accuracy(int run) {
     t_mu3e->SetBranchAddress("traj_pz", &traj_pz);
 
     cout << "Branches set for mu3e..." << endl;
-
 
     //data for trirec result tree segs
     unsigned int segs_entries = t_segs->GetEntries();
@@ -143,12 +146,7 @@ void reconstruction_accuracy(int run) {
     float sid11[TRIPLET_HIT_ARRAY_LENGTH];
     float sid21[TRIPLET_HIT_ARRAY_LENGTH];
 
-    //for calculation
-    float rec_phi;
-    float rec_theta;
-    float rec_pt;
-
-    //For Fit
+    //For Helix Fit
     KariFit karires;
 
     t_segs->SetBranchAddress("eventId", &rec_event);
@@ -219,6 +217,7 @@ void reconstruction_accuracy(int run) {
     int mckari_wrong_sign_count = 0;
     int mcrec_wrong_sign_count = 0;
     int reckari_wrong_sign_count = 0;
+    int processed_entries = 0;
 
     std::vector<float> p_rel_errors;
     std::vector<float> p_inv_rel_errors;
@@ -252,7 +251,6 @@ void reconstruction_accuracy(int run) {
     std::vector<float> kari_z0s;
     std::vector<float> kari_thetas;
     std::vector<float> kari_zchi2ns;
-
 
     std::vector<float> mc_dcas;
     std::vector<float> mc_z_dcas;
@@ -374,15 +372,22 @@ void reconstruction_accuracy(int run) {
             }
         }
         karimaki_hit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], &phi_hits[0], &thetas[0], &tres[0], &zres[0], &rres[0]);
-        correctKariDirection(karires, rec_zpca_r);
-//        swapKariMomentum(karires, mc_pt * sgn(mc_pid), rkari_swap_count);
+        correctKariDirection(karires);
 
         if (mc_p == 0 || mc_pt == 0 || rec_p == 0 || rec_pt == 0) {
             p_fail_count++;
         } else {
+            float mc_p_corr;
+            float mc_pt_corr;
 
-            float mc_p_corr = mc_p * sgn(mc_pid);
-            float mc_pt_corr = mc_pt * sgn(mc_pid);
+            if (FILTER == 6 || FILTER == 7) {
+                mc_p_corr = (mc_p) * (mc_type % 10 == 3 ? -1 : 1);
+                mc_pt_corr = (mc_pt) * (mc_type % 10 == 3 ? -1 : 1);
+            } else {
+                mc_p_corr = (mc_p) * sgn(mc_pid);
+                mc_pt_corr = (mc_pt) * sgn(mc_pid);
+            }
+
             float rec_p_corr = rec_p * sgn(rec_r);
             float rec_pt_corr = rec_pt;
             float kari_pt = 0.3 * karires.rad * BFIELD;
@@ -401,20 +406,43 @@ void reconstruction_accuracy(int run) {
             float pt_kari_inv_err = kari_inv_pt - (1./mc_pt_corr);
             float pt_kvsms_inv_err = kari_inv_pt - rec_inv_pt;
 
-//            karires.dca = -karires.dca;
-//            if(karires.phi > 0) {
-//                rec_zpca_r = -rec_zpca_r;
-//            }
 
+            bool choice;
+            switch(FILTER) {
+                case 0: choice = true;
+                        filtertag = "all";
+                        break;
+                case 1: choice = pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2;
+                        filtertag = "kari-outliers";
+                        break;
+                case 2: choice = mc_type == 3;
+                        filtertag = "mu+";
+                        break;
+                case 3: choice = mc_type == 4;
+                        filtertag = "mu-";
+                        break;
+                case 4: choice = sgn(karires.rad) != sgn(mc_p_corr);
+                        filtertag = "p-kari-mc-sgn";
+                        break;
+                case 5: choice = karires.phi > 0 && karires.phi < PI/2 && (pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2);
+                        filtertag = "special1";
+                        break;
+                case 6: choice = mc_type % 10 == 3 || mc_type % 10 == 4;
+                        filtertag = "muonsonly";
+                        break;
+                case 7: choice = mc_type == 3 || mc_type == 4;
+                        filtertag = "planemuonsonly";
+                        break;
+                default:choice = true;
+                        filtertag = "";
+            }
 
-//            if (true) {
-//            if (karires.phi > 0 && karires.phi < PI/2 && (pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2)) {
-//            if ( (pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2)) {
-            if (sgn(karires.rad) != sgn(mc_p_corr)) {
+            if (choice) {
 
-                //The charge of the particle is given by the sign of the traj radius (rec_r)
-                //This is used to correct the p_mc_corr = sgn(r) * p_mc, because the monte carlo
-                //momenta are only given as absolutes.
+                printf("mc_type? %d \t mc_pid = %d\n", mc_type, mc_pid);
+//                assert(!(mc_type == 4 && sgn(mc_pid) == -1));
+//                assert(!(mc_type == 3 && sgn(mc_pid) == 1));
+
 
                 //calculated data
                 rec_inv_ps.push_back(rec_inv_p);
@@ -473,9 +501,10 @@ void reconstruction_accuracy(int run) {
                 rec_nhits.push_back(rec_nhit);
                 rec_nhits_float.push_back((float)rec_nhit);
 
-                if(rec_p_corr / mc_p_corr < 0) mcrec_wrong_sign_count++;
+                if(rec_p / mc_p_corr < 0) mcrec_wrong_sign_count++;
                 if(karires.rad / mc_p_corr < 0) mckari_wrong_sign_count++;
-                if(karires.rad / rec_p_corr < 0) reckari_wrong_sign_count++;
+                if(karires.rad / rec_p < 0) reckari_wrong_sign_count++;
+                processed_entries++;
 
 
                 switch(rec_nhit) {
@@ -577,9 +606,9 @@ void reconstruction_accuracy(int run) {
     }
 
     if (MAKE_PLOT) {
-        //momenta
-        const float LEFT_BOUNDARY = -3e4;
-        const float RIGHT_BOUNDARY = 3e4 ;
+
+        const float LEFT_BOUNDARY_P = -3e4;
+        const float RIGHT_BOUNDARY_P = 3e4 ;
         const int BIN_COUNT = 50;
 
         const bool MAKE_468HIT_HISTOGRAMS = true;
@@ -589,7 +618,7 @@ void reconstruction_accuracy(int run) {
 
         std::string filename;
         std::string filename_template = pathtorunplots + "reconstruction-accuracy_run" +
-                get_padded_string(run, 3, '0');
+                get_padded_string(run, 3, '0') + "_FILTER" + filtertag;
         std::string plottingfile = filename_template + "_plots.pdf";
         std::string plottingfilekari = filename_template + "_karifit_plots.pdf";
         std::string plottingfilerec = filename_template + "_msfit_plots.pdf";
@@ -608,11 +637,11 @@ void reconstruction_accuracy(int run) {
         fillHistWithVector(h_rec_nhits, rec_nhits);
 
         //Trajectory data Monte Carlo
-        TH1F *h_pmc = new TH1F("h_pmc", "muon momenta monte carlo (charge corrrected)", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        TH1F *h_pmc = new TH1F("h_pmc", "muon momenta monte carlo (charge corrrected)", 30, LEFT_BOUNDARY_P, RIGHT_BOUNDARY_P);
         labelAxis(h_pmc, "p_{mc} * charge_{mc} [MeV]", "count");
         fillHistWithVector(h_pmc, mc_p_corrs);
 
-        TH1F *h_ptmc = new TH1F("h_ptmc", "muon traverse momenta monte carlo (charge corrrected)", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        TH1F *h_ptmc = new TH1F("h_ptmc", "muon traverse momenta monte carlo (charge corrrected)", 30, LEFT_BOUNDARY_P, RIGHT_BOUNDARY_P);
         labelAxis(h_ptmc, "p_{t-mc} * charge_{mc} [MeV]", "count");
         fillHistWithVector(h_ptmc, mc_pt_corrs);
 
@@ -620,16 +649,21 @@ void reconstruction_accuracy(int run) {
         labelAxis(h_phimc, "#Phi", "count");
         fillHistWithVector(h_phimc, mc_phis);
 
+        TH1F *h_mctype = new TH1F("h_mctype", "Particle types of simulation", 100, -1000, 1000);
+        labelAxis(h_mctype, "particle type", "count");
+        fillHistWithVector(h_mctype, mc_types);
+
+
         //Trajectory data reconstructed
-        TH1F *h_p = new TH1F("h_p", "muon momenta", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        TH1F *h_p = new TH1F("h_p", "muon momenta", 30, LEFT_BOUNDARY_P, RIGHT_BOUNDARY_P);
         labelAxis(h_p, "p_{rec} [MeV]", "count");
         fillHistWithVector(h_p, rec_ps);
 
-        TH1F *h_p_corr = new TH1F("h_p_corr", "muon momenta (charge corrected)", 30, 0, RIGHT_BOUNDARY);
+        TH1F *h_p_corr = new TH1F("h_p_corr", "muon momenta (charge corrected)", 30, 0, RIGHT_BOUNDARY_P);
         labelAxis(h_p_corr, "p_{rec-corr} [MeV^{-1}]", "count");
         fillHistWithVector(h_p_corr, rec_p_corrs);
 
-        TH1F *h_pt = new TH1F("h_pt", "muon transverse momentum", 30, LEFT_BOUNDARY, RIGHT_BOUNDARY);
+        TH1F *h_pt = new TH1F("h_pt", "muon transverse momentum", 30, LEFT_BOUNDARY_P, RIGHT_BOUNDARY_P);
         labelAxis(h_pt, "p_{t} [MeV]", "count");
         fillHistWithVector(h_pt, rec_pts);
 
@@ -879,7 +913,7 @@ void reconstruction_accuracy(int run) {
         setGraphRange(g_prec_pmc, -1.5e5, 150e3, -1.5e5, 1.5e5);
 
         TGraph *g_prec_rrec = new TGraph(rec_ps.size(),&rec_ps[0],&rec_rs[0]);
-        g_prec_rrec->SetTitle("r_{rec} over p_{mc} correlation");
+        g_prec_rrec->SetTitle("r_{rec} over p_{rec} correlation");
         labelAxis(g_prec_rrec, "p_{rec} [MeV]", "r_{rec} [MeV]");
         setGraphRange(g_prec_rrec, -4e6,4e6,-10e6, 10e6);
 
@@ -1101,6 +1135,9 @@ void reconstruction_accuracy(int run) {
         ///PLOTTING THE HISTOGRAMS
 
         //overview canvas containing 16 plots
+
+
+
         auto *c_multi = new TCanvas("cmulti", "cmulti", 1200, 1200);
         c_multi->SetWindowPosition(0, 400);
 
@@ -1236,6 +1273,9 @@ void reconstruction_accuracy(int run) {
             c_multi5->Print(plottingfile.c_str(), "pdf");
         }
 
+        TGraph* graph7[3] = {g_pdev_z_dca, g_pdev_dca, g_pdev_phi};
+        makeSimpleMultiCanvas(1, 3, 3, graph7, plottingfile);
+
         //pt hist plots (1x3 canvas)
         TH1F * graph5[3] = {h_pt_inv_err, h_invptrec, h_invptmc};
         makeSimpleMultiCanvas(1,3,3,graph5, plottingfile);
@@ -1258,7 +1298,6 @@ void reconstruction_accuracy(int run) {
             //p error histograms for zdca intervals (2x2 canvas)
             makeSimpleMultiCanvas(2,2,4, &h_pinv_err_zdca[0], plottingfile);
         }
-
 
         //rec dca plots (2x2 canvas)
         TH1F * graph6[4] = {h_xdca, h_ydca, h_zdca, h_rdca};
@@ -1301,10 +1340,6 @@ void reconstruction_accuracy(int run) {
                 c_multi3->Print(plottingfile.c_str(), "pdf");
             }
         }
-
-
-        TGraph* graph7[2] = {g_pdev_z_dca, g_pdev_dca};
-        makeSimpleMultiCanvas(1, 2, 2, graph7, plottingfile);
 
         //karimaki histograms (2x2 canvas)
         TH1F* graph1[4] = {h_r3dkari, h_rinvkari, h_phikari, h_thetakari};
@@ -1418,7 +1453,14 @@ void reconstruction_accuracy(int run) {
             makeSimpleSingleCanvas(g_ptdevkvsms_ptms, plottingfile);
         }
 
-        //     ####### SINGLE PLOTS #######
+        makeSimpleSingleCanvas(h_mctype, plottingfile);
+
+        g_nhits_dca->SetMarkerColor(4);
+        makeSimpleSingleCanvas(g_nhits_dca, plottingfile);
+
+        makeSimpleSingleCanvas(h_phimc, plottingfile);
+
+        ////     ####### SINGLE PLOTS #######
 
 //        auto *c_single1 = new TCanvas("csinlge1", "csinlge1");
 //        c_single1->SetLeftMargin(0.15);
@@ -1430,11 +1472,11 @@ void reconstruction_accuracy(int run) {
 //        g_pdev_z_dca->Draw("AP");
 //        c_single2->Print(plottingfile.c_str(), "pdf");
 
-        auto *c_single3 = new TCanvas("csinlge3", "csinlge3");
-        c_single3->SetLeftMargin(0.15);
-        g_nhits_dca->SetMarkerColor(4);
-        g_nhits_dca->Draw("AP");
-        c_single3->Print(plottingfile.c_str(), "pdf");
+//        auto *c_single3 = new TCanvas("csinlge3", "csinlge3");
+//        c_single3->SetLeftMargin(0.15);
+//        g_nhits_dca->SetMarkerColor(4);
+//        g_nhits_dca->Draw("AP");
+//        c_single3->Print(plottingfile.c_str(), "pdf");
 
 
         ////Monte carlo dca
@@ -1468,11 +1510,11 @@ void reconstruction_accuracy(int run) {
 //        c_single9->SetLeftMargin(0.15);
 //        h_rdca->Draw();
 //        c_single9->Print(plottingfile.c_str(), "pdf");
-
-        auto *c_single11 = new TCanvas();
-        c_single11->SetLeftMargin(0.15);
-        h_phimc->Draw();
-        c_single11->Print(plottingfile.c_str(), "pdf");
+//
+//        auto *c_single11 = new TCanvas();
+//        c_single11->SetLeftMargin(0.15);
+//        h_phimc->Draw();
+//        c_single11->Print(plottingfile.c_str(), "pdf");
 
         //Single histogram for different nhits
         auto  *c_single10 = new TCanvas();
@@ -1502,11 +1544,14 @@ void reconstruction_accuracy(int run) {
             legend1->Draw();
 
             c_single10->Print(plottingfile.c_str(), "pdf");
-        }
-        filename = filename_template + "_hist_perr_nhits.pdf";
-        c_single10->SaveAs(filename.c_str());
 
-        //empty plot closes file
+            filename = filename_template + "_hist_perr_nhits.pdf";
+            c_single10->SaveAs(filename.c_str());
+        }
+
+
+
+        //empty plot closes _plots.pdf file
         auto *c_final = new TCanvas("c_final", "c_final");
         filename = plottingfile + ")";
         c_final->Print(filename.c_str(), "pdf");
@@ -1547,15 +1592,18 @@ void reconstruction_accuracy(int run) {
     }
 
     ////PRINT THE STATS
+    for(int i= 0; i<mc_types.size(); i++) {
+        cout << mc_types[i] << " ";
+    }
+
     cout << endl << endl << "---General Stats---\n" << endl;
     cout << "p fail analysis:" << endl;
     cout << "(p_mc == 0 || pt_mc == 0 || p_rec == 0 || pt_rec == 0) --- count: " << p_fail_count ;
-    cout << " fails of total: " << segs_entries << ", fail rate: ";
+    cout << " fails of total: " << processed_entries << ", fail rate: ";
     cout << (p_fail_count / (float) segs_entries) * 100 << " %" << endl;
-    printf("Radius swaps: %d of %d\n", rkari_swap_count, segs_entries);
-    printf("MC vs Kari sign fails: %d of %d\n", mckari_wrong_sign_count, segs_entries);
-    printf("MC vs REC sign fails: %d of %d\n", mcrec_wrong_sign_count, segs_entries);
-    printf("KARI vs REC sign fails: %d of %d\n", reckari_wrong_sign_count, segs_entries);
+    printf("MC vs Kari sign fails: %d of %d\n", mckari_wrong_sign_count, processed_entries);
+    printf("MC vs REC sign fails: %d of %d\n", mcrec_wrong_sign_count, processed_entries);
+    printf("KARI vs REC sign fails: %d of %d\n", reckari_wrong_sign_count, processed_entries);
     //cout << "1 / p reconstruction error mean: "  << p_inv_rec_error_mean * 100 << "% " << endl;
 
     for(int i=0; i < 6; i++) {

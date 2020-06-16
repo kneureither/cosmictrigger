@@ -1,0 +1,13 @@
+{
+  "name": "reconstruction_accuracy.cpp",
+  "filter options": {
+    "default": 0,
+    "kari-outliers" : 1,
+    "mu+" : 2,
+    "mu-" : 3,
+    "sgn(p_kari) != sgn(p_mc)" : 4,
+    "special1": 5,
+    "muons only": 6,
+    "plane muons only" : 7
+  }
+}
