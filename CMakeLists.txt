@@ -12,8 +12,8 @@ link_directories(${ROOT_LIBRARY_DIR})
 
 set(KARIPATH "../3rdparty/karimaki/")
 set(SRC
-        scripts/recacc_main.cpp
-        scripts/reconstruction_accuracy.cpp
+        Mu3eRecAcc/recacc_main.cpp
+        Mu3eRecAcc/reconstruction_accuracy.cpp
         ${KARIPATH}karimaki_hit.c
         ${KARIPATH}fitszw.c
         ${KARIPATH}cirpar.c
@@ -26,5 +26,6 @@ add_executable(Mu3eRecAcc ${SRC})
 
 add_compile_options("-lf2c" "-DMAIN")
 
-add_subdirectory(scripts)
+add_subdirectory(Mu3eRecAcc)
+add_subdirectory(Mu3eCosPat)
 add_subdirectory(tests)
