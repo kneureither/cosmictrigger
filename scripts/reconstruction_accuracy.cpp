@@ -2,12 +2,15 @@
 // Created by Konstantin Neureither on 27.04.20.
 //
 #define TRIPLET_HIT_ARRAY_LENGTH 1024
+#define GET_DATA_FROM_MU3E true
+
 #ifndef PI
 #define PI 3.1415926535
-#ifndef DEBUG
-#define DEBUG true
-#endif
 #endif //PI
+
+#ifndef DEBUG
+#define DEBUG false
+#endif //DEBUG
 
 #include <TFile.h>
 #include <TROOT.h>
@@ -20,7 +23,6 @@
 #include <TLine.h>
 #include <TCanvas.h>
 #include <TLegend.h>
-#include <fstream>
 #include <filesystem>
 #include <cmath>
 #include <assert.h>
@@ -32,7 +34,6 @@
 using std::cout;
 using std::endl;
 
-
 void reconstruction_accuracy(int run, int FILTER) {
 
     const std::string pathtodata = "../data/";
@@ -40,10 +41,7 @@ void reconstruction_accuracy(int run, int FILTER) {
     const bool RECONSTRUCTION_PRINTS = false;
     const bool HIT_PRINTS = DEBUG;
     const bool MAKE_PLOT = true;
-    const bool ADDITIONAL_PLOTS = false;
     const int MAX_ENTRIES = 0;
-    const bool USE_MC_TYPE = true;
-    //const int FILTER = 0; // 0:all 1:kari outliers 2:mu+ 3:mu- 4:
 
     std::string filtertag;
 
@@ -53,20 +51,20 @@ void reconstruction_accuracy(int run, int FILTER) {
     check_create_directory(pathtorunplots);
 
     std::string runpadded = get_padded_string(run, 6, '0');
-    std::string infile1 = pathtodata + "mu3e_run_" + runpadded + ".root";
     std::string infile2 = pathtodata + "mu3e_run_" + runpadded + "_trirec_cosmic.root";
-
-    TFile f1(infile1.c_str());
     TFile f2(infile2.c_str());
-
-    TTree *t_mu3e;
-    f1.GetObject("mu3e", t_mu3e);
     TTree *t_segs;
     f2.GetObject("segs", t_segs);
     TTree *t_frames;
     f2.GetObject("frames", t_frames);
 
-    //data in mu3e tree
+#if GET_DATA_FROM_MU3E
+    std::string infile1 = pathtodata + "mu3e_run_" + runpadded + ".root";
+    TFile f1(infile1.c_str());
+    TTree *t_mu3e;
+    f1.GetObject("mu3e", t_mu3e);
+
+    //data in mu3e tree (not used)
     unsigned int mu3e_entries = t_mu3e->GetEntries();
     int mu3e_nhits;
     int header[4]; //event, run, type (empty), setup (emtpy)
@@ -88,8 +86,10 @@ void reconstruction_accuracy(int run, int FILTER) {
     t_mu3e->SetBranchAddress("traj_pz", &traj_pz);
 
     cout << "Branches set for mu3e..." << endl;
+#endif
 
-    //data for trirec result tree segs
+
+    //data for trirec result in "segs" tree
     unsigned int segs_entries = t_segs->GetEntries();
     int rec_event;
     int rec_nhit;
@@ -206,12 +206,12 @@ void reconstruction_accuracy(int run, int FILTER) {
 
     cout << "Branches set for segs..." << endl;
 
-    //data for frames tree
-    unsigned int frames_entries = t_frames->GetEntries();
-    //TODO Maybe switch from segs tree to frames tree
-    cout << "Branches set for frames..." << endl;
 
-    //stats data definitions
+//    data for frames tree
+//    unsigned int frames_entries = t_frames->GetEntries();
+//    cout << "Branches set for frames..." << endl;
+
+    //// further data for stats graphs and calculations
     int p_fail_count = 0;
     int rkari_swap_count = 0;
     int mckari_wrong_sign_count = 0;
@@ -266,6 +266,8 @@ void reconstruction_accuracy(int run, int FILTER) {
     std::vector<int> rec_nhits;
     std::vector<int> mc_types;
     std::vector<float> rec_nhits_float;
+
+    //data is collected depending on entry
     std::vector<float> p_inv_rel_errors_hits[6];
     std::vector<float> p_inv_err_nhits[3];
     std::vector<float> pt_inv_err_nhits[3];
@@ -281,9 +283,15 @@ void reconstruction_accuracy(int run, int FILTER) {
     double RMS = 80 * 1e-3 / sqrt(12); //RMS in mm
     float BFIELD = 1.0;
 
+    double tres[TRIPLET_HIT_ARRAY_LENGTH] = {RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS};
+    double zres[TRIPLET_HIT_ARRAY_LENGTH] = {RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS};
+    double rres[TRIPLET_HIT_ARRAY_LENGTH] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+
+#if GET_DATA_FROM_MU3E
     unsigned int mu3e_index = 1;
     t_mu3e->GetEntry(mu3e_index);
     mu3e_index++;
+#endif
 
 
     for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); i++) {
@@ -291,6 +299,7 @@ void reconstruction_accuracy(int run, int FILTER) {
 
         if(HIT_PRINTS) printf("\nRECONSTRUCTION ACCURACY ENTRY\n------------------------------\n\n");
 
+#if GET_DATA_FROM_MU3E
         //find corresponding entry in mu3e tree
         while (rec_event > header[0]) {
             t_mu3e->GetEntry(mu3e_index);
@@ -324,6 +333,7 @@ void reconstruction_accuracy(int run, int FILTER) {
         double trajpy = (*traj_py)[0];
         double trajpz = (*traj_pz)[0];
         double trajp = sqrt(pow(trajpx, 2) + pow(trajpy, 2) + pow(trajpz, 2));
+#endif
 
         //print triplet data from segs tree
         if (HIT_PRINTS) {
@@ -355,9 +365,6 @@ void reconstruction_accuracy(int run, int FILTER) {
         std::vector<int> sids;
         std::vector<double> phi_hits;
         std::vector<double> thetas;
-        double tres[16] = {RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS};
-        double zres[16] = {RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS};
-        double rres[16] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
 
         int ncombinedhits = combineHits(xp, yp, zp, sids, phi_hits, thetas, rec_nhit, rec_ntriplet,
                                         x00, x10, x01, x20, x21, y00, y10, y01, y20, y21, z00, z10, z01, z20, z21,
@@ -380,7 +387,7 @@ void reconstruction_accuracy(int run, int FILTER) {
             float mc_p_corr;
             float mc_pt_corr;
 
-            if (FILTER == 6 || FILTER == 7) {
+            if (FILTER == 0 || FILTER == 6) {
                 mc_p_corr = (mc_p) * (mc_type % 10 == 3 ? -1 : 1);
                 mc_pt_corr = (mc_pt) * (mc_type % 10 == 3 ? -1 : 1);
             } else {
@@ -407,10 +414,11 @@ void reconstruction_accuracy(int run, int FILTER) {
             float pt_kvsms_inv_err = kari_inv_pt - rec_inv_pt;
 
 
+            //Filtering entries //FIXME filtertag is defined over and over again
             bool choice;
             switch(FILTER) {
-                case 0: choice = true;
-                        filtertag = "all";
+                case 0: choice = choice = mc_type % 10 == 3 || mc_type % 10 == 4;
+                        filtertag = "muonsonly";
                         break;
                 case 1: choice = pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2;
                         filtertag = "kari-outliers";
@@ -427,11 +435,11 @@ void reconstruction_accuracy(int run, int FILTER) {
                 case 5: choice = karires.phi > 0 && karires.phi < PI/2 && (pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2);
                         filtertag = "special1";
                         break;
-                case 6: choice = mc_type % 10 == 3 || mc_type % 10 == 4;
-                        filtertag = "muonsonly";
-                        break;
-                case 7: choice = mc_type == 3 || mc_type == 4;
+                case 6: choice = mc_type == 3 || mc_type == 4;
                         filtertag = "planemuonsonly";
+                        break;
+                case 7: choice = true;
+                        filtertag = "all";
                         break;
                 default:choice = true;
                         filtertag = "";
@@ -439,10 +447,9 @@ void reconstruction_accuracy(int run, int FILTER) {
 
             if (choice) {
 
-                printf("mc_type? %d \t mc_pid = %d\n", mc_type, mc_pid);
+//                printf("mc_type? %d \t mc_pid = %d\n", mc_type, mc_pid);
 //                assert(!(mc_type == 4 && sgn(mc_pid) == -1));
 //                assert(!(mc_type == 3 && sgn(mc_pid) == 1));
-
 
                 //calculated data
                 rec_inv_ps.push_back(rec_inv_p);
@@ -461,7 +468,6 @@ void reconstruction_accuracy(int run, int FILTER) {
                 mc_inv_pts.push_back(mc_inv_pt);
                 mc_z_dcas.push_back(mc_z_dca);
                 mc_inv_ps.push_back(mc_inv_p);
-
 
                 //reconstruction data
                 rec_ps.push_back(rec_p);
@@ -497,7 +503,9 @@ void reconstruction_accuracy(int run, int FILTER) {
                 mc_types.push_back(mc_type);
 
                 //meta data
+#if GET_DATA_FROM_MU3E
                 sim_nhits.push_back(mu3e_nhits);
+#endif
                 rec_nhits.push_back(rec_nhit);
                 rec_nhits_float.push_back((float)rec_nhit);
 
@@ -505,7 +513,6 @@ void reconstruction_accuracy(int run, int FILTER) {
                 if(karires.rad / mc_p_corr < 0) mckari_wrong_sign_count++;
                 if(karires.rad / rec_p < 0) reckari_wrong_sign_count++;
                 processed_entries++;
-
 
                 switch(rec_nhit) {
                     case 4:
@@ -585,14 +592,16 @@ void reconstruction_accuracy(int run, int FILTER) {
                 ////PRINT SECTION PER ENTRY IN TREE
                 if(RECONSTRUCTION_PRINTS) {
                     //data from reconstruction
-                    cout << "rec_event: " << rec_event << " mu3e_event: " << header[0];
-                    cout << " mc_p: " << mc_p << " rec_p: " << rec_p*sgn(rec_r) << "rec_nhit: "<< rec_nhit <<"\t\t";
-
-                    cout << "rec_r= " << rec_r << " mc_type=" << mc_type;
+                    cout << "rec_event: " << rec_event;
+#if GET_DATA_FROM_MU3E
                     //data from simulation
-//                    cout << "\t" << "traj id; (px, py, pz) " <<  trajid << "; (" << trajpx << ", " << trajpy << ", " << trajpz << ") ";
-//                    cout << "p_calc: " << trajp << "\t";
-//                    cout << "\tp_calc / mc_p: " << double(trajp / mc_p);
+                    cout << " mu3e_event: " << header[0] << endl;
+                    cout << "\t" << "traj id; (px, py, pz) " <<  trajid << "; (" << trajpx << ", " << trajpy << ", " << trajpz << ") ";
+                    cout << "p_calc: " << trajp << "\t";
+                    cout << "\tp_calc / mc_p: " << double(trajp / mc_p) << endl;
+#endif
+                    cout << " mc_p: " << mc_p << " rec_p: " << rec_p*sgn(rec_r) << "rec_nhit: "<< rec_nhit <<"\t\t";
+                    cout << "rec_r= " << rec_r << " mc_type=" << mc_type;
 
                     //mc and rec deviations
                     cout << "pt_mc= " << mc_pt << " pt_rec= " << rec_pt << " phi_mc= " << mc_phi << " rec_phi= " << rec_phi;
@@ -623,7 +632,6 @@ void reconstruction_accuracy(int run, int FILTER) {
         std::string plottingfilekari = filename_template + "_karifit_plots.pdf";
         std::string plottingfilerec = filename_template + "_msfit_plots.pdf";
         std::string plottingfilecomparison = filename_template + "_comparison_plots.pdf";
-
 
 
         ///FILLING THE HISTOGRAMS
@@ -1107,7 +1115,7 @@ void reconstruction_accuracy(int run, int FILTER) {
         labelAxis(g_karirdca_kariphi, "#phi_{kari}", "dca_{kari} [mm]");
         setGraphRange(g_karirdca_kariphi,-3.2, 3.2,  -80,80);
 
-        ////SOME MORE PLOTS
+        ////SOME MORE
 
         // x-axis p_rec / p_mc plots
         //vlt nicht nötig
@@ -1132,101 +1140,15 @@ void reconstruction_accuracy(int run, int FILTER) {
         labelAxis(g_nhits_dca, "nhits", "r-dca_{rec} [mm]");
         setGraphRange(g_nhits_dca, 0,14,0, 60);
 
-        ///PLOTTING THE HISTOGRAMS
 
-        //overview canvas containing 16 plots
+        ///######### PLOTTING PLOTS.PDF FILE ################################################
 
-
-
-        auto *c_multi = new TCanvas("cmulti", "cmulti", 1200, 1200);
-        c_multi->SetWindowPosition(0, 400);
-
-        c_multi->Divide(4,4);
-
-        {
-            //first row
-            c_multi->cd(1);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_p->Draw();
-
-            c_multi->cd(2);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_pmc->Draw();
-
-            c_multi->cd(3);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_pt->Draw();
-
-            c_multi->cd(4);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_ptmc->Draw();
-
-            //second row
-            c_multi->cd(5);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_dcamc->Draw();
-
-            c_multi->cd(6);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_phi->Draw();
-
-            c_multi->cd(7);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_nhits->Draw();
-
-            c_multi->cd(8);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_rec_nhits->Draw();
-
-            //third row
-            c_multi->cd(9);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_theta->Draw();
-
-            c_multi->cd(10);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_pinv_relerror->Draw();
-
-            c_multi->cd(11);
-            gPad->SetLogy(1);
-            gPad->SetLeftMargin(0.15);
-            h_poverpmc->Draw();
-
-            c_multi->cd(12);
-            gPad->SetLeftMargin(0.15);
-            g_prec_rrec->Draw("AP");
-
-
-            //fourth row
-            c_multi->cd(13);
-            gPad->SetLeftMargin(0.15);
-            g_pdev_phi->Draw("ap");
-
-            c_multi->cd(14);
-            gPad->SetLeftMargin(0.15);
-            g_pdev_dca->Draw("ap");
-
-            c_multi->cd(15);
-            gPad->SetLeftMargin(0.15);
-            g_pdev_p->Draw("ap");
-
-            c_multi->cd(16);
-            gPad->SetLeftMargin(0.15);
-            g_prec_pmc->Draw("AP");
-
-            filename = plottingfile + "(";
-            c_multi->Print(filename.c_str(), "pdf");
-        }
+        //overview canvas containing 12 histograms
+        TH1F * ov_hists[12];
+        ov_hists[0] = h_p; ov_hists[1] = h_pmc; ov_hists[2] = h_pt; ov_hists[3] = h_ptmc;
+        ov_hists[4] = h_dcamc; ov_hists[5] = h_phi; ov_hists[6] = h_nhits; ov_hists[7] = h_rec_nhits;
+        ov_hists[8] = h_theta; ov_hists[9] = h_pinv_relerror; ov_hists[10] = h_poverpmc; ov_hists[11] = h_invptrec;
+        makeSimpleMultiCanvas(3,4,12,ov_hists, true, false, plottingfile + "(");
 
         //p_rec and p_mc rel deviations 1x2 canvas
         auto *c_multi2 = new TCanvas("cmulti3", "cmulti3", 1200, 600);
@@ -1349,17 +1271,23 @@ void reconstruction_accuracy(int run, int FILTER) {
         TH1F* graph2[4] = {h_dcakari, h_tchi2nkari, h_z0kari, h_zchi2kari};
         makeSimpleMultiCanvas( 2, 2, 4, graph2, false, false, plottingfile);
 
-        //karimaki vs ms theta histograms (1x2 canvas)
-        TH1F* graph8[2] = {h_thetakari, h_theta};
-        makeSimpleMultiCanvas( 1, 2, 2, graph8, plottingfile);
-
         // karimaki theta vs rec theta correlation plot
-        auto *c_single4 = new TCanvas("cmulti4", "cmulti4", 900, 900);
+        auto *c_single4 = new TCanvas("cmulti4", "cmulti4", 900, 450);
         {
-            c_single4->SetLeftMargin(0.15);
+            c_single4->Divide(3,1);
+            c_single4->cd(1);
+            gPad->SetLeftMargin(0.15);
+            h_thetakari->Draw();
+
+            c_single4->cd(2);
+            gPad->SetLeftMargin(0.15);
+            h_theta->Draw();
+
+            c_single4->cd(3);
+            gPad->SetLeftMargin(0.15);
             g_theta_kvsms->Draw("AP");
 
-            c_single4->Update();
+            gPad->Update();
             TLine *l1=new TLine(0,0,PI,PI);
             TLine *l2=new TLine(0,PI,PI,0);
             l1->SetLineColor(kBlue);
@@ -1460,62 +1388,6 @@ void reconstruction_accuracy(int run, int FILTER) {
 
         makeSimpleSingleCanvas(h_phimc, plottingfile);
 
-        ////     ####### SINGLE PLOTS #######
-
-//        auto *c_single1 = new TCanvas("csinlge1", "csinlge1");
-//        c_single1->SetLeftMargin(0.15);
-//        g_pdev_dca->Draw("AP");
-//        c_single1->Print(plottingfile.c_str(), "pdf");
-//
-//        auto *c_single2 = new TCanvas("csinlge2", "csinlge2");
-//        c_single2->SetLeftMargin(0.15);
-//        g_pdev_z_dca->Draw("AP");
-//        c_single2->Print(plottingfile.c_str(), "pdf");
-
-//        auto *c_single3 = new TCanvas("csinlge3", "csinlge3");
-//        c_single3->SetLeftMargin(0.15);
-//        g_nhits_dca->SetMarkerColor(4);
-//        g_nhits_dca->Draw("AP");
-//        c_single3->Print(plottingfile.c_str(), "pdf");
-
-
-        ////Monte carlo dca
-//        auto *c_single4 = new TCanvas("csinlge4", "csinlge4");
-//        c_single4->SetLeftMargin(0.15);
-//        h_dcamc_phi->Draw();
-//        c_single4->Print(plottingfile.c_str(), "pdf");
-//
-//        auto *c_single5 = new TCanvas("csinlge5", "csinlge5");
-//        c_single5->SetLeftMargin(0.15);
-//        h_zdcamc->Draw();
-//        c_single5->Print(plottingfile.c_str(), "pdf");
-
-        ////Einzel rec dca
-//        auto *c_single6 = new TCanvas("csinlge6", "csingle6");
-//        c_single6->SetLeftMargin(0.15);
-//        h_xdca->Draw();
-//        c_single6->Print(plottingfile.c_str(), "pdf");
-//
-//        auto *c_single7 = new TCanvas("csinlge7", "csingle7");
-//        c_single7->SetLeftMargin(0.15);
-//        h_ydca->Draw();
-//        c_single7->Print(plottingfile.c_str(), "pdf");
-//
-//        auto *c_single8 = new TCanvas("csinlge8", "csingle8");
-//        c_single8->SetLeftMargin(0.15);
-//        h_zdca->Draw();
-//        c_single8->Print(plottingfile.c_str(), "pdf");
-//
-//        auto *c_single9 = new TCanvas("csinlge9", "csingle9");
-//        c_single9->SetLeftMargin(0.15);
-//        h_rdca->Draw();
-//        c_single9->Print(plottingfile.c_str(), "pdf");
-//
-//        auto *c_single11 = new TCanvas();
-//        c_single11->SetLeftMargin(0.15);
-//        h_phimc->Draw();
-//        c_single11->Print(plottingfile.c_str(), "pdf");
-
         //Single histogram for different nhits
         auto  *c_single10 = new TCanvas();
         {
@@ -1548,8 +1420,6 @@ void reconstruction_accuracy(int run, int FILTER) {
             filename = filename_template + "_hist_perr_nhits.pdf";
             c_single10->SaveAs(filename.c_str());
         }
-
-
 
         //empty plot closes _plots.pdf file
         auto *c_final = new TCanvas("c_final", "c_final");
@@ -1592,11 +1462,12 @@ void reconstruction_accuracy(int run, int FILTER) {
     }
 
     ////PRINT THE STATS
-    for(int i= 0; i<mc_types.size(); i++) {
-        cout << mc_types[i] << " ";
-    }
+//    for(int i= 0; i<mc_types.size(); i++) {
+//        cout << mc_types[i] << " ";
+//    }
 
     cout << endl << endl << "---General Stats---\n" << endl;
+    cout << "Filter set to : \""<< filtertag << "\", " << processed_entries << " entries processed." << endl << endl;
     cout << "p fail analysis:" << endl;
     cout << "(p_mc == 0 || pt_mc == 0 || p_rec == 0 || pt_rec == 0) --- count: " << p_fail_count ;
     cout << " fails of total: " << processed_entries << ", fail rate: ";
