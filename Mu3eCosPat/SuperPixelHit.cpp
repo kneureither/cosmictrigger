@@ -2,9 +2,9 @@
 // Created by Konstantin Neureither on 16.06.20.
 //
 
-#include "SuperPixel.h"
+#include "SuperPixelHit.h"
 
-SuperPixel::SuperPixel() {
+SuperPixelHit::SuperPixelHit() {
     this->layer=-1;
     this->initX=0.0;
     this->initY=0.0;
@@ -14,7 +14,7 @@ SuperPixel::SuperPixel() {
     this->area=0;
 }
 
-SuperPixel::SuperPixel(float x, float y, float z, int layer, int spPhi, int spZ, int area, int binsPhi, int binsZ) {
+SuperPixelHit::SuperPixelHit(float x, float y, float z, int layer, int spPhi, int spZ, int area, int binsPhi, int binsZ) {
     this->layer=layer;
     this->initX=x;
     this->initY=y;
@@ -27,6 +27,6 @@ SuperPixel::SuperPixel(float x, float y, float z, int layer, int spPhi, int spZ,
     this->SPID = layer + 10 * area + 100 * (spZ * binsPhi + spPhi);
 }
 
-void SuperPixel::testIntegrity() {
+void SuperPixelHit::testIntegrity() {
 
 }
