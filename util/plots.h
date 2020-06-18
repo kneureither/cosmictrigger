@@ -4,10 +4,12 @@
 #endif //COSMICTRIGGER_TPLOTS_H
 
 #include <assert.h>
+#include <TFile.h>
 #include <TH1.h>
 #include <TGraph.h>
 #include <TCanvas.h>
 #include <type_traits>
+#include <iostream>
 
 //This file contains functions for setting plot properties
 //and filling plots with data.
@@ -27,6 +29,23 @@ void labelAxis(TH1 * h, const char * xtitle, const char * ytitle){
 
     h->GetXaxis()->SetLabelSize(0.03);
     h->GetYaxis()->SetLabelSize(0.03);
+
+//    h->GetXaxis()->SetMaxDigits(5);
+//    h->GetYaxis()->SetMaxDigits(5);
+}
+
+void labelAxis(TH1 * h, const char * xtitle, const char * ytitle, float ylabelsize){
+    h->GetXaxis()->SetTitle(xtitle);
+    h->GetYaxis()->SetTitle(ytitle);
+
+    h->GetXaxis()->SetTitleSize(0.04);
+    h->GetYaxis()->SetTitleSize(0.04);
+
+    h->GetXaxis()->SetTitleOffset(0.9);
+    h->GetYaxis()->SetTitleOffset(1.2);
+
+    h->GetXaxis()->SetLabelSize(0.03);
+    h->GetYaxis()->SetLabelSize(ylabelsize);
 
 //    h->GetXaxis()->SetMaxDigits(5);
 //    h->GetYaxis()->SetMaxDigits(5);

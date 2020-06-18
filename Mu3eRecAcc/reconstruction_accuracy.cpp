@@ -26,10 +26,11 @@
 #include <filesystem>
 #include <cmath>
 #include <assert.h>
-#include "../util/utility_functions.h"
+#include "../util/utilityFunctions.h"
 #include "../util/plots.h"
 #include "reconstruction_accuracy.h"
 #include "../util/trigonometry.h"
+#include "../util/rootData.h"
 
 using std::cout;
 using std::endl;
@@ -37,7 +38,7 @@ using std::endl;
 void reconstruction_accuracy(int run, int FILTER) {
 
     const std::string pathtodata = "../data/";
-    const std::string pathtoplots = "../plots/";
+    const std::string pathtoplots = "../plots/Mu3eRecAcc/";
     const bool RECONSTRUCTION_PRINTS = false;
     const bool HIT_PRINTS = DEBUG;
     const bool MAKE_PLOT = true;
