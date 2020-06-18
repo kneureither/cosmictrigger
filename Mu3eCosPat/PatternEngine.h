@@ -28,26 +28,40 @@ private:
     int getXSP(float x);
     int getZSP(float z);
     int getPhiSP(float phi);
+    int getSPZcoord(int sp2DID);
+    int getSPXcoord(int sp2DID);
 
     template <typename T>
     int binSearch(std::vector<T> targetVector, T value, int start, int end);
+
+    template <typename T>
+    int seqSearch(std::vector<T> targetVector, T value);
 
     float getRadius(float x, float y);
     float getHitPhi(float x, float y);
 
     void initializeSPbins();
+    void initializeMembers(float spXpartition, float spZpartition, int mode);
+
+    std::string pltf();
+
 
     float layerFactor[4] = {0.0}; // scale down x boundaries with reference to outer layer
     const float layerBoundaries[5] = {0.0, 26.00, 51.0, 78.5, 100.00}; //radial decision boundaries for layers
 
     int mode = 0; //default is cylindrical mode
-    float wBinCount; //width (phi or x)
-    float zBinCount;
+    int wBinCount; //width (phi or x)
+    int zBinCount;
+    int totalBinCount;
 
     //only center region implemented for now
     float centralDetectorZmin = -200.00;
     float centralDetectorZmax = 200.00;
     float centralDetectorLength;
+
+    float widthMax;
+    float widthMin;
+    float widthDimLength;
 
     float centralDetectorXmin; //etc
 
@@ -55,15 +69,31 @@ private:
     std::vector<float> zBins;
     std::vector<float> xBins;
 
+    float SPZsize;
+    float SPPhisize;
+
+    std::vector<int> spWeights[4];
+
     std::string plottingpath = "../plots/PatternEngine/";
+    std::string plottingfile = "PEplots.pdf";
+    std::string runspecs;
+    int firstplot = 1;
 
 public:
     PatternEngine(float spXpartition, float spZpartition, int mode);
     PatternEngine(float spXpartition, float spZpartition, int mode, std::string plottingpath);
-    unsigned int getSuperPixel(float x, float y, float z);
-    int translateToSensorRefSP(int SPID);
-    int translateToIndexRefSP(int SPID);
+//    ~PatternEngine();
+
+    int getSuperPixel(float x, float y, float z);
+    int translateToSensorRefSP(int spIndexRefID);
+    int translateToIndexRefSP(int spSensorRefID);
+
     void displayBinBoundaries();
+    void displayBinWeightDistribution();
+    void displayBinWeightDistributionLayer(int layer);
+    void closePlot();
+
     void testbinSearch();
+    void testCoordImpl();
 };
 #endif //COSMICTRIGGER_PATTERNENGINE_H
