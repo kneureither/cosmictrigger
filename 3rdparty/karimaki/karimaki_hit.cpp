@@ -28,6 +28,7 @@ Add s-z fit subsequently
 #include "hits_include.h"
 #include "pixrec.h"
 #include "karimaki.h"
+#include "fitszw.h"
 
 #include "c_wrappedcode.h"
 
@@ -65,8 +66,6 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
   float alph;
   float theta,r3d;
 
-  int fitszw (float *,float *,float *,int ,float *,float *);
-
   /* number hits */
   NumConstr=0;
 
@@ -87,7 +86,7 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
     double dphi =  phi_hit - phip[i];
     TWeight[i]=1./pow(sin(dphi)*tres[i], 2);
 
-    if(DEBUG_CONSOLE_LOG) printf("\tphi_hit=%f, phi_track=%f, dphi=%f, sin(dphi)=%f\t", phi_hit, phip[i], dphi, abs(sin(dphi)));
+    if(DEBUG_CONSOLE_LOG) printf("\tphi_hit=%f, phi_track=%f, dphi=%f, sin(dphi)=%f\t", phi_hit, phip[i], dphi, fabs(sin(dphi)));
     if(DEBUG_CONSOLE_LOG) printf("\ti=%d: x=%f   y=%f   z=%f TWeight[i]=%f\n",i, ConstrX[i],ConstrY[i],ConstrZ[i],TWeight[i]);
     NumConstr++;
   }

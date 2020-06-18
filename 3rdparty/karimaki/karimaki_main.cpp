@@ -14,7 +14,7 @@
 #include <iostream>
 
 #include "karimaki.h"
-#include "../../util/utility_functions.h"
+#include "utilityFunctions.h"
 #include "../../util/custom_types.h"
 
 using std::endl;

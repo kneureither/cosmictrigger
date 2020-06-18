@@ -1,7 +1,8 @@
 #include <stdlib.h> 
 #include <time.h> 
 #include <math.h> 
-#include <stdio.h> 
+#include <stdio.h>
+#include "fitszw.h"
 
 int fitszw (float *ConstrS,float *ConstrZ,float *Weight,int NumConstr,float *ZPar,float *ZCh2dF) {
 /***************************************************************************************************

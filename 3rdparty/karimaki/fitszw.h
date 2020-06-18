@@ -5,4 +5,6 @@
 #ifndef COSMICTRIGGER_FITSZW_H
 #define COSMICTRIGGER_FITSZW_H
 
+int fitszw (float *,float *,float *,int ,float *,float *);
+
 #endif //COSMICTRIGGER_FITSZW_H
