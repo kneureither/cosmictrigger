@@ -1,29 +1,35 @@
-# README #
+# THE COSMIC TRIGGER #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This project is part of a Bachelor Thesis at the Mu3e experiment @ Physikalisches Insitut Heidelberg.
+Author: Konstantin Neureither
+Supervisor: Prof. Dr. Andre Schöning
 
 ### What is this repository for? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* Analysis of Cosmic trigger data from the mu3e simulation package
+* Streamline simulation data in order to improve evaluation efficiency
+* Implemented helix fitting for cosmic muons
+* Create superpixel and superpixel template mapping over detector area
+* Evaluate and optimize template mapping
+* Pattern Recognition of simulation data
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+Requirements: 
 
-### Contribution guidelines ###
+* root package installed
+* f2c libraries (fortran to c)
 
-* Writing tests
-* Code review
-* Other guidelines
+Components:
+
+* Up till now, the project contains two executables
+	* ```Mu3eRecAcc``` produces analysis and control plots
+	* ```Mu3eCosPat``` runs a prototype of SuperPixel computation on root files of the simulation
+
+Get it running:
+
+* Running the CMake config should be straight forward, maybe the f2clib path needs to be changed in the top dir CMake file.
 
 ### Who do I talk to? ###
 
-* Repo owner or admin
-* Other community or team contact
+Contact: [neureither@physi.uni-heidelberg.de](mailto:neureither@physi.uni-heidelberg.de)
