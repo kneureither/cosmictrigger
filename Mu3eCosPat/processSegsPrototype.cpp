@@ -25,11 +25,12 @@
 #include <filesystem>
 #include <cmath>
 #include <assert.h>
-#include "../util/utilityFunctions.h"
-#include "../util/plots.h"
-#include "../util/trigonometry.h"
-#include "../util/rootData.h"
+
+
+#include "utilityFunctions.h"
+#include "plots.h"
 #include "PatternEngine.h"
+#include "rootData.h"
 
 using std::cout;
 using std::endl;
@@ -46,7 +47,7 @@ void processSegsPrototype(int run, int FILTER) {
     std::string pathtorunplots = pathtoplots + "run_" + get_padded_string(run, 3, '0') + "/";
     check_create_directory(pathtorunplots);
 
-    PatternEngine PE(100, 20, 0, pathtorunplots);
+    PatternEngine PE(20, 100, 0, pathtorunplots);
     PE.displayBinBoundaries();
 
     std::string filtertag;
@@ -249,7 +250,7 @@ void processSegsPrototype(int run, int FILTER) {
 
                 for(int i = 0; i<ncombinedhits; i++) {
 //                    printf("Getting SP Coordinates for Pixel %d: x=%f, y=%f, z=%f\n", i, xp.at(i),yp.at(i),zp.at(i));
-                    int SID = PE.getSuperPixel(xp[i], yp[i], zp[i]);
+                    unsigned int SID = PE.getSuperPixel(xp[i], yp[i], zp[i]);
 //                    printf("SID=%d\n", SID);
                 }
             }

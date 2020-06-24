@@ -21,6 +21,11 @@
 #include "SuperPixelHit.h"
 
 
+//TODO Implement other mapping of superpixels (maybe just a cartesian one
+// -- This could either be done by deriving cartesian and phi dependent from a common base class
+// -- Or include it into this class and use the int mode parameter
+
+
 class PatternEngine {
 
 private:
@@ -84,7 +89,7 @@ public:
     PatternEngine(float spXpartition, float spZpartition, int mode, std::string plottingpath);
 //    ~PatternEngine();
 
-    int getSuperPixel(float x, float y, float z);
+    unsigned int getSuperPixel(float x, float y, float z);
     int translateToSensorRefSP(int spIndexRefID);
     int translateToIndexRefSP(int spSensorRefID);
 
@@ -96,4 +101,6 @@ public:
     void testbinSearch();
     void testCoordImpl();
 };
+
+
 #endif //COSMICTRIGGER_PATTERNENGINE_H

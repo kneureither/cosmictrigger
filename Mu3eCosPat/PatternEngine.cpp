@@ -19,10 +19,11 @@
 #include <cmath>
 #include <assert.h>
 #include <iostream>
+
+#include "utilityFunctions.h"
+#include "plots.h"
 #include "PatternEngine.h"
-#include "../util/plots.h"
 #include "SuperPixelHit.h"
-#include "../util/utilityFunctions.h"
 
 PatternEngine::PatternEngine(float spXpartition, float spZpartition, int mode) {
     printf("----INIT PATTERN ENGINE----\n");
@@ -110,7 +111,7 @@ int PatternEngine::getLayer(float r) {
     }
 }
 
-int PatternEngine::getSuperPixel(float x, float y, float z) {
+unsigned int PatternEngine::getSuperPixel(float x, float y, float z) {
 //    printf("Coordinates delivered: x=%f, y=%f, z=%f\n", x,y,z);
     float r = getRadius(x, y);
 //    printf("radius=%f\n", r);
@@ -133,7 +134,7 @@ int PatternEngine::getSuperPixel(float x, float y, float z) {
     //    printf("SP2D = %d, weights = %d \n", sp2DID, this->spWeights[0][sp2DID]);
     if(SPID != 0) this->spWeights[layer].at(sp2DID) = this->spWeights[layer].at(sp2DID) + 1;
 
-    return SPID;
+    return (unsigned int) SPID;
 }
 
 float PatternEngine::getRadius(float x, float y) {
@@ -287,7 +288,7 @@ void PatternEngine::displayBinWeightDistributionLayer(int layer) {
     h_binweights->SetStats(true);
     labelAxis(h_binweights, "z bins", "#phi bins");
 
-
+    //Fill 2d hist with weights
     for(int i=1; i<totalBinCount; i++) {
         for(int j=1; j<spWeights[layer].at(i); j++) {
             h_binweights->Fill(getSPZcoord(i+1), getSPXcoord(i+1));
@@ -297,9 +298,7 @@ void PatternEngine::displayBinWeightDistributionLayer(int layer) {
     // Norm
     h_binweights -> Scale(1.0 / h_binweights->Integral());
 
-
-    std::cout << "Bin z :" << h_binweights->GetXaxis()->GetBinWidth(1) << std::endl;
-
+//    std::cout << "Bin z :" << h_binweights->GetXaxis()->GetBinWidth(1) << std::endl;
 
     h_binweights->Draw("colz");
 
@@ -332,7 +331,6 @@ std::string PatternEngine::pltf() {
 void PatternEngine::closePlot() {
     auto *c_final = new TCanvas("c_final", "c_final");
     c_final->Print((this->plottingpath + this->runspecs + pltf() + ")").c_str(), "pdf");
-
 }
 
 

@@ -2,26 +2,13 @@
 // Created by Konstantin Neureither on 16.06.20.
 //
 
-#include <vector>
-#include <TFile.h>
-#include <TROOT.h>
-#include <algorithm>
-#include <TTree.h>
-#include <string>
-#include <TH1.h>
-#include <TGraph.h>
-#include <TLine.h>
-#include <TCanvas.h>
-#include <TLegend.h>
-#include <cmath>
-#include <assert.h>
-#include "PatternEngine.h"
+#include "TemplateBank.h"
 
 void processSegsPrototype(int, int);
 
 int main(int argc, char *argv[]) {
 
-    processSegsPrototype(10, 0);
+//    processSegsPrototype(10, 0);
 
 //    PatternEngine PE(40, 10, 0);
 //    PE.displayBinBoundaries();
@@ -37,6 +24,11 @@ int main(int argc, char *argv[]) {
 //
 //    PE.displayBinWeightDistribution();
 
+    TemplateBank TB;
+
+//    TB.testTemplateID();
+//    TB.testFill();
+    TB.testGetMostPopTemplates();
 
     return 0;
 }
