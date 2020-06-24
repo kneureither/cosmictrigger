@@ -81,11 +81,11 @@ void PatternEngine::initializeSPbins() {
     //TODO implement xBins
 }
 
-int PatternEngine::getXSP(float x) {
+int PatternEngine::getXSP(const float x) {
     return 0;
 }
 
-int PatternEngine::getZSP(float z) {
+int PatternEngine::getZSP(const float z) {
     return binSearch(this->zBins, z, 0, zBins.size() - 1);
 //    return seqSearch(this->zBins, z);
 
@@ -97,7 +97,7 @@ int PatternEngine::getPhiSP(float phi) {
 }
 
 
-int PatternEngine::getLayer(float r) {
+int PatternEngine::getLayer(const float r) {
     if (layerBoundaries[0] <= r && r <= layerBoundaries[1]) {
         return 0;
     } else if (layerBoundaries[1] < r && r <= layerBoundaries[2]) {
@@ -111,7 +111,7 @@ int PatternEngine::getLayer(float r) {
     }
 }
 
-unsigned int PatternEngine::getSuperPixel(float x, float y, float z) {
+unsigned int PatternEngine::getSuperPixel(const float x, const float y, const float z) {
 //    printf("Coordinates delivered: x=%f, y=%f, z=%f\n", x,y,z);
     float r = getRadius(x, y);
 //    printf("radius=%f\n", r);
@@ -124,17 +124,49 @@ unsigned int PatternEngine::getSuperPixel(float x, float y, float z) {
 
     int area = 0;
 
-    int sp2DID = zSPIndex * wBinCount + phiSPIndex;
+    assert(0 <= area && area < 3);
+    assert(0 <= layer && layer < 4);
+    assert(totalBinCount < 4096); // fatal because SID needs format of 0xFFF
 
+    int sp2DID = computeIndex(zSPIndex, phiSPIndex);
     if(sp2DID < 0 || totalBinCount < sp2DID) sp2DID = 0;
+    unsigned int SPID = computeSPID(layer, area, sp2DID);
 
-    int SPID = layer + 10 * area + 100 * sp2DID;
-    //printf("Hit SuperPixel params\t x=%f, y=%f, z=%f, layer=%d zIndex=%d, phiIndex=%d, Sp2D=%d, SPID=%d\n", x,y,z,layer, zSPIndex, phiSPIndex, sp2DID, SPID);
+//    int SPID = layer + 10 * area + 100 * sp2DID;
+    printf("Hit SuperPixel params\t x=%f, y=%f, z=%f, layer=%d zIndex=%d, phiIndex=%d, Sp2D=%d, SPID=%#X\n", x,y,z,layer, zSPIndex, phiSPIndex, sp2DID, SPID);
 
     //    printf("SP2D = %d, weights = %d \n", sp2DID, this->spWeights[0][sp2DID]);
     if(SPID != 0) this->spWeights[layer].at(sp2DID) = this->spWeights[layer].at(sp2DID) + 1;
 
-    return (unsigned int) SPID;
+    return SPID;
+}
+
+int PatternEngine::getLayerFromSPID(const unsigned int SPID) {
+    unsigned int zone = (SPID & 0xF);
+    return zone % 4;
+}
+
+int PatternEngine::getAreaFromSPID(const unsigned int SPID) {
+    unsigned int zone = (SPID & 0xF);
+    return zone / 4;
+}
+
+int PatternEngine::getIndexFromSPID(const unsigned int SPID) {
+    assert((SPID & 0xFFFF0000) == 0x00000000); //no more entries, than 16 bits
+
+    unsigned int index = (unsigned int) ((SPID & 0xFFF0) >> 4);
+    return (int) index;
+}
+
+int PatternEngine::computeIndex(const int zSPIndex, const int phiSPIndex) {
+    return zSPIndex * this->wBinCount + phiSPIndex;
+}
+
+unsigned int PatternEngine::computeSPID(const int layer, const int area, const unsigned int index) {
+    unsigned int zone = area * 4 + layer;
+    unsigned int SPID = (unsigned int) (index & 0xFFFF) << 4;
+    SPID |= (zone & 0xF);
+    return SPID;
 }
 
 float PatternEngine::getRadius(float x, float y) {
@@ -240,6 +272,44 @@ void PatternEngine::testCoordImpl() {
     assert(zSP == getSPZcoord(SP2D));
 }
 
+void PatternEngine::testSPID() {
+    unsigned int sp1 = getSuperPixel(1, 0, -100);
+    printf("layer=%d, area=%d, index=%d\n", getLayerFromSPID(sp1), getAreaFromSPID(sp1), getIndexFromSPID(sp1));
+
+    sp1 = getSuperPixel(0, 0, -200);
+    printf("layer=%d, area=%d, index=%d\n", getLayerFromSPID(sp1), getAreaFromSPID(sp1), getIndexFromSPID(sp1));
+    sp1 = getSuperPixel(20, 0, 0);
+    printf("layer=%d, area=%d, index=%d\n", getLayerFromSPID(sp1), getAreaFromSPID(sp1), getIndexFromSPID(sp1));
+    sp1 = getSuperPixel(45, 0, 100);
+    printf("layer=%d, area=%d, index=%d\n", getLayerFromSPID(sp1), getAreaFromSPID(sp1), getIndexFromSPID(sp1));
+    sp1 = getSuperPixel(55, 0, 200);
+    printf("layer=%d, area=%d, index=%d\n", getLayerFromSPID(sp1), getAreaFromSPID(sp1), getIndexFromSPID(sp1));
+    sp1 = getSuperPixel(65, 0, 200);
+    printf("layer=%d, area=%d, index=%d\n", getLayerFromSPID(sp1), getAreaFromSPID(sp1), getIndexFromSPID(sp1));
+
+    float x=55.0;
+    float y=3.0;
+    float z=100;
+
+    unsigned int sp2=getSuperPixel(x,y,z);
+    int phiSP = getPhiSP(getHitPhi(x, y));
+    int zSP = getZSP(z);
+    int index = computeIndex(zSP, phiSP);
+    int layer = getLayer(getRadius(x,y));
+    int area=0;
+    printf("-- custom evaluation: x=%f, y=%f, z=%f, phiSP=%d, zSP=%d, SPindex=%d, layer=%d, area=%d\n",x,y,z,phiSP, zSP, index, layer, area);
+    unsigned int SPID = computeSPID(layer, area, index);
+    int reslayer = getLayerFromSPID(SPID);
+    int resarea = getAreaFromSPID(SPID);
+    int resindex = getIndexFromSPID(SPID);
+    printf("-- result for SPID dec=%u hex=%#X    ->   layer=%d, area=%d, index=%d\n", SPID, SPID, reslayer, resarea, resindex);
+
+    assert(reslayer == layer);
+    assert(resindex == index);
+    assert(resarea == area);
+
+//    getIndexFromSPID(0x1234F000); //assertion must fail
+}
 
 void PatternEngine::displayBinBoundaries() {
 

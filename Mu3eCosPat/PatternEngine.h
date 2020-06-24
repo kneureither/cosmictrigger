@@ -29,9 +29,9 @@
 class PatternEngine {
 
 private:
-    int getLayer(float r);
-    int getXSP(float x);
-    int getZSP(float z);
+    int getLayer(const float r);
+    int getXSP(const float x);
+    int getZSP(const float z);
     int getPhiSP(float phi);
     int getSPZcoord(int sp2DID);
     int getSPXcoord(int sp2DID);
@@ -89,9 +89,15 @@ public:
     PatternEngine(float spXpartition, float spZpartition, int mode, std::string plottingpath);
 //    ~PatternEngine();
 
-    unsigned int getSuperPixel(float x, float y, float z);
-    int translateToSensorRefSP(int spIndexRefID);
-    int translateToIndexRefSP(int spSensorRefID);
+    unsigned int getSuperPixel(const float x, const float y, const float z);
+    int getLayerFromSPID(const unsigned int SPID);
+    int getAreaFromSPID(const unsigned int SPID);
+    int getIndexFromSPID(const unsigned int SPID);
+    int computeIndex(const int zSPIndex, const int phiSPIndex);
+    unsigned int computeSPID(const int layer, const int area, const unsigned int index);
+
+    int translateToSensorRefSP(const int spIndexRefID);
+    int translateToIndexRefSP(const int spSensorRefID);
 
     void displayBinBoundaries();
     void displayBinWeightDistribution();
@@ -100,6 +106,7 @@ public:
 
     void testbinSearch();
     void testCoordImpl();
+    void testSPID();
 };
 
 

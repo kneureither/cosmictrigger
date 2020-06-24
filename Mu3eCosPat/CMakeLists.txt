@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 14)
 add_library(patterns SHARED SuperPixelHit.cpp PatternEngine.cpp TemplateBank.cpp TemplateBank.h TemplateData.cpp TemplateData.h)
 target_link_libraries(patterns ${ROOT_LIBRARIES})
 
-set(SRC main.cpp processSegsPrototype.cpp TemplateBank.cpp TemplateBank.h)
+set(SRC main.cpp processSegsPrototype.cpp)
 
 add_executable(Mu3eCosPat ${SRC})
 target_link_libraries(Mu3eCosPat patterns)

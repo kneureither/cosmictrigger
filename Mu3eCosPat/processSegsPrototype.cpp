@@ -31,6 +31,7 @@
 #include "plots.h"
 #include "PatternEngine.h"
 #include "rootData.h"
+#include "TemplateBank.h"
 
 using std::cout;
 using std::endl;
@@ -49,6 +50,8 @@ void processSegsPrototype(int run, int FILTER) {
 
     PatternEngine PE(20, 100, 0, pathtorunplots);
     PE.displayBinBoundaries();
+
+    TemplateBank TB;
 
     std::string filtertag;
 
@@ -171,6 +174,9 @@ void processSegsPrototype(int run, int FILTER) {
     //stats data
     int p_fail_count = 0;
     int processed_entries = 0;
+    int used_entries = 0;
+    int too_many = 0;
+    int twohittracks = 0;
 
     for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); i++) {
         t_segs->GetEntry(i);
@@ -247,11 +253,42 @@ void processSegsPrototype(int run, int FILTER) {
 
             if (choice) {
                 processed_entries++;
+                std::vector<unsigned int> SPIDs;
+//                std::vector<float> xps_reduced;
+//                std::vector<float> yps_reduced;
+//                std::vector<float> zps_reduced;
 
                 for(int i = 0; i<ncombinedhits; i++) {
-//                    printf("Getting SP Coordinates for Pixel %d: x=%f, y=%f, z=%f\n", i, xp.at(i),yp.at(i),zp.at(i));
-                    unsigned int SID = PE.getSuperPixel(xp[i], yp[i], zp[i]);
-//                    printf("SID=%d\n", SID);
+                    printf("Getting SP Coordinates for Pixel %d: x=%f, y=%f, z=%f    ", i, xp.at(i),yp.at(i),zp.at(i));
+                    unsigned int SPID = PE.getSuperPixel(xp[i], yp[i], zp[i]);
+
+                    if(SPIDs.size() < 5 && (PE.getLayerFromSPID(SPID) == 2 || PE.getLayerFromSPID(SPID) == 3)) {
+                        if(i==0) {
+                            SPIDs.push_back(SPID);
+//                          xps_reduced.push_back(xp[i]);
+//                          yps_reduced.push_back(yp[i]);
+//                          zps_reduced.push_back(zp[i]);
+                            printf("SID=%d, SIDhex=%#X, SIDs.size()=%d\n", SPID, SPID, SPIDs.size());
+                        } else {
+                            if((PE.getLayerFromSPID(SPID) == 2) && SPID != SPIDs.at(SPIDs.size() - 1)) {
+                                SPIDs.push_back(SPID);
+                                printf("SID=%d, SIDhex=%#X, SIDs.size()=%d\n", SPID, SPID, SPIDs.size());
+                            } else if(PE.getLayerFromSPID(SPID) == 3 && PE.getLayerFromSPID(SPID) != PE.getLayerFromSPID(SPIDs.at(SPIDs.size() - 1))) {
+                                SPIDs.push_back(SPID);
+                                printf("SID=%d, SIDhex=%#X, SIDs.size()=%d\n", SPID, SPID, SPIDs.size());
+                            } else{}
+                        }
+                    }
+                }
+
+                if(ncombinedhits < 4) twohittracks++;
+
+                if(SPIDs.size() == 4) {
+                    used_entries++;
+                    printf("This track can be used");
+                    TB.fillTemplate(&SPIDs[0], 4, rec_p, rec_zpca_r, rec_phi, rec_theta);
+                } else if (SPIDs.size() > 4){
+                    too_many++;
                 }
             }
 
@@ -261,7 +298,9 @@ void processSegsPrototype(int run, int FILTER) {
     PE.displayBinWeightDistribution();
     PE.closePlot();
 
-    printf("Entries processed: %d", processed_entries);
+    TB.displayTemplatePopulationHistogram();
+
+    printf("Entries processed: %d, used entries=%d \n, entries with too many=%d, entries with too little=%d", processed_entries, used_entries, too_many, twohittracks);
 
 }
 
