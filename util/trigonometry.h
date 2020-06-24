@@ -7,7 +7,6 @@
 #ifndef PI
 #define PI 3.1415926535
 #endif //PI
-#endif //COSMICTRIGGER_TRIGONOMETRY_H
 
 #include <assert.h>
 #include <type_traits>
@@ -45,3 +44,5 @@ void getResolutionArrs(int nhits, double RMS, std::vector<double> &tres, std::ve
         rres.push_back(0.0);
     }
 }
+
+#endif //COSMICTRIGGER_TRIGONOMETRY_H

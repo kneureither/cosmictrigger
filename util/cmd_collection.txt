@@ -23,3 +23,7 @@ T->Show([event])
 T->Print()
 
 T->Scan()
+
+
+# git
+git clean -d -x -f

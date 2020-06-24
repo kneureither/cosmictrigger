@@ -1,8 +1,6 @@
 #ifndef COSMICTRIGGER_TPLOTS_H
 #define COSMICTRIGGER_TPLOTS_H
 
-#endif //COSMICTRIGGER_TPLOTS_H
-
 #include <assert.h>
 #include <TFile.h>
 #include <TH1.h>
@@ -138,3 +136,5 @@ template <typename RootGraph>
 void makeSimpleSingleCanvas(RootGraph * g, std::string plottingfile) {
     makeSimpleSingleCanvas(g, false, false, plottingfile);
 }
+
+#endif //COSMICTRIGGER_TPLOTS_H

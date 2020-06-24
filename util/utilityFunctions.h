@@ -1,9 +1,8 @@
 #ifndef COSMICTRIGGER_UTILITY_FUNCTIONS_H
 #define COSMICTRIGGER_UTILITY_FUNCTIONS_H
 
-#endif //COSMICTRIGGER_UTILITY_FUNCTIONS_H
-
-#include <string.h>
+#include <sstream>
+#include <string>
 #include <iostream>
 #include <experimental/filesystem>
 #include "custom_types.h"
@@ -75,3 +74,5 @@ int get_charge_from_type(int type) {
         return 1;
     }
 }
+
+#endif //COSMICTRIGGER_UTILITY_FUNCTIONS_H
