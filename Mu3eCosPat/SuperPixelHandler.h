@@ -6,11 +6,9 @@
 #define COSMICTRIGGER_SUPERPIXELHANDLER_H
 
 
-
 class SuperPixelHandler {
 
 };
-
 
 
 #endif //COSMICTRIGGER_SUPERPIXELHANDLER_H
