@@ -17,7 +17,7 @@
 #include "karimaki.h"
 
 template <typename T>
-unsigned int get_layer(T sid) {
+static unsigned int get_layer(T sid) {
     if(0 <= sid && sid < 1024) {
         return 0;
     } else if (1024 <= sid && sid < 2048) {
@@ -32,7 +32,7 @@ unsigned int get_layer(T sid) {
 }
 
 
-int combineHits(std::vector<double> &xp, std::vector<double> &yp, std::vector<double> &zp,
+static int combineHits(std::vector<double> &xp, std::vector<double> &yp, std::vector<double> &zp,
                 std::vector<int> &sids, std::vector<double> &phi_tracks, std::vector<double> &thetas, int nhits, int ntriplets,
                 float (&x00)[TRIPLET_HIT_ARRAY_LENGTH], float (&x10)[TRIPLET_HIT_ARRAY_LENGTH],
                 float (&x01)[TRIPLET_HIT_ARRAY_LENGTH], float (&x20)[TRIPLET_HIT_ARRAY_LENGTH], float (&x21)[TRIPLET_HIT_ARRAY_LENGTH],
@@ -77,7 +77,7 @@ int combineHits(std::vector<double> &xp, std::vector<double> &yp, std::vector<do
             if(it == xp.end()) {
                 xp.push_back(x01[i]);
                 yp.push_back(y01[i]);
-                zp.push_back(z01[i])
+                zp.push_back(z01[i]);
                 sids.push_back((int) sid01[i]);
                 ncomhits++;
                 printf("Hit found in x01\n");
@@ -107,7 +107,7 @@ int combineHits(std::vector<double> &xp, std::vector<double> &yp, std::vector<do
     return ncomhits;
 }
 
-int combineBasicHits(std::vector<double> &xp, std::vector<double> &yp, std::vector<double> &zp,
+static int combineBasicHits(std::vector<double> &xp, std::vector<double> &yp, std::vector<double> &zp,
                 std::vector<double> &phi_tracks, std::vector<double> &thetas, std::vector<int> &layers, int nhits, int ntriplets,
                 float (&x00)[TRIPLET_HIT_ARRAY_LENGTH], float (&x20)[TRIPLET_HIT_ARRAY_LENGTH],
                 float (&y00)[TRIPLET_HIT_ARRAY_LENGTH], float (&y20)[TRIPLET_HIT_ARRAY_LENGTH],
@@ -138,7 +138,7 @@ int combineBasicHits(std::vector<double> &xp, std::vector<double> &yp, std::vect
     return ncomhits;
 }
 
-void correctKariDirection(KariFit &kari) {
+static void correctKariDirection(KariFit &kari) {
 
     if(kari.phi > 0) {
         printf("\tKARI CORRECT OLD: \t rad %f \tr3d %f phi %f \t theta %f\n", kari.rad, kari.r3d, kari.phi, kari.theta);

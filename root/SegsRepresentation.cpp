@@ -12,64 +12,62 @@
 #include "utilityFunctions.h"
 
 SegsRepresentation::SegsRepresentation(TTree *t_segs) {
-    this->t_segs = t_segs;
-    this->segs_entries = this->t_segs->GetEntries();
+    this->tr_segs = t_segs;
+    this->segs_entries = this->tr_segs->GetEntries();
     setBranches();
 }
 
 void SegsRepresentation::setBranches() {
-    t_segs->SetBranchAddress("eventId", &rec_event);
-    t_segs->SetBranchAddress("nhit", &rec_nhit);
-    t_segs->SetBranchAddress("n", &rec_ntriplet);
+    tr_segs->SetBranchAddress("eventId", &rec_event);
+    tr_segs->SetBranchAddress("nhit", &rec_nhit);
+    tr_segs->SetBranchAddress("n", &rec_ntriplet);
 
-    t_segs->SetBranchAddress("p", &rec_p);
-    t_segs->SetBranchAddress("r", &rec_r);
-    t_segs->SetBranchAddress("rt", &rec_rt);
-    t_segs->SetBranchAddress("tan01", &rec_tan01);
-    t_segs->SetBranchAddress("tan12", &rec_tan12);
-    t_segs->SetBranchAddress("lam01", &rec_lam01);
-    t_segs->SetBranchAddress("lam12", &rec_lam12);
-    t_segs->SetBranchAddress("zpca_z", &rec_zpca_z);
-    t_segs->SetBranchAddress("zpca_x", &rec_zpca_x);
-    t_segs->SetBranchAddress("zpca_y", &rec_zpca_y);
-    t_segs->SetBranchAddress("zpca_r", &rec_zpca_r);
+    tr_segs->SetBranchAddress("p", &rec_p);
+    tr_segs->SetBranchAddress("r", &rec_r);
+    tr_segs->SetBranchAddress("rt", &rec_rt);
+    tr_segs->SetBranchAddress("tan01", &rec_tan01);
+    tr_segs->SetBranchAddress("tan12", &rec_tan12);
+    tr_segs->SetBranchAddress("lam01", &rec_lam01);
+    tr_segs->SetBranchAddress("lam12", &rec_lam12);
+    tr_segs->SetBranchAddress("zpca_z", &rec_zpca_z);
+    tr_segs->SetBranchAddress("zpca_r", &rec_zpca_r);
 
-    t_segs->SetBranchAddress("mc_tid", &rec_trajid);
-    t_segs->SetBranchAddress("mc_p", &mc_p);
-    t_segs->SetBranchAddress("mc_pt", &mc_pt);
-    t_segs->SetBranchAddress("mc_theta", &mc_theta);
-    t_segs->SetBranchAddress("mc_phi", &mc_phi);
-    t_segs->SetBranchAddress("mc_lam", &mc_lam);
-    t_segs->SetBranchAddress("mc_type", &mc_type);
-    t_segs->SetBranchAddress("mc_pid", &mc_pid);
+    tr_segs->SetBranchAddress("mc_tid", &mc_tid);
+    tr_segs->SetBranchAddress("mc_p", &mc_p);
+    tr_segs->SetBranchAddress("mc_pt", &mc_pt);
+    tr_segs->SetBranchAddress("mc_theta", &mc_theta);
+    tr_segs->SetBranchAddress("mc_phi", &mc_phi);
+    tr_segs->SetBranchAddress("mc_lam", &mc_lam);
+    tr_segs->SetBranchAddress("mc_type", &mc_type);
+    tr_segs->SetBranchAddress("mc_pid", &mc_pid);
 
-    t_segs->SetBranchAddress("x00", &x00);
-    t_segs->SetBranchAddress("x10", &x10);
-    t_segs->SetBranchAddress("x20", &x20);
-    t_segs->SetBranchAddress("x01", &x01);
-    t_segs->SetBranchAddress("x11", &x11);
-    t_segs->SetBranchAddress("x21", &x21);
+    tr_segs->SetBranchAddress("x00", &x00);
+    tr_segs->SetBranchAddress("x10", &x10);
+    tr_segs->SetBranchAddress("x20", &x20);
+    tr_segs->SetBranchAddress("x01", &x01);
+    tr_segs->SetBranchAddress("x11", &x11);
+    tr_segs->SetBranchAddress("x21", &x21);
 
-    t_segs->SetBranchAddress("y00", &y00);
-    t_segs->SetBranchAddress("y10", &y10);
-    t_segs->SetBranchAddress("y20", &y20);
-    t_segs->SetBranchAddress("y01", &y01);
-    t_segs->SetBranchAddress("y11", &y11);
-    t_segs->SetBranchAddress("y21", &y21);
+    tr_segs->SetBranchAddress("y00", &y00);
+    tr_segs->SetBranchAddress("y10", &y10);
+    tr_segs->SetBranchAddress("y20", &y20);
+    tr_segs->SetBranchAddress("y01", &y01);
+    tr_segs->SetBranchAddress("y11", &y11);
+    tr_segs->SetBranchAddress("y21", &y21);
 
-    t_segs->SetBranchAddress("z00", &z00);
-    t_segs->SetBranchAddress("z10", &z10);
-    t_segs->SetBranchAddress("z20", &z20);
-    t_segs->SetBranchAddress("z01", &z01);
-    t_segs->SetBranchAddress("z11", &z11);
-    t_segs->SetBranchAddress("z21", &z21);
+    tr_segs->SetBranchAddress("z00", &z00);
+    tr_segs->SetBranchAddress("z10", &z10);
+    tr_segs->SetBranchAddress("z20", &z20);
+    tr_segs->SetBranchAddress("z01", &z01);
+    tr_segs->SetBranchAddress("z11", &z11);
+    tr_segs->SetBranchAddress("z21", &z21);
 
-    t_segs->SetBranchAddress("sid00", &sid00);
-    t_segs->SetBranchAddress("sid10", &sid10);
-    t_segs->SetBranchAddress("sid20", &sid20);
-    t_segs->SetBranchAddress("sid01", &sid01);
-    t_segs->SetBranchAddress("sid11", &sid11);
-    t_segs->SetBranchAddress("sid21", &sid21);
+    tr_segs->SetBranchAddress("sid00", &sid00);
+    tr_segs->SetBranchAddress("sid10", &sid10);
+    tr_segs->SetBranchAddress("sid20", &sid20);
+    tr_segs->SetBranchAddress("sid01", &sid01);
+    tr_segs->SetBranchAddress("sid11", &sid11);
+    tr_segs->SetBranchAddress("sid21", &sid21);
 
     std::cout << "Branches set for segs..." << std::endl;
 }

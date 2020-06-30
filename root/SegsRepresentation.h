@@ -12,7 +12,7 @@
 class SegsRepresentation {
 private:
 public:
-    TTree *t_segs;
+    TTree *tr_segs;
     void setBranches();
     explicit SegsRepresentation(TTree *t_segs);
 
@@ -20,8 +20,8 @@ public:
     int rec_event;
     int rec_nhit;
     int rec_ntriplet;
-    int rec_trajid;
 
+    int mc_tid;
     float mc_p;
     float mc_pt;
     float mc_theta;
@@ -33,12 +33,7 @@ public:
     float rec_p;
     float rec_r;
     float rec_rt;
-    float rec_tan01[TRIPLET_HIT_ARRAY_LENGTH];
-    float rec_tan12[TRIPLET_HIT_ARRAY_LENGTH];
-    float rec_lam01[TRIPLET_HIT_ARRAY_LENGTH];
-    float rec_lam12[TRIPLET_HIT_ARRAY_LENGTH];
-    float rec_zpca_x;
-    float rec_zpca_y;
+
     float rec_zpca_z;
     float rec_zpca_r;
 
@@ -70,6 +65,11 @@ public:
     float sid11[TRIPLET_HIT_ARRAY_LENGTH];
     float sid21[TRIPLET_HIT_ARRAY_LENGTH];
 
+    float rec_tan01[TRIPLET_HIT_ARRAY_LENGTH];
+    float rec_tan12[TRIPLET_HIT_ARRAY_LENGTH];
+    float rec_lam01[TRIPLET_HIT_ARRAY_LENGTH];
+    float rec_lam12[TRIPLET_HIT_ARRAY_LENGTH];
+
 };
 
 class SegsRepresentationAndCalc : public SegsRepresentation {
@@ -94,7 +94,7 @@ public:
     float pt_inv_abs_error;
 
     SegsRepresentationAndCalc(TTree *segs)
-    : SegsRepresentation(segs);
+    : SegsRepresentation(segs) {}
 
     void calcAdditionalData();
 };
