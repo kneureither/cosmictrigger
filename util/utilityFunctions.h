@@ -62,17 +62,4 @@ void check_create_directory(std::string path) {
     }
 }
 
-int get_charge_from_type(int type) {
-    if (type == 4) {
-        //mu-
-        return 1;
-    } else if (type == 3) {
-        //mu+
-        return -1;
-    } else {
-        //not a muon
-        return 1;
-    }
-}
-
 #endif //COSMICTRIGGER_UTILITY_FUNCTIONS_H

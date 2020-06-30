@@ -27,3 +27,8 @@ T->Scan()
 
 # git
 git clean -d -x -f
+
+
+#build simulation
+
+CC=gcc-8 CXX=/usr/bin/g++-8 cmake ..

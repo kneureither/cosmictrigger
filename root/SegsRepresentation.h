@@ -1,0 +1,103 @@
+//
+// Created by Konstantin Neureither on 30.06.20.
+//
+
+#ifndef COSMICTRIGGER_SEGSREPRESENTATION_H
+#define COSMICTRIGGER_SEGSREPRESENTATION_H
+
+#include "TFile.h"
+#include "TTree.h"
+
+
+class SegsRepresentation {
+private:
+public:
+    TTree *t_segs;
+    void setBranches();
+    explicit SegsRepresentation(TTree *t_segs);
+
+    unsigned int segs_entries;
+    int rec_event;
+    int rec_nhit;
+    int rec_ntriplet;
+    int rec_trajid;
+
+    float mc_p;
+    float mc_pt;
+    float mc_theta;
+    float mc_phi;
+    float mc_lam;
+    int mc_type;
+    int mc_pid;
+
+    float rec_p;
+    float rec_r;
+    float rec_rt;
+    float rec_tan01[TRIPLET_HIT_ARRAY_LENGTH];
+    float rec_tan12[TRIPLET_HIT_ARRAY_LENGTH];
+    float rec_lam01[TRIPLET_HIT_ARRAY_LENGTH];
+    float rec_lam12[TRIPLET_HIT_ARRAY_LENGTH];
+    float rec_zpca_x;
+    float rec_zpca_y;
+    float rec_zpca_z;
+    float rec_zpca_r;
+
+    float x00[TRIPLET_HIT_ARRAY_LENGTH];
+    float x10[TRIPLET_HIT_ARRAY_LENGTH];
+    float x20[TRIPLET_HIT_ARRAY_LENGTH];
+    float x01[TRIPLET_HIT_ARRAY_LENGTH];
+    float x11[TRIPLET_HIT_ARRAY_LENGTH];
+    float x21[TRIPLET_HIT_ARRAY_LENGTH];
+
+    float y00[TRIPLET_HIT_ARRAY_LENGTH];
+    float y10[TRIPLET_HIT_ARRAY_LENGTH];
+    float y20[TRIPLET_HIT_ARRAY_LENGTH];
+    float y01[TRIPLET_HIT_ARRAY_LENGTH];
+    float y11[TRIPLET_HIT_ARRAY_LENGTH];
+    float y21[TRIPLET_HIT_ARRAY_LENGTH];
+
+    float z00[TRIPLET_HIT_ARRAY_LENGTH];
+    float z10[TRIPLET_HIT_ARRAY_LENGTH];
+    float z20[TRIPLET_HIT_ARRAY_LENGTH];
+    float z01[TRIPLET_HIT_ARRAY_LENGTH];
+    float z11[TRIPLET_HIT_ARRAY_LENGTH];
+    float z21[TRIPLET_HIT_ARRAY_LENGTH];
+
+    float sid00[TRIPLET_HIT_ARRAY_LENGTH];
+    float sid10[TRIPLET_HIT_ARRAY_LENGTH];
+    float sid20[TRIPLET_HIT_ARRAY_LENGTH];
+    float sid01[TRIPLET_HIT_ARRAY_LENGTH];
+    float sid11[TRIPLET_HIT_ARRAY_LENGTH];
+    float sid21[TRIPLET_HIT_ARRAY_LENGTH];
+
+};
+
+class SegsRepresentationAndCalc : public SegsRepresentation {
+private:
+public:
+    //calc
+    float rec_pt;
+    float rec_phi;
+    float rec_theta;
+
+    //additional data
+    float mc_p_corr;
+    float mc_pt_corr;
+
+    float mc_p_inv_corr;
+    float mc_pt_inv_corr;
+
+    float rec_p_inv;
+    float rec_pt_inv;
+
+    float p_inv_abs_error;
+    float pt_inv_abs_error;
+
+    SegsRepresentationAndCalc(TTree *segs)
+    : SegsRepresentation(segs);
+
+    void calcAdditionalData();
+};
+
+
+#endif //COSMICTRIGGER_SEGSREPRESENTATION_H
