@@ -3,8 +3,10 @@
 //
 
 #ifndef DEBUG
-#define DEBUG true
+#define DEBUG false
 #endif //DEBUG
+
+#define FIT false
 
 // Basic imports
 #include <iostream>
@@ -22,6 +24,7 @@
 #include "rootData.h"
 #include "utilityFunctions.h"
 #include "SegsRepresentation.h"
+#include "SlimSegsRepresentation.h"
 
 using std::cout;
 using std::endl;
@@ -77,7 +80,7 @@ void slimSegsData(/*std::string outputfile, int run, const bool appendToFile */)
     ////################# DATA FOR ROOT FILES ################################
 
     SegsRepresentationAndCalc Segs = SegsRepresentationAndCalc(t_segs);
-
+    SlimSegsWrite SlimSegs = SlimSegsWrite(&t_slim);
 
     //// further data for stats graphs and calculations
     int p_fail_count = 0;
@@ -132,26 +135,28 @@ void slimSegsData(/*std::string outputfile, int run, const bool appendToFile */)
     std::vector<float> rec_nhits_float;
 
     //data for karifit
-    KariFit karires;
+    KariFitCalc karires;
+
+    //meta data
+    SlimSegsMeta meta;
 
 
     double RMS = 80 * 1e-3 / sqrt(12); //RMS in mm
     const float BFIELD = 1.0;
-    unsigned int uEventID;
-    unsigned int segsIndex;
 
     double tres[TRIPLET_HIT_ARRAY_LENGTH] = {RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS};
     double zres[TRIPLET_HIT_ARRAY_LENGTH] = {RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS, RMS};
     double rres[TRIPLET_HIT_ARRAY_LENGTH] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
 
     for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? Segs.segs_entries : MAX_ENTRIES); i++) {
-        Segs.tr_segs->GetEntry(i);
-        uEventID = run + 1000*Segs.rec_event;
-        segsIndex = i;
+        Segs.getEntry(i);
+        printf("SEGS ENTRY %d ------- \n", i);
 
-#if DEBUG
-        printf("\nSEGS ENTRY\n------------------------------\n\n");
-#endif
+        //set meta data
+        meta.uEventID = run + 1000*Segs.rec_event;
+        meta.segsIndex = i;
+        meta.runID = run;
+
 
         if (Segs.mc_p == 0 || Segs.mc_pt == 0 || Segs.rec_p == 0 || Segs.rec_pt == 0) {
             p_fail_count++;
@@ -167,9 +172,12 @@ void slimSegsData(/*std::string outputfile, int run, const bool appendToFile */)
             std::vector<double> phi_hitp;
             std::vector<double> thetap;
 
+            //gather the hits for particle from fit triplets
             int ncombinedhits = combineBasicHits(xp, yp, zp, phi_hitp, thetap, layerp, Segs.rec_nhit, Segs.rec_ntriplet,
                                                  Segs.x00, Segs.x20, Segs.y00, Segs.y20, Segs.z00,Segs.z20,Segs.sid00,
                                                  Segs.sid20,Segs.rec_tan01,Segs.rec_tan12,Segs.rec_lam01,Segs.rec_lam12);
+            karires.p = 0.3 * karires.r3d * BFIELD;
+            karires.pt = 0.3 * karires.rad * BFIELD;
 
 
 #if DEBUG
@@ -194,6 +202,8 @@ void slimSegsData(/*std::string outputfile, int run, const bool appendToFile */)
             }
 #endif
 
+
+            //do the helix fit
             karimaki_hit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], &phi_hitp[0], &thetap[0], &tres[0], &zres[0], &rres[0]);
             correctKariDirection(karires);
 
@@ -201,16 +211,27 @@ void slimSegsData(/*std::string outputfile, int run, const bool appendToFile */)
             int choice = true;
             if (choice) {
 
-//                printf("mc_type? %d \t mc_pid = %d\n", mc_type, mc_pid);
-//                assert(!(mc_type == 4 && sgn(mc_pid) == -1));
-//                assert(!(mc_type == 3 && sgn(mc_pid) == 1));
+                SlimSegs.fillData(Segs, meta, karires, ncombinedhits,
+                                  xp, zp, yp, layerp);
 
-                float kari_pt = 0.3 * karires.rad * BFIELD;
-                float kari_inv_pt = 1. / kari_pt;
+                float kari_inv_pt = 1. / karires.pt;
                 float kari_inv_rad = 1. / karires.rad;
 
                 float pt_kari_inv_err = kari_inv_pt - (1./Segs.mc_pt_inv_corr);
                 float pt_kvsms_inv_err = kari_inv_pt - Segs.rec_p_inv;
+
+
+                //Check some data
+                assert(!(Segs.mc_type == 4 && sgn(Segs.mc_pid) == -1));
+                assert(!(Segs.mc_type == 3 && sgn(Segs.mc_pid) == 1));
+
+                assert(SlimSegs.eventID == Segs.rec_event);
+                assert(SlimSegs.rec_p == Segs.rec_p);
+                assert(SlimSegs.rec_ntriplet == Segs.rec_ntriplet);
+                for(int i=0; i<Segs.rec_ntriplet; i++) {
+                    assert(SlimSegs.x00[i] == Segs.x00[i]);
+                    assert(SlimSegs.x10[i] == Segs.x10[i]);
+                }
 
                 //calculated data
 //                rec_inv_ps.push_back(Segs.rec_inv_p);
@@ -246,7 +267,7 @@ void slimSegsData(/*std::string outputfile, int run, const bool appendToFile */)
                 kari_thetas.push_back(karires.theta);
                 kari_zchi2ns.push_back(karires.zchi2n);
 
-                kari_pts.push_back(kari_pt);
+                kari_pts.push_back(karires.pt);
                 kari_inv_pts.push_back(kari_inv_pt);
                 p_inv_kari_errors.push_back(pt_kari_inv_err);
                 pt_inv_kvsms_errors.push_back(pt_kvsms_inv_err);
@@ -267,7 +288,20 @@ void slimSegsData(/*std::string outputfile, int run, const bool appendToFile */)
 
     }
 
+    t_slim.Print();
+    tF.Write();
+
     f2.Close();
     tF.Close();
+
+    std::cout << "\n\n>>>>> GENERAL STATS <<<<<\n\n";
+    std::cout << " - P Fail count was " << p_fail_count << " of " << Segs.segs_entries << " entries in total. (";
+    std::cout << p_fail_count / (float)Segs.segs_entries * 100 << " %)" << endl;
+    std::cout << " - total entries processed: " << processed_entries << endl;
+
+
+    //// Kontrollplots
+
+
 }
 
