@@ -32,7 +32,7 @@ Add s-z fit subsequently
 
 #include "c_wrappedcode.h"
 
-const bool DEBUG_CONSOLE_LOG = true;
+const bool DEBUG_CONSOLE_LOG = false;
 
 //#define CALCWEIGHT
 #define WEIGHTMAX 10.0
