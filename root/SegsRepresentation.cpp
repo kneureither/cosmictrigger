@@ -72,6 +72,10 @@ void SegsRepresentation::setBranches() {
     std::cout << "Branches set for segs..." << std::endl;
 }
 
+void SegsRepresentation::getEntry(const int &index) {
+    this->tr_segs->GetEntry(index);
+}
+
 void SegsRepresentationAndCalc::calcAdditionalData() {
     //basic data: Theta, phi and traverse p of reconstruction
     this->rec_pt = this->rec_p * std::cos((this->rec_lam01)[0]);

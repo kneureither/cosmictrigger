@@ -11,6 +11,17 @@
 #include "TTree.h"
 #include "SegsRepresentation.h"
 
+struct slimsegsMeta {
+    unsigned int uEventID;
+    unsigned int segsIndex;
+    unsigned int runID;
+};
+
+struct KariFitCalc : KariFit {
+    float p = -9999.9;
+    float pt = -9999.9;
+};
+
 
 class SlimSegsRepresentation {
 public:
@@ -98,15 +109,24 @@ public:
     std::vector<double> zp;
     std::vector<int> layerp;
     unsigned int ncombinedhits;
+
+    void reInitializeData();
+
 };
 
 class SlimSegsWrite : public SlimSegsRepresentation {
+public:
     explicit SlimSegsWrite(TTree * slimSegs);
-    void writeData();
-    void setLeafData(const SegsRepresentationAndCalc& Segs, const KariFit &Karires);
+    void fillData(const SegsRepresentationAndCalc &Segs,
+                  const slimsegsMeta &Meta,
+                  const KariFitCalc &Karires,
+                  const unsigned int &ncombinedhits,
+                  const std::vector<double> &xps, const std::vector<double> &zps,
+                  const std::vector<double> &yps, const std::vector<int> &layerps);
 };
 
 class SlimSegsRead : public SlimSegsRepresentation {
+public:
     explicit SlimSegsRead(TTree * slimSegs);
 };
 

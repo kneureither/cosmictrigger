@@ -5,6 +5,10 @@
 #ifndef COSMICTRIGGER_SEGSREPRESENTATION_H
 #define COSMICTRIGGER_SEGSREPRESENTATION_H
 
+#ifndef TRIPLET_HIT_ARRAY_LENGTH
+#define TRIPLET_HIT_ARRAY_LENGTH 1024
+#endif
+
 #include "TFile.h"
 #include "TTree.h"
 
@@ -13,8 +17,10 @@ class SegsRepresentation {
 private:
 public:
     TTree *tr_segs;
+
     void setBranches();
     explicit SegsRepresentation(TTree *t_segs);
+    void getEntry(const int &index);
 
     unsigned int segs_entries;
     int rec_event;
