@@ -20,7 +20,7 @@ include_directories(${F2CPATH}) #findet f2c.h
 add_library(f2clib SHARED ${F2CLIB})
 SET_TARGET_PROPERTIES(f2clib PROPERTIES LINKER_LANGUAGE C)
 
-add_library(karilib SHARED ${KARIPATH}karimaki_hit.cpp ${KARIPATH}fitszw.cpp ${KARIPATH}cirpar.c ${KARIPATH}cirparw.c ${KARIPATH}wrappers.c)
+add_library(karilib SHARED ${KARIPATH}karimakiHelixfit.cpp ${KARIPATH}fitszw.cpp ${KARIPATH}cirpar.c ${KARIPATH}cirparw.c ${KARIPATH}wrappers.c)
 SET_TARGET_PROPERTIES(karilib PROPERTIES LINKER_LANGUAGE CXX)
 
 
