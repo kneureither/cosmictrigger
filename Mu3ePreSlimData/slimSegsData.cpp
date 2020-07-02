@@ -26,45 +26,43 @@
 using std::cout;
 using std::endl;
 
-void slimSegsData(/*std::string outputfile, int run, const bool appendToFile */) {
+void slimSegsData(std::string outputfilename, const int run, const bool appendToFile) {
 
-    int run = 10;
-    const bool appendToFile = false;
-    const std::string outputfile = "data/SlimmedData/mu3e_test_slimmed_file_000000.root";
+    const int outnum = 0;
+    const int MAX_ENTRIES = 0;
 
-    const std::string pathtodata = "data/SimulationData/";
     const std::string pathtoplots = "plots/Mu3eSlimSegs/";
     const std::string pathtorunplots = pathtoplots + "run_" + get_padded_string(run, 3, '0') + "/";
+    const std::string pathtodata = "data/SimulationData/";
     const std::string infile = pathtodata + "mu3e_run_" + get_padded_string(run, 6, '0') + "_trirec_cosmic.root";
-
-    const bool RECONSTRUCTION_PRINTS = true;
-    const bool HIT_PRINTS = DEBUG;
-    const int MAX_ENTRIES = 0;
+//    const std::string outputfile = pathtodata + "mu3e_slimmed_segs_" + get_padded_string(outnum, 6, '0') + ".root";
+    const std::string outputfile = pathtodata + outputfilename;
 
     check_create_directory(pathtodata);
     check_create_directory(pathtoplots);
     check_create_directory(pathtorunplots);
 
+
     // FILE FOR WRITING
-    TFile tinF(outputfile.c_str(), "recreate");
-    if (!tinF.IsOpen()) {
-        std::cout << "[ERROR] File " << tinF.GetName() << " is not open!" << std::endl;
+    TFile toutF(outputfile.c_str(), (appendToFile ? "update" : "recreate"));
+    if (!toutF.IsOpen()) {
+        std::cout << "[ERROR] File " << toutF.GetName() << " is not open!" << std::endl;
         exit(0);
     }
 
     TTree t_slim("SlimSegs","Tree with slimmed simulation data");
 
     // FILE FOR READING
-    TFile toutF(infile.c_str());
-    if (!toutF.IsOpen()) {
-        std::cout << "[ERROR] File " << toutF.GetName() << " is not open!" << std::endl;
+    TFile tinF(infile.c_str());
+    if (!tinF.IsOpen()) {
+        std::cout << "[ERROR] File " << tinF.GetName() << " is not open!" << std::endl;
         exit(0);
     }
 
     TTree *t_segs;
-    toutF.GetObject("segs", t_segs);
+    tinF.GetObject("segs", t_segs);
     TTree *t_frames;
-    toutF.GetObject("frames", t_frames);
+    tinF.GetObject("frames", t_frames);
 
 
     ////################# DATA FOR ROOT FILES ################################
@@ -293,8 +291,8 @@ void slimSegsData(/*std::string outputfile, int run, const bool appendToFile */)
             }
         }
 
-    SlimSegs.t_slimSegs.Print();
-    tinF.Write();
+    SlimSegs.t_slimSegs->Print();
+    toutF.Write();
     toutF.Close();
     tinF.Close();
 

@@ -4,7 +4,8 @@
 
 #ifndef COSMICTRIGGER_SLIMSEGSDATA_H
 #define COSMICTRIGGER_SLIMSEGSDATA_H
+#include <string>
 
-void slimSegsData();
+void slimSegsData(std::string, const int, const bool);
 
 #endif //COSMICTRIGGER_SLIMSEGSDATA_H

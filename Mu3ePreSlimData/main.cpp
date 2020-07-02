@@ -4,5 +4,5 @@
 #include "slimSegsData.h"
 
 int main(int argc, char *argv[]) {
-    slimSegsData();
+    slimSegsData(std::string("mu3e_slimmed_segs_000000.root"), 10, false);
 }
