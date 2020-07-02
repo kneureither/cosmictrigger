@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <iostream>
 
-#include "karimaki.h"
+#include "karimakiHelixfit.h"
 #include "utilityFunctions.h"
 #include "../../util/custom_types.h"
 

@@ -22,15 +22,9 @@ Add s-z fit subsequently
 #include <math.h>
 #include <stdio.h>
 
-#include "basics.h"
-#include "geometry.h"
-#include "sim_track.h"
-#include "hits_include.h"
-#include "pixrec.h"
-#include "karimaki.h"
+#include "karimakiHelixfit.h"
 #include "fitszw.h"
-
-#include "c_wrappedcode.h"
+#include "wrappers.h"
 
 const bool DEBUG_CONSOLE_LOG = false;
 
@@ -39,7 +33,7 @@ const bool DEBUG_CONSOLE_LOG = false;
 
 #define MINRESOLUTION 1E-6  // minimum resolution for spatial position
 
-int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp[MAXLAYER], double zp[MAXLAYER], double phip[MAXLAYER], double thetas[MAXLAYER], double tres[MAXLAYER], double zres[MAXLAYER], double rres[MAXLAYER]) {
+int karimakiHelixfit(KARITRACK &karires, int npoints, double *xp, double *yp, double *zp, double *phip, double *thetas, double *tres, double *zres, double *rres) {
 
   if(DEBUG_CONSOLE_LOG) printf("\n\tKARIMAKI_HIT\n\t-----------\n\n");
   int i;
@@ -68,7 +62,7 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
   NumConstr=0;
 
   if (npoints>=MAXLAYER) {
-    printf("karimaki_hit: EROOR! npoints>=MAXLAYER \n");
+    printf("karimakiHelixfit: EROOR! npoints>=MAXLAYER \n");
     exit(0);
   }
 
@@ -95,7 +89,7 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
 
   // radius parameter
   rad=1.0/TPar[0];
-//  printf("karimaki_hit result: rad=%f, chi2=%f \n",rad,TCh2dF );
+//  printf("karimakiHelixfit result: rad=%f, chi2=%f \n",rad,TCh2dF );
 
 
 //// Do the helix fit in 3rd dimension
@@ -163,7 +157,7 @@ int karimaki_hit(KARITRACK &karires, int npoints, double xp[MAXLAYER], double yp
     karires.zchi2n=ZCh2dF;
 
 
-  if(DEBUG_CONSOLE_LOG) printf("\tkarimaki_hit result: rad=%f,r3d=%f  theta=%f  chi2t=%f chi2zs=%f\n",karires.rad,karires.r3d,karires.theta,TCh2dF,ZCh2dF );
+  if(DEBUG_CONSOLE_LOG) printf("\tkarimakiHelixfit result: rad=%f,r3d=%f  theta=%f  chi2t=%f chi2zs=%f\n",karires.rad,karires.r3d,karires.theta,TCh2dF,ZCh2dF );
 
   return 0;
 }

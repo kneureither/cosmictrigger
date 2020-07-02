@@ -1,0 +1,8 @@
+//
+// Created by Konstantin Neureither on 02.07.20.
+//
+
+#ifndef COSMICTRIGGER_BASICDEFINES_H
+#define COSMICTRIGGER_BASICDEFINES_H
+
+#endif //COSMICTRIGGER_BASICDEFINES_H

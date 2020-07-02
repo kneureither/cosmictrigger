@@ -6,7 +6,7 @@ extern "C" {
   void cirparw_ (float *,float *,float *,int *,float *,float *);
 
 
-#include "c_wrappedcode.h"
+#include "wrappers.h"
 #include <string.h> /* strlen is need by wrappers! */
 
   void c_cirpar (float *ConstrX,float *ConstrY,int *NumConstr,float *TPar,float *Ch2dF)
