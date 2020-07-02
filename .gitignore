@@ -1,0 +1,20 @@
+# folder 
+/results/
+/data/
+/plots/
+/playground/
+
+
+
+# data
+*.root
+*/*.root
+
+# system
+.DS_Store
+/.DS_Store
+
+# clion
+.idea
+
+/cmake-build-debug/
