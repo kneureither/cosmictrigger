@@ -6,7 +6,7 @@
 #define COSMICTRIGGER_ROOTDATA_H
 
 #include <math.h>
-#include "karimakiHelixfit.h"
+#include "../karimaki/karimakiHelixfit.h"
 #include "basicDefines.h"
 
 template <typename T>

@@ -3,7 +3,7 @@ project(CosmicTrigger C CXX)
 set(CMAKE_CXX_STANDARD 14)
 
 set(F2CPATH "/usr/local/include")
-set(KARIPATH "../3rdparty/karimaki/")
+set(KARIPATH "${CMAKE_CURRENT_SOURCE_DIR}/karimaki/")
 
 set(F2CLIB /usr/local/lib/libf2c.a)
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
@@ -11,7 +11,7 @@ find_package(ROOT)
 include(${ROOT_USE_FILE})
 include_directories(${ROOT_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/util)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/karimaki)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/karimaki)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/root)
 

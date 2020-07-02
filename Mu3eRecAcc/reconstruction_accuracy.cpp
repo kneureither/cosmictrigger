@@ -19,7 +19,7 @@
 #include "utilityFunctions.h"
 #include "plots.h"
 #include "rootData.h"
-#include "karimakiHelixfit.h"
+#include "../karimaki/karimakiHelixfit.h"
 #include "reconstruction_accuracy.h"
 #include "basicDefines.h"
 
