@@ -84,7 +84,7 @@ SlimSegsWrite::SlimSegsWrite(TTree *slimSegs) {
 
 void
 SlimSegsWrite::fillData(const SegsRepresentationAndCalc &Segs,
-                        const slimsegsMeta &Meta,
+                        const SlimSegsMeta &Meta,
                         const KariFitCalc &Karires,
                         const unsigned int &ncombinedhits,
                         const std::vector<double> &xps,

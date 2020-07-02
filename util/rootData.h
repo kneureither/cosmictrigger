@@ -5,16 +5,9 @@
 #ifndef COSMICTRIGGER_ROOTDATA_H
 #define COSMICTRIGGER_ROOTDATA_H
 
-#ifndef TRIPLET_HIT_ARRAY_LENGTH
-#define TRIPLET_HIT_ARRAY_LENGTH 1024
-#endif //TRIPLET_HIT_ARRAY_LENGTH
-
-#ifndef PI
-#define PI 3.1415926535
-#endif //PI
-
 #include <math.h>
-#include "karimaki.h"
+#include "karimakiHelixfit.h"
+#include "basicDefines.h"
 
 template <typename T>
 static unsigned int get_layer(T sid) {
@@ -141,12 +134,12 @@ static int combineBasicHits(std::vector<double> &xp, std::vector<double> &yp, st
 static void correctKariDirection(KariFit &kari) {
 
     if(kari.phi > 0) {
-        printf("\tKARI CORRECT OLD: \t rad %f \tr3d %f phi %f \t theta %f\n", kari.rad, kari.r3d, kari.phi, kari.theta);
+        //printf("\tKARI CORRECT OLD: \t rad %f \tr3d %f phi %f \t theta %f\n", kari.rad, kari.r3d, kari.phi, kari.theta);
         kari.rad = -kari.rad;
         kari.r3d = -kari.r3d;
         kari.phi = kari.phi - PI; //this is save as phi>0
 //        kari.theta = PI - kari.theta;
-        printf("\tKARI CORRECT NEW: \t rad %f \tr3d %f phi %f \t theta %f\n", kari.rad, kari.r3d, kari.phi, kari.theta);
+        //printf("\tKARI CORRECT NEW: \t rad %f \tr3d %f phi %f \t theta %f\n", kari.rad, kari.r3d, kari.phi, kari.theta);
     }
 }
 

@@ -2,6 +2,7 @@
 // Created by Konstantin Neureither on 29.05.20.
 //
 #include <iostream>
+#include "reconstruction_accuracy.h"
 
 int main(int argc, char *argv[]) {
     int run;
@@ -17,7 +18,6 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Running reconstruction_accuracy() for run " << run << "..." << std::endl;
 
-    void reconstruction_accuracy(int, int);
     reconstruction_accuracy(run, filter);
 
     return 0;

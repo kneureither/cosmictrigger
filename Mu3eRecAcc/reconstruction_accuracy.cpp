@@ -1,22 +1,12 @@
 //
 // Created by Konstantin Neureither on 27.04.20.
 //
-#define TRIPLET_HIT_ARRAY_LENGTH 1024
 #define GET_DATA_FROM_MU3E true
-
-#ifndef PI
-#define PI 3.1415926535
-#endif //PI
-
-#ifndef DEBUG
-#define DEBUG false
-#endif //DEBUG
 
 #include <TFile.h>
 #include <TROOT.h>
 #include <algorithm>
 #include <TTree.h>
-#include <map>
 #include <string>
 #include <TH1.h>
 #include <TGraph.h>
@@ -26,19 +16,20 @@
 #include <filesystem>
 #include <cmath>
 #include <assert.h>
-#include "../util/utilityFunctions.h"
-#include "../util/plots.h"
+#include "utilityFunctions.h"
+#include "plots.h"
+#include "rootData.h"
+#include "karimakiHelixfit.h"
 #include "reconstruction_accuracy.h"
-#include "../util/trigonometry.h"
-#include "../util/rootData.h"
+#include "basicDefines.h"
 
 using std::cout;
 using std::endl;
 
 void reconstruction_accuracy(int run, int FILTER) {
 
-    const std::string pathtodata = "../data/";
-    const std::string pathtoplots = "../plots/Mu3eRecAcc/";
+    const std::string pathtodata = "data/SimulationData/";
+    const std::string pathtoplots = "plots/Mu3eRecAcc/";
     const bool RECONSTRUCTION_PRINTS = false;
     const bool HIT_PRINTS = DEBUG;
     const bool MAKE_PLOT = true;
@@ -379,7 +370,8 @@ void reconstruction_accuracy(int run, int FILTER) {
                 cout << "\tHits sorted for kari:  sid=" << sids[i] << " x=" << xp[i] << "  y=" << yp[i] << "  z=" << zp[i] <<" phi=" << phi_hits[i] << " theta=" << thetas[i] << endl;
             }
         }
-        karimaki_hit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], &phi_hits[0], &thetas[0], &tres[0], &zres[0], &rres[0]);
+        karimakiHelixfit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], &phi_hits[0], &thetas[0], &tres[0], &zres[0],
+                         &rres[0]);
         correctKariDirection(karires);
 
         if (mc_p == 0 || mc_pt == 0 || rec_p == 0 || rec_pt == 0) {

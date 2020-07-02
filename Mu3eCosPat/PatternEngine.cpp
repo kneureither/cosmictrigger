@@ -1,9 +1,6 @@
 //
 // Created by Konstantin Neureither on 16.06.20.
 //
-#ifndef PI
-#define PI 3.1415926535
-#endif //PI
 
 #include <vector>
 #include <TFile.h>
@@ -24,6 +21,7 @@
 #include "plots.h"
 #include "PatternEngine.h"
 #include "SuperPixelHit.h"
+#inlcude "basicDefines.h"
 
 PatternEngine::PatternEngine(float spXpartition, float spZpartition, int mode) {
     printf("----INIT PATTERN ENGINE----\n");

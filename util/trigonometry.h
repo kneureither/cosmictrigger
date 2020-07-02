@@ -4,14 +4,11 @@
 
 #ifndef COSMICTRIGGER_TRIGONOMETRY_H
 #define COSMICTRIGGER_TRIGONOMETRY_H
-#ifndef PI
-#define PI 3.1415926535
-#endif //PI
+
 
 #include <assert.h>
 #include <type_traits>
-
-
+#include "basicDefines.h"
 
 
 typedef struct HitWeights {

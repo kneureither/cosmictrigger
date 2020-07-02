@@ -1,15 +1,6 @@
 //
 // Created by Konstantin Neureither on 18.06.20.
 //
-#define TRIPLET_HIT_ARRAY_LENGTH 1024
-
-#ifndef PI
-#define PI 3.1415926535
-#endif //PI
-
-#ifndef DEBUG
-#define DEBUG false
-#endif //DEBUG
 
 #include <TFile.h>
 #include <TROOT.h>
@@ -32,6 +23,7 @@
 #include "PatternEngine.h"
 #include "rootData.h"
 #include "TemplateBank.h"
+#include "basicDefines.h"
 
 using std::cout;
 using std::endl;

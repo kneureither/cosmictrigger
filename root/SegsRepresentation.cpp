@@ -1,15 +1,11 @@
 //
 // Created by Konstantin Neureither on 30.06.20.
 //
-#ifndef PI
-#define PI 3.1415926535
-#endif //PI
-
-#define TRIPLET_HIT_ARRAY_LENGTH 1024
 
 #include "SegsRepresentation.h"
 #include <iostream>
 #include "utilityFunctions.h"
+#include "basicDefines.h"
 
 SegsRepresentation::SegsRepresentation(TTree *t_segs) {
     this->tr_segs = t_segs;

@@ -6,12 +6,13 @@
 #define COSMICTRIGGER_TEMPLATEDATA_H
 
 #include <vector>
+#include "basicDefines.h"
 
 struct TemplateData {
-    unsigned int SPIDs[16];
-    float xp[16];
-    float yp[16];
-    float zp[16];
+    unsigned int SPIDs[TRIPLET_HIT_ARRAY_LENGTH];
+    float xp[TRIPLET_HIT_ARRAY_LENGTH];
+    float yp[TRIPLET_HIT_ARRAY_LENGTH];
+    float zp[TRIPLET_HIT_ARRAY_LENGTH];
 
     int count;
 

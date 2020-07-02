@@ -2,12 +2,6 @@
 // Created by Konstantin Neureither on 25.06.20.
 //
 
-#ifndef DEBUG
-#define DEBUG false
-#endif //DEBUG
-
-#define FIT false
-
 // Basic imports
 #include <iostream>
 #include <string>
@@ -25,13 +19,10 @@
 #include "utilityFunctions.h"
 #include "SegsRepresentation.h"
 #include "SlimSegsRepresentation.h"
+#include "basicDefines.h"
 
 using std::cout;
 using std::endl;
-
-
-//Declaration for function defined in "../3rdparty/karimaki/karimaki_hit.c"
-int karimaki_hit(KariFit&, int , double *, double *, double *, double *, double*, double *, double *, double *);
 
 void slimSegsData(/*std::string outputfile, int run, const bool appendToFile */) {
 
@@ -204,7 +195,8 @@ void slimSegsData(/*std::string outputfile, int run, const bool appendToFile */)
 
 
             //do the helix fit
-            karimaki_hit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], &phi_hitp[0], &thetap[0], &tres[0], &zres[0], &rres[0]);
+            karimakiHelixfit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], &phi_hitp[0], &thetap[0], &tres[0],
+                             &zres[0], &rres[0]);
             correctKariDirection(karires);
 
 

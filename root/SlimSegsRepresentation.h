@@ -6,12 +6,12 @@
 #define COSMICTRIGGER_SLIMSEGSREPRESENTATION_H
 
 #include <vector>
-#include "karimaki.h"
+#include "karimakiHelixfit.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "SegsRepresentation.h"
 
-struct slimsegsMeta {
+struct SlimSegsMeta {
     unsigned int uEventID;
     unsigned int segsIndex;
     unsigned int runID;
@@ -118,7 +118,7 @@ class SlimSegsWrite : public SlimSegsRepresentation {
 public:
     explicit SlimSegsWrite(TTree * slimSegs);
     void fillData(const SegsRepresentationAndCalc &Segs,
-                  const slimsegsMeta &Meta,
+                  const SlimSegsMeta &Meta,
                   const KariFitCalc &Karires,
                   const unsigned int &ncombinedhits,
                   const std::vector<double> &xps, const std::vector<double> &zps,

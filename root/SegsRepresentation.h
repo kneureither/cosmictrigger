@@ -5,12 +5,9 @@
 #ifndef COSMICTRIGGER_SEGSREPRESENTATION_H
 #define COSMICTRIGGER_SEGSREPRESENTATION_H
 
-#ifndef TRIPLET_HIT_ARRAY_LENGTH
-#define TRIPLET_HIT_ARRAY_LENGTH 1024
-#endif
-
 #include "TFile.h"
 #include "TTree.h"
+#include "basicDefines.h"
 
 
 class SegsRepresentation {
