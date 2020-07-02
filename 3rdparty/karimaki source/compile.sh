@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SRC=" karimaki_main.c karimaki_hit.c fitszw.c cirpar.c cirparw.c wrappers.c"
+SRC=" karimaki_main.c karimakiHelixfit.c fitszw.c cirpar.c cirparw.c wrappers.c"
 ROOT=" `root-config --libs --cflags`"
 
 echo

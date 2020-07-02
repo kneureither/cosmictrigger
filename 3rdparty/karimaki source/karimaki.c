@@ -27,7 +27,7 @@ Add s-z fit subsequently
 #include "hits_include.h"
 #include "pixrec.h"
 
-#include "c_wrappedcode.h"
+#include "../../karimaki/wrappers.h"
 
 //#define CALCWEIGHT
 #define WEIGHTMAX 10.0

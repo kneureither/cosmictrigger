@@ -15,7 +15,7 @@
 
 #include "karimakiHelixfit.h"
 #include "utilityFunctions.h"
-#include "../../util/custom_types.h"
+#include "custom_types.h"
 
 using std::endl;
 using std::cout;
