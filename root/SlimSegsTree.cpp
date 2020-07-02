@@ -5,13 +5,16 @@
 #include "SlimSegsRepresentation.h"
 
 SlimSegsWrite::SlimSegsWrite(TTree *slimSegs) {
+    //get the tree pointer
     this->t_slimSegs = slimSegs;
 
+    //meta data
     this->t_slimSegs->Branch("eventID", &this->eventID, "event/i");
     this->t_slimSegs->Branch("runID", &this->runID, "run/i");
     this->t_slimSegs->Branch("uEventID", &this->uEventID, "uniqueEventID/i");
     this->t_slimSegs->Branch("segsIndex", &this->segsIndex, "IndexOfEventInSegsTree/i");
 
+    //monte carlo data
     this->t_slimSegs->Branch("mc_type", &this->mc_type, "mc_type/I");
     this->t_slimSegs->Branch("mc_tid", &this->mc_tid, "mc_tid/I");
     this->t_slimSegs->Branch("mc_pid", &this->mc_pid, "mc_pid/I");
@@ -23,6 +26,7 @@ SlimSegsWrite::SlimSegsWrite(TTree *slimSegs) {
     this->t_slimSegs->Branch("nhit", &this->rec_nhit, "nhit/I");
     this->t_slimSegs->Branch("nsegs", &this->rec_ntriplet, "nsegs/I");
 
+    //actual hit data for each segment
     this->t_slimSegs->Branch("x00", &this->x00);
     this->t_slimSegs->Branch("x01", &this->x01);
     this->t_slimSegs->Branch("x10", &this->x10);
@@ -51,17 +55,20 @@ SlimSegsWrite::SlimSegsWrite(TTree *slimSegs) {
     this->t_slimSegs->Branch("sid20", &this->sid20);
     this->t_slimSegs->Branch("sid21", &this->sid21);
 
+    //angles from triplets
     this->t_slimSegs->Branch("tan01", &this->rec_tan01);
     this->t_slimSegs->Branch("tan12", &this->rec_tan12);
     this->t_slimSegs->Branch("lam01", &this->rec_lam01);
     this->t_slimSegs->Branch("lam12", &this->rec_lam12);
 
+    //the combined hits from x00 x10 and x20 (y,z respectively) hits.
     this->t_slimSegs->Branch("ncombinedhits", &this->ncombinedhits, "ncombinedhits/I");
     this->t_slimSegs->Branch("xp", &this->xp);
     this->t_slimSegs->Branch("yp", &this->yp);
     this->t_slimSegs->Branch("zp", &this->zp);
     this->t_slimSegs->Branch("layerp", &this->layerp);
 
+    //reconstruction (multi-scattering) fit data
     this->t_slimSegs->Branch("rec_p", &this->rec_p, "rec_p/F");
     this->t_slimSegs->Branch("rec_pt", &this->rec_pt, "rec_pt/F");
     this->t_slimSegs->Branch("rec_r", &this->rec_r, "rec_r/F");
@@ -70,6 +77,7 @@ SlimSegsWrite::SlimSegsWrite(TTree *slimSegs) {
     this->t_slimSegs->Branch("rec_dca_r", &this->rec_dca_r, "rec_dca_r/F");
     this->t_slimSegs->Branch("rec_dca_z", &this->rec_dca_z, "rec_dca_z/F");
 
+    //karimaki helix fit data
     this->t_slimSegs->Branch("kari_r3d", &this->kari_r3d, "kari_r3d/F");
     this->t_slimSegs->Branch("kari_rad", &this->kari_rad, "kari_rad/F");
     this->t_slimSegs->Branch("kari_dca", &this->kari_rad, "kari_dca/F");
@@ -82,8 +90,9 @@ SlimSegsWrite::SlimSegsWrite(TTree *slimSegs) {
     this->t_slimSegs->Branch("kari_lchi2", &this->kari_lchi2, "kari_lchi2/F");
 }
 
-void
-SlimSegsWrite::fillData(const SegsRepresentationAndCalc &Segs,
+/* combines all necessary data and fills the members of the slim segs tree representation class. */
+/* After acquiring the data, it is written to the TTree */
+void SlimSegsWrite::fillData(const SegsRepresentationReadPlus &Segs,
                         const SlimSegsMeta &Meta,
                         const KariFitCalc &Karires,
                         const unsigned int &ncombinedhits,
@@ -92,16 +101,20 @@ SlimSegsWrite::fillData(const SegsRepresentationAndCalc &Segs,
                         const std::vector<double> &yps,
                         const std::vector<int> &layerps) {
 
+    //set everything to 0 and clear vectors
     this->reInitializeData();
 
+    //meta data
     this->eventID = (unsigned int) Segs.rec_event;
     this->runID = (unsigned int) Meta.runID;
     this->uEventID = Meta.uEventID;
     this->segsIndex = (unsigned int) Meta.segsIndex;
 
+    //traj meta data
     this->rec_nhit = Segs.rec_nhit;
     this->rec_ntriplet = Segs.rec_ntriplet;
 
+    //monte carlo data
     this->mc_tid = Segs.mc_tid;
     this->mc_p = Segs.mc_p;
     this->mc_p_corr = Segs.mc_p_corr;
@@ -109,7 +122,7 @@ SlimSegsWrite::fillData(const SegsRepresentationAndCalc &Segs,
     this->mc_type = Segs.mc_type;
     this->mc_pid = Segs.mc_pid;
 
-    //convert arrays to vectors
+    //convert hit arrays to vectors (standardize data types)
     for(int i = 0; i<Segs.rec_ntriplet; i++) {
         this->x00.push_back(Segs.x00[i]);
         this->x01.push_back(Segs.x01[i]);
@@ -145,6 +158,7 @@ SlimSegsWrite::fillData(const SegsRepresentationAndCalc &Segs,
         this->rec_lam12.push_back(Segs.rec_lam12[i]);
     }
 
+    //reconstruction fit data from segs
     this->rec_p = Segs.rec_p;
     this->rec_pt = Segs.rec_pt;
     //perr
@@ -178,6 +192,7 @@ SlimSegsWrite::fillData(const SegsRepresentationAndCalc &Segs,
 }
 
 void SlimSegsRepresentation::reInitializeData() {
+/* clears the vectors and sets everything else to 0 in order to receive another entry from the tree*/
 
     //meta data
     this->eventID = 0;
@@ -195,7 +210,6 @@ void SlimSegsRepresentation::reInitializeData() {
     this->mc_pt = 0;
     this->mc_type = 0;
     this->mc_pid = 0;
-
 
     this->x00.clear();
     this->x01.clear();

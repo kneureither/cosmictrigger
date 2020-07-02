@@ -19,11 +19,13 @@ public:
     explicit SegsRepresentation(TTree *t_segs);
     void getEntry(const int &index);
 
+    //meta data
     unsigned int segs_entries;
     int rec_event;
     int rec_nhit;
     int rec_ntriplet;
 
+    //monte carlo data
     int mc_tid;
     float mc_p;
     float mc_pt;
@@ -33,13 +35,14 @@ public:
     int mc_type;
     int mc_pid;
 
+    //reconstruction data
     float rec_p;
     float rec_r;
     float rec_rt;
-
     float rec_zpca_z;
     float rec_zpca_r;
 
+    //actual hit data of reconstructed segs
     float x00[TRIPLET_HIT_ARRAY_LENGTH];
     float x10[TRIPLET_HIT_ARRAY_LENGTH];
     float x20[TRIPLET_HIT_ARRAY_LENGTH];
@@ -76,7 +79,7 @@ public:
 };
 
 class SegsRepresentationAndCalc : public SegsRepresentation {
-private:
+    //this class also calculates some further data from the segs data
 public:
     //calc
     float rec_pt;

@@ -9,20 +9,24 @@
 #include "karimakiHelixfit.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "SegsRepresentation.h"
+#include "SegsTreeRead.h"
 
+//for more compact and clearer function call when filling the TTree of the slimmed down segs data
 struct SlimSegsMeta {
     unsigned int uEventID;
     unsigned int segsIndex;
     unsigned int runID;
 };
 
+//some further data from the kari fit (for calculation)
 struct KariFitCalc : KariFit {
     float p = -9999.9;
     float pt = -9999.9;
 };
 
 
+/*This class represents the data structure of the slimmed down simulation data*/
+/*From this class there are Write and Read classes derived which handle the write to or read from a ROOT::TTree object*/
 class SlimSegsRepresentation {
 public:
     TTree *t_slimSegs;
@@ -114,10 +118,11 @@ public:
 
 };
 
+/* Derived class, that handles writing the SlimSegs data to a ROOT::TTree */
 class SlimSegsWrite : public SlimSegsRepresentation {
 public:
     explicit SlimSegsWrite(TTree * slimSegs);
-    void fillData(const SegsRepresentationAndCalc &Segs,
+    void fillData(const SegsRepresentationReadPlus &Segs,
                   const SlimSegsMeta &Meta,
                   const KariFitCalc &Karires,
                   const unsigned int &ncombinedhits,
@@ -125,6 +130,7 @@ public:
                   const std::vector<double> &yps, const std::vector<int> &layerps);
 };
 
+/* Derived class, that handles reading the SlimSegs data from a ROOT::TTree */
 class SlimSegsRead : public SlimSegsRepresentation {
 public:
     explicit SlimSegsRead(TTree * slimSegs);
