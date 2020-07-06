@@ -145,7 +145,7 @@ void TemplateBank::displayTemplatePopulationHistogram() {
         h_templfreq->Fill(frequency);
     }
     h_templfreq->Draw();
-    saveCanvas(canvas, "templateFrequency", "../plots/Mu3eCosPat");
+    saveCanvas(canvas, "templateFrequency", "plots/Mu3eCosPat");
 }
 
 void TemplateBank::testGetMostPopTemplates() {

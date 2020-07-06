@@ -30,8 +30,8 @@ using std::endl;
 
 void processSegsPrototype(int run, int FILTER) {
 
-    const std::string pathtodata = "../data/";
-    const std::string pathtoplots = "../plots/Mu3eCosPat/processSegsPrototype/";
+    const std::string pathtodata = "data/SimulationData/";
+    const std::string pathtoplots = "plots/Mu3eCosPat/processSegsPrototype/";
     const bool MAKE_PLOT = true;
     const int MAX_ENTRIES = 0;
 
@@ -40,7 +40,7 @@ void processSegsPrototype(int run, int FILTER) {
     std::string pathtorunplots = pathtoplots + "run_" + get_padded_string(run, 3, '0') + "/";
     check_create_directory(pathtorunplots);
 
-    PatternEngine PE(20, 100, 0, pathtorunplots);
+    PatternEngine PE(20, 100, pathtorunplots);
     PE.displayBinBoundaries();
 
     TemplateBank TB;
