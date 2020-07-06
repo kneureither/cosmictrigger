@@ -2,8 +2,10 @@
 // Created by Konstantin Neureither on 30.06.20.
 //
 
-#ifndef COSMICTRIGGER_SLIMSEGSREPRESENTATION_H
-#define COSMICTRIGGER_SLIMSEGSREPRESENTATION_H
+#ifndef COSMICTRIGGER_SLIMSEGSTREE_H
+#define COSMICTRIGGER_SLIMSEGSTREE_H
+
+#define GET_ORIGINAL_HITS false
 
 #include <vector>
 #include "karimakiHelixfit.h"
@@ -27,7 +29,7 @@ struct KariFitCalc : KariFit {
 
 /*This class represents the data structure of the slimmed down simulation data*/
 /*From this class there are Write and Read classes derived which handle the write to or read from a ROOT::TTree object*/
-class SlimSegsRepresentation {
+class SlimSegsTree {
 public:
     TTree *t_slimSegs;
     unsigned int entries;
@@ -49,6 +51,7 @@ public:
     int mc_type;
     int mc_pid;
 
+#if GET_ORIGINAL_HITS
     //hit data
     std::vector<float> x00;
     std::vector<float> x01;
@@ -82,6 +85,7 @@ public:
     std::vector<float> rec_tan12;
     std::vector<float> rec_lam01;
     std::vector<float> rec_lam12;
+#endif
 
     //ms fit data
     float rec_p;
@@ -119,10 +123,10 @@ public:
 };
 
 /* Derived class, that handles writing the SlimSegs data to a ROOT::TTree */
-class SlimSegsWrite : public SlimSegsRepresentation {
+class SlimSegsTreeWrite : public SlimSegsTree {
 public:
-    explicit SlimSegsWrite(TTree * slimSegs);
-    void fillData(const SegsRepresentationReadPlus &Segs,
+    explicit SlimSegsTreeWrite(TTree * slimSegs);
+    void fillData(const SegsTreeReadPlus &Segs,
                   const SlimSegsMeta &Meta,
                   const KariFitCalc &Karires,
                   const unsigned int &ncombinedhits,
@@ -131,10 +135,10 @@ public:
 };
 
 /* Derived class, that handles reading the SlimSegs data from a ROOT::TTree */
-class SlimSegsRead : public SlimSegsRepresentation {
+class SlimSegsRead : public SlimSegsTree {
 public:
     explicit SlimSegsRead(TTree * slimSegs);
 };
 
 
-#endif //COSMICTRIGGER_SLIMSEGSREPRESENTATION_H
+#endif //COSMICTRIGGER_SLIMSEGSTREE_H

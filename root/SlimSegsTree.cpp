@@ -2,9 +2,9 @@
 // Created by Konstantin Neureither on 30.06.20.
 //
 
-#include "SlimSegsRepresentation.h"
+#include "SlimSegsTree.h"
 
-SlimSegsWrite::SlimSegsWrite(TTree *slimSegs) {
+SlimSegsTreeWrite::SlimSegsTreeWrite(TTree *slimSegs) {
     //get the tree pointer
     this->t_slimSegs = slimSegs;
 
@@ -26,6 +26,7 @@ SlimSegsWrite::SlimSegsWrite(TTree *slimSegs) {
     this->t_slimSegs->Branch("nhit", &this->rec_nhit, "nhit/I");
     this->t_slimSegs->Branch("nsegs", &this->rec_ntriplet, "nsegs/I");
 
+#if GET_ORIGINAL_HITS
     //actual hit data for each segment
     this->t_slimSegs->Branch("x00", &this->x00);
     this->t_slimSegs->Branch("x01", &this->x01);
@@ -60,6 +61,7 @@ SlimSegsWrite::SlimSegsWrite(TTree *slimSegs) {
     this->t_slimSegs->Branch("tan12", &this->rec_tan12);
     this->t_slimSegs->Branch("lam01", &this->rec_lam01);
     this->t_slimSegs->Branch("lam12", &this->rec_lam12);
+#endif
 
     //the combined hits from x00 x10 and x20 (y,z respectively) hits.
     this->t_slimSegs->Branch("ncombinedhits", &this->ncombinedhits, "ncombinedhits/I");
@@ -92,14 +94,14 @@ SlimSegsWrite::SlimSegsWrite(TTree *slimSegs) {
 
 /* combines all necessary data and fills the members of the slim segs tree representation class. */
 /* After acquiring the data, it is written to the TTree */
-void SlimSegsWrite::fillData(const SegsRepresentationReadPlus &Segs,
-                        const SlimSegsMeta &Meta,
-                        const KariFitCalc &Karires,
-                        const unsigned int &ncombinedhits,
-                        const std::vector<double> &xps,
-                        const std::vector<double> &zps,
-                        const std::vector<double> &yps,
-                        const std::vector<int> &layerps) {
+void SlimSegsTreeWrite::fillData(const SegsTreeReadPlus &Segs,
+                                 const SlimSegsMeta &Meta,
+                                 const KariFitCalc &Karires,
+                                 const unsigned int &ncombinedhits,
+                                 const std::vector<double> &xps,
+                                 const std::vector<double> &zps,
+                                 const std::vector<double> &yps,
+                                 const std::vector<int> &layerps) {
 
     //set everything to 0 and clear vectors
     this->reInitializeData();
@@ -122,6 +124,7 @@ void SlimSegsWrite::fillData(const SegsRepresentationReadPlus &Segs,
     this->mc_type = Segs.mc_type;
     this->mc_pid = Segs.mc_pid;
 
+#if GET_ORIGINAL_HITS
     //convert hit arrays to vectors (standardize data types)
     for(int i = 0; i<Segs.rec_ntriplet; i++) {
         this->x00.push_back(Segs.x00[i]);
@@ -157,6 +160,7 @@ void SlimSegsWrite::fillData(const SegsRepresentationReadPlus &Segs,
         this->rec_lam01.push_back(Segs.rec_lam01[i]);
         this->rec_lam12.push_back(Segs.rec_lam12[i]);
     }
+#endif
 
     //reconstruction fit data from segs
     this->rec_p = Segs.rec_p;
@@ -191,7 +195,7 @@ void SlimSegsWrite::fillData(const SegsRepresentationReadPlus &Segs,
     this->t_slimSegs->Fill();
 }
 
-void SlimSegsRepresentation::reInitializeData() {
+void SlimSegsTree::reInitializeData() {
 /* clears the vectors and sets everything else to 0 in order to receive another entry from the tree*/
 
     //meta data
@@ -211,6 +215,7 @@ void SlimSegsRepresentation::reInitializeData() {
     this->mc_type = 0;
     this->mc_pid = 0;
 
+#if GET_ORIGINAL_HITS
     this->x00.clear();
     this->x01.clear();
     this->x10.clear();
@@ -243,6 +248,7 @@ void SlimSegsRepresentation::reInitializeData() {
     this->rec_tan12.clear();
     this->rec_lam01.clear();
     this->rec_lam12.clear();
+#endif
 
     //ms fit data
     this->rec_p = 0;

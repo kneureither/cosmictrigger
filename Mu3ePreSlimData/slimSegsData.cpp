@@ -207,9 +207,7 @@ void slimSegsData(std::string outputfilename, const int run, const bool appendTo
             //this corrects the direction according to phi, as the cosmic come from above
             correctKariDirection(karires);
 
-
-            //FIXME some filter functionality could be introduced here -- should it?
-            int choice = true;
+            int choice = Segs.mc_type == 3 || Segs.mc_type == 4;
             if (choice) {
                 processed_entries++;
 
@@ -233,10 +231,10 @@ void slimSegsData(std::string outputfilename, const int run, const bool appendTo
                 assert(SlimSegs.eventID == Segs.rec_event);
                 assert(SlimSegs.rec_p == Segs.rec_p);
                 assert(SlimSegs.rec_ntriplet == Segs.rec_ntriplet);
-                for(int i=0; i<Segs.rec_ntriplet; i++) {
-                    assert(SlimSegs.x00[i] == Segs.x00[i]);
-                    assert(SlimSegs.x10[i] == Segs.x10[i]);
-                }
+//                for(int i=0; i<Segs.rec_ntriplet; i++) {
+//                    assert(SlimSegs.x00[i] == Segs.x00[i]);
+//                    assert(SlimSegs.x10[i] == Segs.x10[i]);
+//                }
 
 #if MAKE_PLOT
                     //calculated data

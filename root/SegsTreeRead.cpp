@@ -2,18 +2,18 @@
 // Created by Konstantin Neureither on 30.06.20.
 //
 
-#include "SegsRepresentation.h"
+#include "SegsTreeRead.h"
 #include <iostream>
 #include "utilityFunctions.h"
 #include "basicDefines.h"
 
-SegsRepresentation::SegsRepresentation(TTree *t_segs) {
+SegsTreeRead::SegsTreeRead(TTree *t_segs) {
     this->tr_segs = t_segs;
     this->segs_entries = this->tr_segs->GetEntries();
     setBranches();
 }
 
-void SegsRepresentation::setBranches() {
+void SegsTreeRead::setBranches() {
     //some meta data
     tr_segs->SetBranchAddress("eventId", &rec_event);
     tr_segs->SetBranchAddress("nhit", &rec_nhit);
@@ -73,11 +73,11 @@ void SegsRepresentation::setBranches() {
     std::cout << "Branches set for segs..." << std::endl;
 }
 
-void SegsRepresentation::getEntry(const int &index) {
+void SegsTreeRead::getEntry(const int &index) {
     this->tr_segs->GetEntry(index);
 }
 
-void SegsRepresentationAndCalc::calcAdditionalData() {
+void SegsTreeReadPlus::calcAdditionalData() {
     //basic data: Theta, phi and traverse p of reconstruction
     this->rec_pt = this->rec_p * std::cos((this->rec_lam01)[0]);
     this->rec_phi = (this->rec_tan01)[0];

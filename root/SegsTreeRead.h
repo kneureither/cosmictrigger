@@ -2,21 +2,21 @@
 // Created by Konstantin Neureither on 30.06.20.
 //
 
-#ifndef COSMICTRIGGER_SEGSREPRESENTATION_H
-#define COSMICTRIGGER_SEGSREPRESENTATION_H
+#ifndef COSMICTRIGGER_SEGSTREEREAD_H
+#define COSMICTRIGGER_SEGSTREEREAD_H
 
 #include "TFile.h"
 #include "TTree.h"
 #include "basicDefines.h"
 
 
-class SegsRepresentation {
+class SegsTreeRead {
 private:
 public:
     TTree *tr_segs;
 
     void setBranches();
-    explicit SegsRepresentation(TTree *t_segs);
+    explicit SegsTreeRead(TTree *t_segs);
     void getEntry(const int &index);
 
     //meta data
@@ -78,7 +78,7 @@ public:
 
 };
 
-class SegsRepresentationAndCalc : public SegsRepresentation {
+class SegsTreeReadPlus : public SegsTreeRead {
     //this class also calculates some further data from the segs data
 public:
     //calc
@@ -99,11 +99,11 @@ public:
     float p_inv_abs_error;
     float pt_inv_abs_error;
 
-    SegsRepresentationAndCalc(TTree *segs)
-    : SegsRepresentation(segs) {}
+    SegsTreeReadPlus(TTree *segs)
+    : SegsTreeRead(segs) {}
 
     void calcAdditionalData();
 };
 
 
-#endif //COSMICTRIGGER_SEGSREPRESENTATION_H
+#endif //COSMICTRIGGER_SEGSTREEREAD_H
