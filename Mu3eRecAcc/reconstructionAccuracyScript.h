@@ -1,0 +1,9 @@
+//
+// Created by Konstantin Neureither on 29.05.20.
+//
+#ifndef COSMICTRIGGER_RECONSTRUCTION_ACCURACY_SCRIPT_H
+#define COSMICTRIGGER_RECONSTRUCTION_ACCURACY_SCRIPT_H
+
+void reconstructionAccuracyScript(int, int);
+
+#endif //COSMICTRIGGER_RECONSTRUCTION_ACCURACY_SCRIPT_H

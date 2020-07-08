@@ -3,6 +3,7 @@
 //
 #include <iostream>
 #include "reconstruction_accuracy.h"
+#include "reconstructionAccuracyScript.h"
 
 int main(int argc, char *argv[]) {
     int run;
@@ -17,8 +18,8 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "Running reconstruction_accuracy() for run " << run << "..." << std::endl;
-
-    reconstruction_accuracy(run, filter);
+    
+    reconstructionAccuracyScript(run, filter);
 
     return 0;
 }

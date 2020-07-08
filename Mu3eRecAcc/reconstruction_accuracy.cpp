@@ -147,7 +147,7 @@ void reconstruction_accuracy(int run, int FILTER) {
 
     t_segs->SetBranchAddress("p", &rec_p);
     t_segs->SetBranchAddress("r", &rec_r);
-    t_segs->SetBranchAddress("rt", &rec_rt);
+//    t_segs->SetBranchAddress("rt", &rec_rt);
     t_segs->SetBranchAddress("tan01", &rec_tan01);
     t_segs->SetBranchAddress("tan12", &rec_tan12);
     t_segs->SetBranchAddress("lam01", &rec_lam01);
@@ -286,8 +286,8 @@ void reconstruction_accuracy(int run, int FILTER) {
 #endif
 
 
-    for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); i++) {
-        t_segs->GetEntry(i);
+    for (unsigned int entryno = 0; entryno < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); entryno++) {
+        t_segs->GetEntry(entryno);
 
         if(HIT_PRINTS) printf("\nRECONSTRUCTION ACCURACY ENTRY\n------------------------------\n\n");
 
@@ -302,7 +302,7 @@ void reconstruction_accuracy(int run, int FILTER) {
 
         if(HIT_PRINTS) {
             //some status prints for debugging
-            cout << "\tsegs_index=" << i << "\tmu3e_index=" << mu3e_index;
+            cout << "\tsegs_index=" << entryno << "\tmu3e_index=" << mu3e_index;
             cout << "\trec_event=" << rec_event << "\tmu3e_event= " << header[0];
             cout << "\trec_nhits=" << rec_nhit << "\tmu3e_nhit=" << mu3e_nhits << endl;
         }
@@ -359,8 +359,8 @@ void reconstruction_accuracy(int run, int FILTER) {
         std::vector<double> thetas;
 
         int ncombinedhits = combineHits(xp, yp, zp, sids, phi_hits, thetas, rec_nhit, rec_ntriplet,
-                                        x00, x10, x01, x20, x21, y00, y10, y01, y20, y21, z00, z10, z01, z20, z21,
-                                        sid00, sid10, sid01, sid20, sid21, rec_tan01, rec_tan12, rec_lam01, rec_lam12);
+                                        x00, x10,x11, x01, x20, x21, y00, y10,y11, y01, y20, y21, z00, z10,z11, z01, z20, z21,
+                                        sid00, sid10, sid11, sid01, sid20, sid21, rec_tan01, rec_tan12, rec_lam01, rec_lam12);
 
 //        getResolutionArrs(ncombinedhits, RMS, tres, zres, rres, xp, yp, phi_hits, (double) rec_theta);
 //        assert(tres.size() == ncombinedhits);
@@ -373,7 +373,7 @@ void reconstruction_accuracy(int run, int FILTER) {
         karimakiHelixfit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], &phi_hits[0], &thetas[0], &tres[0], &zres[0],
                          &rres[0]);
         correctKariDirection(karires);
-        swapKariMomentum(karires);
+        swapKariBField(karires);
 
         if (mc_p == 0 || mc_pt == 0 || rec_p == 0 || rec_pt == 0) {
             p_fail_count++;
@@ -451,7 +451,7 @@ void reconstruction_accuracy(int run, int FILTER) {
 //                assert(!(mc_type == 4 && sgn(mc_pid) == -1));
 //                assert(!(mc_type == 3 && sgn(mc_pid) == 1));
 
-                cout << "event id " << rec_event <<" index: " << i <<  " mc type: " << mc_type << endl;
+                cout << "event id " << rec_event << " index: " << entryno << " mc type: " << mc_type << endl;
 
                 //calculated data
                 rec_inv_ps.push_back(rec_inv_p);

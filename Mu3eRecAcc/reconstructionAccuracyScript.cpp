@@ -26,6 +26,7 @@
 #include "../karimaki/karimakiHelixfit.h"
 #include "reconstruction_accuracy.h"
 #include "basicDefines.h"
+#include "SegsTreeRead.h"
 
 using std::cout;
 using std::endl;
@@ -41,18 +42,17 @@ void reconstructionAccuracyScript(int run, int FILTER) {
 
     std::string filtertag;
 
-    check_create_directory(pathtodata);
-    check_create_directory(pathtoplots);
-    std::string pathtorunplots = pathtoplots + "run_" + get_padded_string(run, 3, '0') + "/";
-    check_create_directory(pathtorunplots);
-
     std::string runpadded = get_padded_string(run, 6, '0');
     std::string infile2 = pathtodata + "mu3e_run_" + runpadded + "_trirec_cosmic.root";
+    std::string pathtorunplots = pathtoplots + "run_" + get_padded_string(run, 3, '0') + "/";
+
+    check_create_directory(pathtodata);
+    check_create_directory(pathtoplots);
+    check_create_directory(pathtorunplots);
+
     TFile f2(infile2.c_str());
     TTree *t_segs;
     f2.GetObject("segs", t_segs);
-    TTree *t_frames;
-    f2.GetObject("frames", t_frames);
 
 #if GET_DATA_FROM_MU3E
     std::string infile1 = pathtodata + "mu3e_run_" + runpadded + ".root";
@@ -83,129 +83,12 @@ void reconstructionAccuracyScript(int run, int FILTER) {
 
     cout << "Branches set for mu3e..." << endl;
 #endif
-
-
-    //data for trirec result in "segs" tree
-    unsigned int segs_entries = t_segs->GetEntries();
-    int rec_event;
-    int rec_nhit;
-    int rec_ntriplet;
-    int rec_trajid;
-
-    float mc_p;
-    float mc_pt;
-    float mc_theta;
-    float mc_phi;
-    float mc_lam;
-    float mc_vpca_offset;
-    float mc_vpca_phi;
-    int mc_type;
-    int mc_pid;
-
-    float rec_p;
-    float rec_r;
-    float rec_rt;
-    float rec_tan01[TRIPLET_HIT_ARRAY_LENGTH];
-    float rec_tan12[TRIPLET_HIT_ARRAY_LENGTH];
-    float rec_lam01[TRIPLET_HIT_ARRAY_LENGTH];
-    float rec_lam12[TRIPLET_HIT_ARRAY_LENGTH];
-    float rec_zpca_x;
-    float rec_zpca_y;
-    float rec_zpca_z;
-    float rec_zpca_r;
-
-    float x00[TRIPLET_HIT_ARRAY_LENGTH];
-    float x10[TRIPLET_HIT_ARRAY_LENGTH];
-    float x20[TRIPLET_HIT_ARRAY_LENGTH];
-    float x01[TRIPLET_HIT_ARRAY_LENGTH];
-    float x11[TRIPLET_HIT_ARRAY_LENGTH];
-    float x21[TRIPLET_HIT_ARRAY_LENGTH];
-
-    float y00[TRIPLET_HIT_ARRAY_LENGTH];
-    float y10[TRIPLET_HIT_ARRAY_LENGTH];
-    float y20[TRIPLET_HIT_ARRAY_LENGTH];
-    float y01[TRIPLET_HIT_ARRAY_LENGTH];
-    float y11[TRIPLET_HIT_ARRAY_LENGTH];
-    float y21[TRIPLET_HIT_ARRAY_LENGTH];
-
-    float z00[TRIPLET_HIT_ARRAY_LENGTH];
-    float z10[TRIPLET_HIT_ARRAY_LENGTH];
-    float z20[TRIPLET_HIT_ARRAY_LENGTH];
-    float z01[TRIPLET_HIT_ARRAY_LENGTH];
-    float z11[TRIPLET_HIT_ARRAY_LENGTH];
-    float z21[TRIPLET_HIT_ARRAY_LENGTH];
-
-    float sid00[TRIPLET_HIT_ARRAY_LENGTH];
-    float sid10[TRIPLET_HIT_ARRAY_LENGTH];
-    float sid20[TRIPLET_HIT_ARRAY_LENGTH];
-    float sid01[TRIPLET_HIT_ARRAY_LENGTH];
-    float sid11[TRIPLET_HIT_ARRAY_LENGTH];
-    float sid21[TRIPLET_HIT_ARRAY_LENGTH];
+    //class representation for segs tree and read functionality
+    SegsTreeReadPlus Segs = SegsTreeReadPlus(t_segs);
 
     //For Helix Fit
     KariFit karires;
 
-    t_segs->SetBranchAddress("eventId", &rec_event);
-    t_segs->SetBranchAddress("nhit", &rec_nhit);
-    t_segs->SetBranchAddress("n", &rec_ntriplet);
-
-    t_segs->SetBranchAddress("p", &rec_p);
-    t_segs->SetBranchAddress("r", &rec_r);
-    t_segs->SetBranchAddress("rt", &rec_rt);
-    t_segs->SetBranchAddress("tan01", &rec_tan01);
-    t_segs->SetBranchAddress("tan12", &rec_tan12);
-    t_segs->SetBranchAddress("lam01", &rec_lam01);
-    t_segs->SetBranchAddress("lam12", &rec_lam12);
-    t_segs->SetBranchAddress("zpca_z", &rec_zpca_z);
-    t_segs->SetBranchAddress("zpca_x", &rec_zpca_x);
-    t_segs->SetBranchAddress("zpca_y", &rec_zpca_y);
-    t_segs->SetBranchAddress("zpca_r", &rec_zpca_r);
-
-    t_segs->SetBranchAddress("mc_tid", &rec_trajid);
-    t_segs->SetBranchAddress("mc_p", &mc_p);
-    t_segs->SetBranchAddress("mc_pt", &mc_pt);
-    t_segs->SetBranchAddress("mc_theta", &mc_theta);
-    t_segs->SetBranchAddress("mc_phi", &mc_phi);
-    t_segs->SetBranchAddress("mc_lam", &mc_lam);
-    t_segs->SetBranchAddress("mc_vpca_offset", &mc_vpca_offset);
-    t_segs->SetBranchAddress("mc_vpca_phi", &mc_vpca_phi);
-    t_segs->SetBranchAddress("mc_type", &mc_type);
-    t_segs->SetBranchAddress("mc_pid", &mc_pid);
-
-    t_segs->SetBranchAddress("x00", &x00);
-    t_segs->SetBranchAddress("x10", &x10);
-    t_segs->SetBranchAddress("x20", &x20);
-    t_segs->SetBranchAddress("x01", &x01);
-    t_segs->SetBranchAddress("x11", &x11);
-    t_segs->SetBranchAddress("x21", &x21);
-
-    t_segs->SetBranchAddress("y00", &y00);
-    t_segs->SetBranchAddress("y10", &y10);
-    t_segs->SetBranchAddress("y20", &y20);
-    t_segs->SetBranchAddress("y01", &y01);
-    t_segs->SetBranchAddress("y11", &y11);
-    t_segs->SetBranchAddress("y21", &y21);
-
-    t_segs->SetBranchAddress("z00", &z00);
-    t_segs->SetBranchAddress("z10", &z10);
-    t_segs->SetBranchAddress("z20", &z20);
-    t_segs->SetBranchAddress("z01", &z01);
-    t_segs->SetBranchAddress("z11", &z11);
-    t_segs->SetBranchAddress("z21", &z21);
-
-    t_segs->SetBranchAddress("sid00", &sid00);
-    t_segs->SetBranchAddress("sid10", &sid10);
-    t_segs->SetBranchAddress("sid20", &sid20);
-    t_segs->SetBranchAddress("sid01", &sid01);
-    t_segs->SetBranchAddress("sid11", &sid11);
-    t_segs->SetBranchAddress("sid21", &sid21);
-
-    cout << "Branches set for segs..." << endl;
-
-
-//    data for frames tree
-//    unsigned int frames_entries = t_frames->GetEntries();
-//    cout << "Branches set for frames..." << endl;
 
     //// further data for stats graphs and calculations
     int p_fail_count = 0;
@@ -290,8 +173,8 @@ void reconstructionAccuracyScript(int run, int FILTER) {
 #endif
 
 
-    for (unsigned int entryno = 0; entryno < (MAX_ENTRIES == 0 ? segs_entries : MAX_ENTRIES); entryno++) {
-        t_segs->GetEntry(entryno);
+    for (unsigned int entryno = 0; entryno < (MAX_ENTRIES == 0 ? Segs.my_entries : MAX_ENTRIES); entryno++) {
+        Segs.getEntry(entryno);
 
         if(HIT_PRINTS) printf("\nRECONSTRUCTION ACCURACY ENTRY\n------------------------------\n\n");
 
@@ -335,24 +218,21 @@ void reconstructionAccuracyScript(int run, int FILTER) {
         if (HIT_PRINTS) {
             cout << "\tsegs tree data:" << endl;
 
-            for(int j=0; j<rec_ntriplet; j++) {
+            for(int j=0; j<Segs.rec_ntriplet; j++) {
                 cout << "\ttriplet index" << j << endl;
-                cout << "\ttriplet 00: " << "\tsid=" << sid00[j] << "\tx00=" << x00[j] << "\ty00=" << y00[j]<< endl;
-                cout << "\ttriplet 10: " << "\tsid=" << sid10[j] << "\tx10=" << x10[j] << "\ty10=" << y10[j] << endl;
-                cout << "\ttriplet 20: " << "\tsid=" << sid20[j] << "\tx20=" << x20[j] << "\ty20=" << y20[j] << endl;
-                cout << "\ttriplet 01: " << "\tsid=" << sid01[j] << "\tx01=" << x01[j] << "\ty01=" << y01[j] << endl;
-                cout << "\ttriplet 11: " << "\tsid=" << sid11[j] << "\tx11=" << x11[j] << "\ty11=" << y11[j] << endl;
-                cout << "\ttriplet 21: " << "\tsid=" << sid21[j] << "\tx21=" << x21[j] << "\ty21=" << y21[j] << endl;
-                cout << "\tangles    : " << "\ttan01=" << rec_tan01[j] << "\ttan12=" << rec_tan12[j] <<  endl;
-
+                cout << "\ttriplet 00: " << "\tsid=" << Segs.sid00[j] << "\tx00=" << Segs.x00[j] << "\ty00=" << Segs.y00[j]<< endl;
+                cout << "\ttriplet 10: " << "\tsid=" << Segs.sid10[j] << "\tx10=" << Segs.x10[j] << "\ty10=" << Segs.y10[j] << endl;
+                cout << "\ttriplet 20: " << "\tsid=" << Segs.sid20[j] << "\tx20=" << Segs.x20[j] << "\ty20=" << Segs.y20[j] << endl;
+                cout << "\ttriplet 01: " << "\tsid=" << Segs.sid01[j] << "\tx01=" << Segs.x01[j] << "\ty01=" << Segs.y01[j] << endl;
+                cout << "\ttriplet 11: " << "\tsid=" << Segs.sid11[j] << "\tx11=" << Segs.x11[j] << "\ty11=" << Segs.y11[j] << endl;
+                cout << "\ttriplet 21: " << "\tsid=" << Segs.sid21[j] << "\tx21=" << Segs.x21[j] << "\ty21=" << Segs.y21[j] << endl;
+                cout << "\tangles    : " << "\ttan01=" << Segs.rec_tan01[j] << "\ttan12=" << Segs.rec_tan12[j] <<  endl;
             }
             cout << endl;
         }
 
         //Theta, phi and traverse p of reconstruction
-        float rec_pt = rec_p * std::cos((rec_lam01)[0]);
-        float rec_phi = (rec_tan01)[0];
-        float rec_theta = PI*0.5 - (rec_lam01)[0];
+        Segs.calcAdditionalData();
 
         //Do Karimaki Helix fit
         std::vector<double> xp;
@@ -362,9 +242,7 @@ void reconstructionAccuracyScript(int run, int FILTER) {
         std::vector<double> phi_hits;
         std::vector<double> thetas;
 
-        int ncombinedhits = combineHits(xp, yp, zp, sids, phi_hits, thetas, rec_nhit, rec_ntriplet,
-                                        x00, x10,x11, x01, x20, x21, y00, y10,y11, y01, y20, y21, z00, z10,z11, z01, z20, z21,
-                                        sid00, sid10, sid11, sid01, sid20, sid21, rec_tan01, rec_tan12, rec_lam01, rec_lam12);
+        int ncombinedhits = combineHits(xp, yp, zp, sids, phi_hits, thetas, Segs, false);
 
 //        getResolutionArrs(ncombinedhits, RMS, tres, zres, rres, xp, yp, phi_hits, (double) rec_theta);
 //        assert(tres.size() == ncombinedhits);
@@ -379,70 +257,55 @@ void reconstructionAccuracyScript(int run, int FILTER) {
         correctKariDirection(karires);
         swapKariBField(karires);
 
-        if (mc_p == 0 || mc_pt == 0 || rec_p == 0 || rec_pt == 0) {
+        if (Segs.mc_p == 0 || Segs.mc_pt == 0 || Segs.rec_p == 0 || Segs.rec_pt == 0) {
             p_fail_count++;
         } else {
-            float mc_p_corr;
-            float mc_pt_corr;
 
-            if (FILTER == 0 || FILTER == 6) {
-                mc_p_corr = (mc_p) * (mc_type % 10 == 3 ? -1 : 1);
-                mc_pt_corr = (mc_pt) * (mc_type % 10 == 3 ? -1 : 1);
-            } else {
-                mc_p_corr = (mc_p) * sgn(mc_pid);
-                mc_pt_corr = (mc_pt) * sgn(mc_pid);
-            }
-
-            float rec_p_corr = rec_p * sgn(rec_r);
-            float rec_pt_corr = rec_pt;
+            float rec_p_corr = Segs.rec_p * sgn(Segs.rec_r);
+            float rec_pt_corr = Segs.rec_pt;
             float kari_pt = 0.3 * karires.rad * BFIELD;
 
-            float mc_inv_p = 1. / mc_p_corr;
-            float mc_inv_pt = 1. / mc_pt_corr;
-            float rec_inv_p = 1. / rec_p;
-            float rec_inv_pt = 1. / rec_pt;
+
             float kari_inv_pt = 1. / kari_pt;
             float kari_inv_rad = 1. / karires.rad;
-            float p_inv_abs_error = (rec_inv_p - mc_inv_p); //this will mostly be used as estimator for deviation
-            float p_abs_error = (mc_p_corr - rec_p);
-            float p_over_pmc = rec_p / mc_p_corr;
-            float mc_z_dca = std::sin(mc_vpca_phi) * mc_vpca_offset;
-            float pt_inv_error = (1./rec_pt_corr) - (1./mc_pt_corr);
-            float pt_kari_inv_err = kari_inv_pt - (1./mc_pt_corr);
-            float pt_kvsms_inv_err = kari_inv_pt - rec_inv_pt;
+            float p_abs_error = (Segs.mc_p_corr - Segs.rec_p);
+            float p_over_pmc = Segs.rec_p / Segs.mc_p_corr;
+            float mc_z_dca = std::sin(Segs.mc_vpca_phi) * Segs.mc_vpca_offset;
+            float pt_kari_inv_err = kari_inv_pt - Segs.mc_pt_inv_corr;
+            float pt_kvsms_inv_err = kari_inv_pt - Segs.rec_pt_inv;
 
 
             //Filtering entries //FIXME filtertag is defined over and over again
             bool choice;
             switch(FILTER) {
-                case 0: choice = mc_type % 10 == 3 || mc_type % 10 == 4;
+                case 0: choice = Segs.mc_type % 10 == 3 || Segs.mc_type % 10 == 4;
                     filtertag = "muonsonly";
                     break;
-                case 1: choice = pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2;
+                case 1: choice = pt_kari_inv_err / Segs.mc_pt_inv_corr < -1.8 && pt_kari_inv_err / Segs.mc_pt_inv_corr > -2.2;
                     filtertag = "kari-outliers";
                     break;
-                case 2: choice = mc_type == 3;
+                case 2: choice = Segs.mc_type == 3;
                     filtertag = "mu+";
                     break;
-                case 3: choice = mc_type == 4;
+                case 3: choice = Segs.mc_type == 4;
                     filtertag = "mu-";
                     break;
-                case 4: choice = sgn(karires.rad) != sgn(mc_p_corr);
+                case 4: choice = sgn(karires.rad) != sgn(Segs.mc_p_corr);
                     filtertag = "p-kari-mc-sgn";
                     break;
-                case 5: choice = karires.phi > 0 && karires.phi < PI/2 && (pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2);
+                case 5: choice = karires.phi > 0 && karires.phi < PI/2 && (pt_kari_inv_err / Segs.mc_pt_inv_corr < -1.8 && pt_kari_inv_err / Segs.mc_pt_inv_corr > -2.2);
                     filtertag = "special1";
                     break;
-                case 6: choice = mc_type == 3 || mc_type == 4;
+                case 6: choice = Segs.mc_type == 3 || Segs.mc_type == 4;
                     filtertag = "planemuonsonly";
                     break;
                 case 7: choice = true;
                     filtertag = "all";
                     break;
-                case 8: choice = (mc_type % 10 == 3 || mc_type % 10 == 4) && !(mc_type == 3 || mc_type == 4);
+                case 8: choice = (Segs.mc_type % 10 == 3 || Segs.mc_type % 10 == 4) && !(Segs.mc_type == 3 || Segs.mc_type == 4);
                     filtertag = "scatteredmuonsonly";
                     break;
-                case 9: choice = !(mc_type == 3 || mc_type == 4);
+                case 9: choice = !(Segs.mc_type == 3 || Segs.mc_type == 4);
                     filtertag = "exceptplanemuons";
                     break;
                 default:choice = true;
@@ -455,34 +318,33 @@ void reconstructionAccuracyScript(int run, int FILTER) {
 //                assert(!(mc_type == 4 && sgn(mc_pid) == -1));
 //                assert(!(mc_type == 3 && sgn(mc_pid) == 1));
 
-                cout << "event id " << rec_event << " index: " << entryno << " mc type: " << mc_type << endl;
+                cout << "event id " << Segs.rec_event << " index: " << entryno << " mc type: " << Segs.mc_type << endl;
 
                 //calculated data
-                rec_inv_ps.push_back(rec_inv_p);
+                rec_inv_ps.push_back(Segs.rec_p_inv);
                 rec_p_corrs.push_back(rec_p_corr);
-                rec_inv_pts.push_back(rec_inv_p);
-                p_inv_rel_errors.push_back(p_inv_abs_error);
+                rec_inv_pts.push_back(Segs.rec_p_inv);
+                p_inv_rel_errors.push_back(Segs.p_inv_abs_error);
                 p_rel_errors.push_back(p_abs_error);
-                pt_inv_errors.push_back(pt_inv_error);
+                pt_inv_errors.push_back(Segs.pt_inv_abs_error);
                 p_over_pmcs.push_back(p_over_pmc);
-                rec_pts.push_back(rec_pt);
-                rec_phis.push_back(rec_phi);
-                rec_thetas.push_back(rec_theta);
+                rec_pts.push_back(Segs.rec_pt);
+                rec_phis.push_back(Segs.rec_phi);
+                rec_thetas.push_back(Segs.rec_theta);
 
-                mc_p_corrs.push_back(mc_p_corr);
-                mc_pt_corrs.push_back(mc_pt_corr);
-                mc_inv_pts.push_back(mc_inv_pt);
+                mc_p_corrs.push_back(Segs.mc_p_corr);
+                mc_pt_corrs.push_back(Segs.mc_pt_corr);
+                mc_inv_pts.push_back(Segs.mc_pt_inv_corr);
                 mc_z_dcas.push_back(mc_z_dca);
-                mc_inv_ps.push_back(mc_inv_p);
+                mc_inv_ps.push_back(Segs.mc_p_inv_corr);
 
                 //reconstruction data
-                rec_ps.push_back(rec_p);
-                rec_rs.push_back(rec_r);
-                rec_rts.push_back(rec_rt);
-                rec_dca_rs.push_back(rec_zpca_r);
-                rec_dca_xs.push_back(rec_zpca_x);
-                rec_dca_ys.push_back(rec_zpca_y);
-                rec_dca_zs.push_back(rec_zpca_z);
+                rec_ps.push_back(Segs.rec_p);
+                rec_rs.push_back(Segs.rec_r);
+                rec_dca_rs.push_back(Segs.rec_zpca_r);
+                rec_dca_xs.push_back(Segs.rec_zpca_x);
+                rec_dca_ys.push_back(Segs.rec_zpca_y);
+                rec_dca_zs.push_back(Segs.rec_zpca_z);
 
                 //kari data
                 kari_r3ds.push_back(karires.r3d);
@@ -501,104 +363,104 @@ void reconstructionAccuracyScript(int run, int FILTER) {
                 pt_inv_kvsms_errors.push_back(pt_kvsms_inv_err);
 
                 //monte carlo data
-                mc_ps.push_back(mc_p);
-                mc_pts.push_back(mc_pt);
-                mc_phis.push_back(mc_phi);
-                mc_dcas.push_back(mc_vpca_offset);
-                mc_phi_dcas.push_back(mc_vpca_phi);
-                mc_types.push_back(mc_type);
+                mc_ps.push_back(Segs.mc_p);
+                mc_pts.push_back(Segs.mc_pt);
+                mc_phis.push_back(Segs.mc_phi);
+                mc_dcas.push_back(Segs.mc_vpca_offset);
+                mc_phi_dcas.push_back(Segs.mc_vpca_phi);
+                mc_types.push_back(Segs.mc_type);
 
                 //meta data
 #if GET_DATA_FROM_MU3E
                 sim_nhits.push_back(mu3e_nhits);
 #endif
-                rec_nhits.push_back(rec_nhit);
-                rec_nhits_float.push_back((float)rec_nhit);
+                rec_nhits.push_back(Segs.rec_nhit);
+                rec_nhits_float.push_back((float)Segs.rec_nhit);
 
-                if(rec_p / mc_p_corr < 0) mcrec_wrong_sign_count++;
-                if(karires.rad / mc_p_corr < 0) mckari_wrong_sign_count++;
-                if(karires.rad / rec_p < 0) reckari_wrong_sign_count++;
+                if(Segs.rec_p / Segs.mc_p_corr < 0) mcrec_wrong_sign_count++;
+                if(karires.rad / Segs.mc_p_corr < 0) mckari_wrong_sign_count++;
+                if(karires.rad / Segs.rec_p < 0) reckari_wrong_sign_count++;
                 processed_entries++;
 
-                switch(rec_nhit) {
+                switch(Segs.rec_nhit) {
                     case 4:
-                        p_inv_rel_errors_hits[0].push_back(p_inv_abs_error);
-                        p_inv_err_nhits[0].push_back(p_inv_abs_error);
-                        pt_inv_err_nhits[0].push_back(pt_inv_error);
-                        rec_rdca_nhits[0].push_back(rec_zpca_r);
+                        p_inv_rel_errors_hits[0].push_back(Segs.p_inv_abs_error);
+                        p_inv_err_nhits[0].push_back(Segs.p_inv_abs_error);
+                        pt_inv_err_nhits[0].push_back(Segs.pt_inv_abs_error);
+                        rec_rdca_nhits[0].push_back(Segs.rec_zpca_r);
                         pt_kari_inv_err_nhits[0].push_back(pt_kari_inv_err);
                         break;
                     case 5:
-                        p_inv_rel_errors_hits[1].push_back(p_inv_abs_error);
-                        p_inv_err_nhits[0].push_back(p_inv_abs_error);
-                        pt_inv_err_nhits[0].push_back(pt_inv_error);
-                        rec_rdca_nhits[0].push_back(rec_zpca_r);
+                        p_inv_rel_errors_hits[1].push_back(Segs.p_inv_abs_error);
+                        p_inv_err_nhits[0].push_back(Segs.p_inv_abs_error);
+                        pt_inv_err_nhits[0].push_back(Segs.pt_inv_abs_error);
+                        rec_rdca_nhits[0].push_back(Segs.rec_zpca_r);
                         pt_kari_inv_err_nhits[0].push_back(pt_kari_inv_err);
                         break;
                     case 6:
-                        p_inv_rel_errors_hits[2].push_back(p_inv_abs_error);
-                        p_inv_err_nhits[1].push_back(p_inv_abs_error);
-                        pt_inv_err_nhits[1].push_back(pt_inv_error);
-                        rec_rdca_nhits[1].push_back(rec_zpca_r);
+                        p_inv_rel_errors_hits[2].push_back(Segs.p_inv_abs_error);
+                        p_inv_err_nhits[1].push_back(Segs.p_inv_abs_error);
+                        pt_inv_err_nhits[1].push_back(Segs.pt_inv_abs_error);
+                        rec_rdca_nhits[1].push_back(Segs.rec_zpca_r);
                         pt_kari_inv_err_nhits[1].push_back(pt_kari_inv_err);
                         break;
                     case 7:
-                        p_inv_rel_errors_hits[3].push_back(p_inv_abs_error);
-                        p_inv_err_nhits[1].push_back(p_inv_abs_error);
-                        pt_inv_err_nhits[1].push_back(pt_inv_error);
-                        rec_rdca_nhits[1].push_back(rec_zpca_r);
+                        p_inv_rel_errors_hits[3].push_back(Segs.p_inv_abs_error);
+                        p_inv_err_nhits[1].push_back(Segs.p_inv_abs_error);
+                        pt_inv_err_nhits[1].push_back(Segs.pt_inv_abs_error);
+                        rec_rdca_nhits[1].push_back(Segs.rec_zpca_r);
                         pt_kari_inv_err_nhits[1].push_back(pt_kari_inv_err);
                         break;
                     case 8:
-                        p_inv_rel_errors_hits[4].push_back(p_inv_abs_error);
-                        p_inv_err_nhits[2].push_back(p_inv_abs_error);
-                        pt_inv_err_nhits[2].push_back(pt_inv_error);
-                        rec_rdca_nhits[2].push_back(rec_zpca_r);
+                        p_inv_rel_errors_hits[4].push_back(Segs.p_inv_abs_error);
+                        p_inv_err_nhits[2].push_back(Segs.p_inv_abs_error);
+                        pt_inv_err_nhits[2].push_back(Segs.pt_inv_abs_error);
+                        rec_rdca_nhits[2].push_back(Segs.rec_zpca_r);
                         pt_kari_inv_err_nhits[2].push_back(pt_kari_inv_err);
                         break;
                     default:
-                        p_inv_rel_errors_hits[5].push_back(p_inv_abs_error);
-                        p_inv_err_nhits[2].push_back(p_inv_abs_error);
-                        pt_inv_err_nhits[2].push_back(pt_inv_error);
-                        rec_rdca_nhits[2].push_back(rec_zpca_r);
+                        p_inv_rel_errors_hits[5].push_back(Segs.p_inv_abs_error);
+                        p_inv_err_nhits[2].push_back(Segs.p_inv_abs_error);
+                        pt_inv_err_nhits[2].push_back(Segs.pt_inv_abs_error);
+                        rec_rdca_nhits[2].push_back(Segs.rec_zpca_r);
                         pt_kari_inv_err_nhits[2].push_back(pt_kari_inv_err);
                 }
 
                 //filling data for histograms of errors depending on dca r
-                if(0 <= rec_zpca_r && rec_zpca_r < 40 ) {
-                    p_inv_err_r_dcas[0].push_back(p_inv_abs_error);
+                if(0 <= Segs.rec_zpca_r && Segs.rec_zpca_r < 40 ) {
+                    p_inv_err_r_dcas[0].push_back(Segs.p_inv_abs_error);
                     pt_kari_inv_err_r_dcas[0].push_back(pt_kari_inv_err);
-                } else if (40 <= rec_zpca_r && rec_zpca_r < 50) {
-                    p_inv_err_r_dcas[1].push_back(p_inv_abs_error);
+                } else if (40 <= Segs.rec_zpca_r && Segs.rec_zpca_r < 50) {
+                    p_inv_err_r_dcas[1].push_back(Segs.p_inv_abs_error);
                     pt_kari_inv_err_r_dcas[1].push_back(pt_kari_inv_err);
-                } else if (50 <= rec_zpca_r && rec_zpca_r < 60) {
-                    p_inv_err_r_dcas[2].push_back(p_inv_abs_error);
+                } else if (50 <= Segs.rec_zpca_r && Segs.rec_zpca_r < 60) {
+                    p_inv_err_r_dcas[2].push_back(Segs.p_inv_abs_error);
                     pt_kari_inv_err_r_dcas[2].push_back(pt_kari_inv_err);
                 } else {
-                    p_inv_err_r_dcas[3].push_back(p_inv_abs_error);
+                    p_inv_err_r_dcas[3].push_back(Segs.p_inv_abs_error);
                     pt_kari_inv_err_r_dcas[3].push_back(pt_kari_inv_err);
                 }
 
                 //filling data for histograms of errors depending on dca z
-                int abs_dca_z = abs(rec_zpca_z);
+                int abs_dca_z = abs(Segs.rec_zpca_z);
                 if(abs_dca_z < 50) {
-                    p_inv_err_z_dcas[0].push_back(p_inv_abs_error);
+                    p_inv_err_z_dcas[0].push_back(Segs.p_inv_abs_error);
                     pt_kari_inv_err_z_dcas[0].push_back(pt_kari_inv_err);
                 } else if(50 <= abs_dca_z && abs_dca_z < 100) {
-                    p_inv_err_z_dcas[1].push_back(p_inv_abs_error);
+                    p_inv_err_z_dcas[1].push_back(Segs.p_inv_abs_error);
                     pt_kari_inv_err_z_dcas[1].push_back(pt_kari_inv_err);
                 } else if(100 <= abs_dca_z && abs_dca_z < 200) {
-                    p_inv_err_z_dcas[2].push_back(p_inv_abs_error);
+                    p_inv_err_z_dcas[2].push_back(Segs.p_inv_abs_error);
                     pt_kari_inv_err_z_dcas[2].push_back(pt_kari_inv_err);
                 } else {
-                    p_inv_err_z_dcas[3].push_back(p_inv_abs_error);
+                    p_inv_err_z_dcas[3].push_back(Segs.p_inv_abs_error);
                     pt_kari_inv_err_z_dcas[3].push_back(pt_kari_inv_err);
                 }
 
                 ////PRINT SECTION PER ENTRY IN TREE
                 if(RECONSTRUCTION_PRINTS) {
                     //data from reconstruction
-                    cout << "rec_event: " << rec_event;
+                    cout << "rec_event: " << Segs.rec_event;
 #if GET_DATA_FROM_MU3E
                     //data from simulation
                     cout << " mu3e_event: " << header[0] << endl;
@@ -606,14 +468,14 @@ void reconstructionAccuracyScript(int run, int FILTER) {
                     cout << "p_calc: " << trajp << "\t";
                     cout << "\tp_calc / mc_p: " << double(trajp / mc_p) << endl;
 #endif
-                    cout << " mc_p: " << mc_p << " rec_p: " << rec_p*sgn(rec_r) << "rec_nhit: "<< rec_nhit <<"\t\t";
-                    cout << "rec_r= " << rec_r << " mc_type=" << mc_type;
+                    cout << " mc_p: " << Segs.mc_p << " rec_p *sgn(rec_r): " << Segs.rec_p*sgn(Segs.rec_r) << "rec_nhit: "<< Segs.rec_nhit <<"\t\t";
+                    cout << "rec_r= " << Segs.rec_r << " mc_type=" << Segs.mc_type;
 
                     //mc and rec deviations
-                    cout << "pt_mc= " << mc_pt << " pt_rec= " << rec_pt << " phi_mc= " << mc_phi << " rec_phi= " << rec_phi;
-                    cout << " mc_theta= " << mc_theta << " rec_theta= " << rec_theta << "z-dca=" << mc_z_dca <<"\t\t";
+                    cout << "pt_mc= " << Segs.mc_pt << " pt_rec= " << Segs.rec_pt << " phi_mc= " << Segs.mc_phi << " rec_phi= " << Segs.rec_phi;
+                    cout << " mc_theta= " << Segs.mc_theta << " rec_theta= " << Segs.rec_theta << "z-dca=" << mc_z_dca <<"\t\t";
 
-                    cout << "(1/mc_p-1/rec_p)/(1/mc_p): " << p_inv_abs_error*100 << " %" << endl;
+                    cout << "(1/mc_p-1/rec_p)/(1/mc_p): " << Segs.p_inv_abs_error*100 << " %" << endl;
                 }
             }
         }
@@ -735,7 +597,7 @@ void reconstructionAccuracyScript(int run, int FILTER) {
         labelAxis(h_rdca, "dca_{r} [mm]", "count");
         fillHistWithVector(h_rdca, rec_dca_rs);
 
-        TH1F *h_xdca = new TH1F("h_xdca", "dca_{reconstruction} along x-axis", 30, -100, 100);
+        TH1F *h_xdca = new TH1F("h_xdca", "dca_{reconstruction} along x-axis", 30, -500, 500);
         labelAxis(h_xdca, "dca_{x} [mm]", "count");
         fillHistWithVector(h_xdca, rec_dca_xs);
 
@@ -1473,11 +1335,11 @@ void reconstructionAccuracyScript(int run, int FILTER) {
 //    }
 
     cout << endl << endl << "---General Stats---\n" << endl;
-    cout << "Filter set to : \""<< filtertag << "\", " << processed_entries << " entries processed." << endl << endl;
+    cout << "Filter set to : \""<< filtertag << "\", " << processed_entries << " entries of " << Segs.my_entries << " processed." << endl << endl;
     cout << "p fail analysis:" << endl;
     cout << "(p_mc == 0 || pt_mc == 0 || p_rec == 0 || pt_rec == 0) --- count: " << p_fail_count ;
     cout << " fails of total: " << processed_entries << ", fail rate: ";
-    cout << (p_fail_count / (float) segs_entries) * 100 << " %" << endl;
+    cout << (p_fail_count / (float) Segs.my_entries) * 100 << " %" << endl;
     printf("MC vs Kari sign fails: %d of %d\n", mckari_wrong_sign_count, processed_entries);
     printf("MC vs REC sign fails: %d of %d\n", mcrec_wrong_sign_count, processed_entries);
     printf("KARI vs REC sign fails: %d of %d\n", reckari_wrong_sign_count, processed_entries);
