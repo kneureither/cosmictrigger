@@ -1,12 +1,12 @@
 //
 // Created by Konstantin Neureither on 26.06.20.
 //
-#include "slimSegsData.h"
+#include "slimSegsDataScript.h"
 #include <iostream>
 #include "utilityFunctions.h"
 
 int main(int argc, char *argv[]) {
-    slimSegsData(std::string("mu3e_slimmed_segs_000000.root"), 10, false);
+    slimSegsDataScript(std::string("mu3e_slimmed_segs_000001.root"), 10, false);
 }
 
 
@@ -28,4 +28,4 @@ int main(int argc, char *argv[]) {
 //std::cout << outfile << endl;
 //
 //std::cout << "Running Mu3ePreSlimSegs for run " << run << " with outfile " << outnum << "..." << std::endl;
-//slimSegsData(outfile, run, false);
+//slimSegsDataScript(outfile, run, false);

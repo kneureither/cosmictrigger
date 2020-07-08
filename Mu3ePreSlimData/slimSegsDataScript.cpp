@@ -15,7 +15,7 @@
 #include "TRandom.h"
 
 // own files
-#include "slimSegsData.h"
+#include "slimSegsDataScript.h"
 #include "plots.h"
 #include "rootData.h"
 #include "utilityFunctions.h"
@@ -26,17 +26,17 @@
 using std::cout;
 using std::endl;
 
-void slimSegsData(std::string outputfilename, const int run, const bool appendToFile) {
+void slimSegsDataScript(std::string outputfilename, const int run, const bool appendToFile) {
 
     const int outnum = 0;
     const int MAX_ENTRIES = 0;
 
     const std::string pathtoplots = "plots/Mu3eSlimSegs/";
-    const std::string pathtorunplots = pathtoplots + "run_" + get_padded_string(run, 3, '0') + "/";
     const std::string pathtodata = "data/SimulationData/";
+    const std::string pathtorunplots = pathtoplots + "run_" + get_padded_string(run, 3, '0') + "/";
     const std::string infile = pathtodata + "mu3e_run_" + get_padded_string(run, 6, '0') + "_trirec_cosmic.root";
 //    const std::string outputfile = pathtodata + "mu3e_slimmed_segs_" + get_padded_string(outnum, 6, '0') + ".root";
-    const std::string outputfile = pathtodata + outputfilename;
+    const std::string outputfile = "data/SlimmedData/" + outputfilename;
 
     check_create_directory(pathtodata);
     check_create_directory(pathtoplots);
@@ -156,7 +156,6 @@ void slimSegsData(std::string outputfilename, const int run, const bool appendTo
         if (Segs.mc_p == 0 || Segs.mc_pt == 0 || Segs.rec_p == 0 || Segs.rec_pt == 0) {
             p_fail_count++;
         } else {
-
             Segs.calcAdditionalData();
 
             ////Do Karimaki Helix fit
