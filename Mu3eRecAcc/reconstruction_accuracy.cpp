@@ -1,7 +1,7 @@
 //
 // Created by Konstantin Neureither on 27.04.20.
 //
-#define GET_DATA_FROM_MU3E true
+#define GET_DATA_FROM_MU3E false
 
 #include <TFile.h>
 #include <TROOT.h>
@@ -373,6 +373,7 @@ void reconstruction_accuracy(int run, int FILTER) {
         karimakiHelixfit(karires, ncombinedhits, &xp[0], &yp[0], &zp[0], &phi_hits[0], &thetas[0], &tres[0], &zres[0],
                          &rres[0]);
         correctKariDirection(karires);
+        swapKariMomentum(karires);
 
         if (mc_p == 0 || mc_pt == 0 || rec_p == 0 || rec_pt == 0) {
             p_fail_count++;
@@ -410,7 +411,7 @@ void reconstruction_accuracy(int run, int FILTER) {
             //Filtering entries //FIXME filtertag is defined over and over again
             bool choice;
             switch(FILTER) {
-                case 0: choice = choice = mc_type % 10 == 3 || mc_type % 10 == 4;
+                case 0: choice = mc_type % 10 == 3 || mc_type % 10 == 4;
                         filtertag = "muonsonly";
                         break;
                 case 1: choice = pt_kari_inv_err / mc_inv_pt < -1.8 && pt_kari_inv_err / mc_inv_pt > -2.2;
@@ -434,6 +435,12 @@ void reconstruction_accuracy(int run, int FILTER) {
                 case 7: choice = true;
                         filtertag = "all";
                         break;
+                case 8: choice = (mc_type % 10 == 3 || mc_type % 10 == 4) && !(mc_type == 3 || mc_type == 4);
+                        filtertag = "scatteredmuonsonly";
+                        break;
+                case 9: choice = !(mc_type == 3 || mc_type == 4);
+                        filtertag = "exceptplanemuons";
+                        break;
                 default:choice = true;
                         filtertag = "";
             }
@@ -443,6 +450,8 @@ void reconstruction_accuracy(int run, int FILTER) {
 //                printf("mc_type? %d \t mc_pid = %d\n", mc_type, mc_pid);
 //                assert(!(mc_type == 4 && sgn(mc_pid) == -1));
 //                assert(!(mc_type == 3 && sgn(mc_pid) == 1));
+
+                cout << "event id " << rec_event <<" index: " << i <<  " mc type: " << mc_type << endl;
 
                 //calculated data
                 rec_inv_ps.push_back(rec_inv_p);
@@ -1410,8 +1419,8 @@ void reconstruction_accuracy(int run, int FILTER) {
 
             c_single10->Print(plottingfile.c_str(), "pdf");
 
-            filename = filename_template + "_hist_perr_nhits.pdf";
-            c_single10->SaveAs(filename.c_str());
+//            filename = filename_template + "_hist_perr_nhits.pdf";
+//            c_single10->SaveAs(filename.c_str());
         }
 
         //empty plot closes _plots.pdf file
