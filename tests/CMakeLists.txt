@@ -2,18 +2,13 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 project(mu3eRecAcc C CXX)
 set(CMAKE_CXX_STANDARD 14)
 
-list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-find_package(ROOT)
-include(${ROOT_USE_FILE})
-include_directories(${ROOT_INCLUDE_DIR})
-link_directories(${ROOT_LIBRARY_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/root)
 
-set(KARIPATH "../3rdparty/karimaki/")
-set(SRC
-        tests.cpp
-        )
+set(SRC tests.cpp ../root/SlimSegsTree.cpp)
+add_executable(tests ${SRC})
+target_link_libraries(tests ${ROOT_LIBRARIES} f2clib karilib)
+add_compile_options("-lf2c" "-DMAIN")
+#target_compile_options(Mu3eRecAcc PUBLIC -lf2c -DMAIN)
 
-
-add_executable(Tests ${SRC})
-
-add_compile_options("-DMAIN")
+add_executable(testRootMCtype findRootMctypeError.cpp ../root/SegsTreeRead.cpp)
+target_link_libraries(testRootMCtype ${ROOT_LIBRARIES})

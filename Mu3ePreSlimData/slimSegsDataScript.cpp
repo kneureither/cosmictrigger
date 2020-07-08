@@ -141,7 +141,7 @@ void slimSegsData(std::string outputfilename, const int run, const bool appendTo
     double rres[TRIPLET_HIT_ARRAY_LENGTH] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
 
     //iterate through entries in segs tree
-    for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? Segs.segs_entries : MAX_ENTRIES); i++) {
+    for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? Segs.my_entries : MAX_ENTRIES); i++) {
         printf("SEGS ENTRY %d ------- \n", i);
 
         //update data in Segs class
@@ -295,8 +295,8 @@ void slimSegsData(std::string outputfilename, const int run, const bool appendTo
     tinF.Close();
 
     std::cout << "\n\n>>>>> GENERAL STATS <<<<<\n\n";
-    std::cout << " - P Fail count was " << p_fail_count << " of " << Segs.segs_entries << " entries in total. (";
-    std::cout << p_fail_count / (float)Segs.segs_entries * 100 << " %)" << endl;
+    std::cout << " - P Fail count was " << p_fail_count << " of " << Segs.my_entries << " entries in total. (";
+    std::cout << p_fail_count / (float)Segs.my_entries * 100 << " %)" << endl;
     std::cout << " - total entries processed: " << processed_entries << endl;
 
 
