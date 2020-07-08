@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "Running reconstruction_accuracy() for run " << run << "..." << std::endl;
-    
+
     reconstructionAccuracyScript(run, filter);
 
     return 0;

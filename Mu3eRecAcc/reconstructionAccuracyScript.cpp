@@ -314,9 +314,6 @@ void reconstructionAccuracyScript(int run, int FILTER) {
 
             if (choice) {
 
-//                printf("mc_type? %d \t mc_pid = %d\n", mc_type, mc_pid);
-//                assert(!(mc_type == 4 && sgn(mc_pid) == -1));
-//                assert(!(mc_type == 3 && sgn(mc_pid) == 1));
 
                 cout << "event id " << Segs.rec_event << " index: " << entryno << " mc type: " << Segs.mc_type << endl;
 
@@ -597,7 +594,7 @@ void reconstructionAccuracyScript(int run, int FILTER) {
         labelAxis(h_rdca, "dca_{r} [mm]", "count");
         fillHistWithVector(h_rdca, rec_dca_rs);
 
-        TH1F *h_xdca = new TH1F("h_xdca", "dca_{reconstruction} along x-axis", 30, -500, 500);
+        TH1F *h_xdca = new TH1F("h_xdca", "dca_{reconstruction} along x-axis", 30, -100, 100);
         labelAxis(h_xdca, "dca_{x} [mm]", "count");
         fillHistWithVector(h_xdca, rec_dca_xs);
 
