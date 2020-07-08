@@ -33,16 +33,11 @@ git clean -d -x -f
 
 CC=gcc-8 CXX=/usr/bin/g++-8 cmake ..
 
+actual loop hash: 8de9fbbf28def0cfcf64907bd9255375
+
 #run simulation
 mu3eSim run-cosmics.mac
 
 
 #trirec:
-m3eTrirec
---input
-data/mu3e_run_000011.root
---output
-data/mu3e_run_000011_trirec_cosmic.root
---conf
-trirec_cosmic.conf
---cosmic
+mu3eTrirec --input data/mu3e_run_000014.root --output data/mu3e_run_000014_trirec_cosmic_chi2.root --conf trirec_cosmic.conf --cosmic
