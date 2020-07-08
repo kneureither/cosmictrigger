@@ -92,7 +92,6 @@ public:
     float rec_perr; //vlt
     float rec_r;
     float rec_rerr; //vlt
-    float rec_rt;
     float rec_phi;
     float rec_theta;
     float rec_pt;
@@ -116,9 +115,11 @@ public:
     std::vector<double> yp;
     std::vector<double> zp;
     std::vector<int> layerp;
+
     unsigned int ncombinedhits;
 
     void reInitializeData();
+    void fillTree();
 
 };
 
@@ -135,9 +136,16 @@ public:
 };
 
 /* Derived class, that handles reading the SlimSegs data from a ROOT::TTree */
-class SlimSegsRead : public SlimSegsTree {
+class SlimSegsTreeRead : public SlimSegsTree {
 public:
-    explicit SlimSegsRead(TTree * slimSegs);
+    std::vector<double> *xpp = nullptr;
+    std::vector<double> *ypp = nullptr;
+    std::vector<double> *zpp = nullptr;
+    std::vector<int> *layerpp = nullptr;
+
+    explicit SlimSegsTreeRead(TTree * slimSegs);
+    void setBranches();
+    void getEntry(const int &index);
 };
 
 

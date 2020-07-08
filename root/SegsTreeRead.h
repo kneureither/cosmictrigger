@@ -5,25 +5,24 @@
 #ifndef COSMICTRIGGER_SEGSTREEREAD_H
 #define COSMICTRIGGER_SEGSTREEREAD_H
 
+#include "TROOT.h"
+#include "TPad.h"
+#include "TCanvas.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TH1F.h"
 #include "basicDefines.h"
 
 
 class SegsTreeRead {
 private:
 public:
-    TTree *tr_segs;
-
-    void setBranches();
-    explicit SegsTreeRead(TTree *t_segs);
-    void getEntry(const int &index);
-
     //meta data
-    unsigned int segs_entries;
+    unsigned int my_entries;
     int rec_event;
     int rec_nhit;
     int rec_ntriplet;
+    int rec_trajid;
 
     //monte carlo data
     int mc_tid;
@@ -34,11 +33,14 @@ public:
     float mc_lam;
     int mc_type;
     int mc_pid;
+    float mc_vpca_offset; //added
+    float mc_vpca_phi; //added
 
     //reconstruction data
     float rec_p;
     float rec_r;
-    float rec_rt;
+    float rec_zpca_x;
+    float rec_zpca_y;
     float rec_zpca_z;
     float rec_zpca_r;
 
@@ -75,6 +77,24 @@ public:
     float rec_tan12[TRIPLET_HIT_ARRAY_LENGTH];
     float rec_lam01[TRIPLET_HIT_ARRAY_LENGTH];
     float rec_lam12[TRIPLET_HIT_ARRAY_LENGTH];
+
+
+    TTree *tr_segs;
+    TH1F *h;
+    void setBranchAddresses();
+    explicit SegsTreeRead(TTree *t_segs);
+    void getEntry(const int index);
+
+    ~SegsTreeRead() {
+        TCanvas c("title", "name", 500, 500);
+        TPad p("pad", "zpdca", 0, 0, 1, 1);
+        p.Draw();
+        p.cd();
+        h->Draw();
+
+        c.SaveAs("test.pdf");
+        delete h;
+    }
 
 };
 

@@ -9,10 +9,10 @@ SlimSegsTreeWrite::SlimSegsTreeWrite(TTree *slimSegs) {
     this->t_slimSegs = slimSegs;
 
     //meta data
-    this->t_slimSegs->Branch("eventID", &this->eventID, "event/i");
-    this->t_slimSegs->Branch("runID", &this->runID, "run/i");
-    this->t_slimSegs->Branch("uEventID", &this->uEventID, "uniqueEventID/i");
-    this->t_slimSegs->Branch("segsIndex", &this->segsIndex, "IndexOfEventInSegsTree/i");
+    this->t_slimSegs->Branch("eventID", &this->eventID, "eventID/i");
+    this->t_slimSegs->Branch("runID", &this->runID, "runID/i");
+    this->t_slimSegs->Branch("uEventID", &this->uEventID, "uEventID/i");
+    this->t_slimSegs->Branch("segsIndex", &this->segsIndex, "segsIndex/i");
 
     //monte carlo data
     this->t_slimSegs->Branch("mc_type", &this->mc_type, "mc_type/I");
@@ -64,7 +64,7 @@ SlimSegsTreeWrite::SlimSegsTreeWrite(TTree *slimSegs) {
 #endif
 
     //the combined hits from x00 x10 and x20 (y,z respectively) hits.
-    this->t_slimSegs->Branch("ncombinedhits", &this->ncombinedhits, "ncombinedhits/I");
+    this->t_slimSegs->Branch("ncombinedhits", &this->ncombinedhits, "ncombinedhits/i");
     this->t_slimSegs->Branch("xp", &this->xp);
     this->t_slimSegs->Branch("yp", &this->yp);
     this->t_slimSegs->Branch("zp", &this->zp);
@@ -82,7 +82,7 @@ SlimSegsTreeWrite::SlimSegsTreeWrite(TTree *slimSegs) {
     //karimaki helix fit data
     this->t_slimSegs->Branch("kari_r3d", &this->kari_r3d, "kari_r3d/F");
     this->t_slimSegs->Branch("kari_rad", &this->kari_rad, "kari_rad/F");
-    this->t_slimSegs->Branch("kari_dca", &this->kari_rad, "kari_dca/F");
+    this->t_slimSegs->Branch("kari_dca", &this->kari_dca, "kari_dca/F");
     this->t_slimSegs->Branch("kari_p", &this->kari_p, "kari_p/F");
     this->t_slimSegs->Branch("kari_pt", &this->kari_pt, "kari_pt/F");
     this->t_slimSegs->Branch("kari_phi", &this->kari_phi, "kari_phi/F");
@@ -168,7 +168,6 @@ void SlimSegsTreeWrite::fillData(const SegsTreeReadPlus &Segs,
     //perr
     this->rec_r = Segs.rec_r;
     //rerr
-    this->rec_rt = Segs.rec_rt;
     this->rec_phi = Segs.rec_phi;
     this->rec_theta = Segs.rec_theta;
     this->rec_pt = Segs.rec_pt;
@@ -192,7 +191,7 @@ void SlimSegsTreeWrite::fillData(const SegsTreeReadPlus &Segs,
     this->layerp = layerps;
     this->ncombinedhits = ncombinedhits;
 
-    this->t_slimSegs->Fill();
+    this->fillTree();
 }
 
 void SlimSegsTree::reInitializeData() {
@@ -255,7 +254,6 @@ void SlimSegsTree::reInitializeData() {
     this->rec_perr = 0; //vlt
     this->rec_r = 0;
     this->rec_rerr = 0; //vlt
-    this->rec_rt = 0;
     this->rec_phi = 0;
     this->rec_theta = 0;
     this->rec_pt = 0;
@@ -280,4 +278,73 @@ void SlimSegsTree::reInitializeData() {
     this->zp.clear();
     this->layerp.clear();
     this->ncombinedhits = 0;
+}
+
+void SlimSegsTree::fillTree() {
+    this->t_slimSegs->Fill();
+}
+
+SlimSegsTreeRead::SlimSegsTreeRead(TTree *slimSegs) {
+    this->t_slimSegs = slimSegs;
+    this->entries = this->t_slimSegs->GetEntries();
+    this->setBranches();
+}
+
+void SlimSegsTreeRead::setBranches() {
+    //meta data
+    t_slimSegs->SetBranchAddress("eventID", &eventID);
+    t_slimSegs->SetBranchAddress("runID", &runID);
+    t_slimSegs->SetBranchAddress("uEventID", &uEventID);
+    t_slimSegs->SetBranchAddress("segsIndex", &segsIndex);
+
+    //monte carlo data
+    t_slimSegs->SetBranchAddress("mc_type", &mc_type);
+    t_slimSegs->SetBranchAddress("mc_tid", &mc_tid);
+    t_slimSegs->SetBranchAddress("mc_pid", &mc_pid);
+    t_slimSegs->SetBranchAddress("mc_p", &mc_p);
+    t_slimSegs->SetBranchAddress("mc_p_corr", &mc_p_corr);
+    t_slimSegs->SetBranchAddress("mc_pt", &mc_pt);
+
+    t_slimSegs->SetBranchAddress("nhit", &rec_nhit);
+    t_slimSegs->SetBranchAddress("nsegs", &rec_ntriplet);
+
+    //the combined hits from x00, x10 and x20
+    t_slimSegs->SetBranchAddress("ncombinedhits", &ncombinedhits);
+    t_slimSegs->SetBranchAddress("xp", &xpp);
+    t_slimSegs->SetBranchAddress("yp", &ypp);
+    t_slimSegs->SetBranchAddress("zp", &zpp);
+    t_slimSegs->SetBranchAddress("layerp", &layerpp);
+
+    //reconstruction (multi-scattering) fit data
+    t_slimSegs->SetBranchAddress("rec_p", &rec_p);
+    t_slimSegs->SetBranchAddress("rec_pt", &rec_pt);
+    t_slimSegs->SetBranchAddress("rec_r", &rec_r);
+    t_slimSegs->SetBranchAddress("rec_phi", &rec_phi);
+    t_slimSegs->SetBranchAddress("rec_theta", &rec_theta);
+    t_slimSegs->SetBranchAddress("rec_dca_r", &rec_dca_r);
+    t_slimSegs->SetBranchAddress("rec_dca_z", &rec_dca_z);
+
+    //karimaki helix fit data
+    t_slimSegs->SetBranchAddress("kari_r3d", &kari_r3d);
+    t_slimSegs->SetBranchAddress("kari_rad", &kari_rad);
+    t_slimSegs->SetBranchAddress("kari_dca", &kari_dca);
+    t_slimSegs->SetBranchAddress("kari_p", &kari_p);
+    t_slimSegs->SetBranchAddress("kari_pt", &kari_pt);
+    t_slimSegs->SetBranchAddress("kari_phi", &kari_phi);
+    t_slimSegs->SetBranchAddress("kari_theta", &kari_theta);
+    t_slimSegs->SetBranchAddress("kari_z0", &kari_z0);
+    t_slimSegs->SetBranchAddress("kari_tchi2", &kari_tchi2);
+    t_slimSegs->SetBranchAddress("kari_lchi2", &kari_lchi2);
+
+}
+
+void SlimSegsTreeRead::getEntry(const int &index) {
+    this->t_slimSegs->Print();
+    this->t_slimSegs->GetEntry(index);
+
+    //copy these vectors
+    this->xp = (*this->xpp);
+    this->yp = (*this->ypp);
+    this->zp = (*this->zpp);
+    this->layerp = (*this->layerpp);
 }

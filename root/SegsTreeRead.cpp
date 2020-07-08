@@ -9,24 +9,22 @@
 
 SegsTreeRead::SegsTreeRead(TTree *t_segs) {
     this->tr_segs = t_segs;
-    this->segs_entries = this->tr_segs->GetEntries();
-    setBranches();
+    this->my_entries = this->tr_segs->GetEntries();
+    h = new TH1F("hist", "zdca", 30, -600,600);
+    setBranchAddresses();
 }
 
-void SegsTreeRead::setBranches() {
+void SegsTreeRead::setBranchAddresses() {
     //some meta data
     tr_segs->SetBranchAddress("eventId", &rec_event);
     tr_segs->SetBranchAddress("nhit", &rec_nhit);
     tr_segs->SetBranchAddress("n", &rec_ntriplet);
 
-    //ms-fit data from trirec
+//    ms-fit data from trirec
     tr_segs->SetBranchAddress("p", &rec_p);
     tr_segs->SetBranchAddress("r", &rec_r);
-    tr_segs->SetBranchAddress("rt", &rec_rt);
-    tr_segs->SetBranchAddress("tan01", &rec_tan01);
-    tr_segs->SetBranchAddress("tan12", &rec_tan12);
-    tr_segs->SetBranchAddress("lam01", &rec_lam01);
-    tr_segs->SetBranchAddress("lam12", &rec_lam12);
+    tr_segs->SetBranchAddress("zpca_x", &rec_zpca_x);
+    tr_segs->SetBranchAddress("zpca_y", &rec_zpca_y);
     tr_segs->SetBranchAddress("zpca_z", &rec_zpca_z);
     tr_segs->SetBranchAddress("zpca_r", &rec_zpca_r);
 
@@ -39,42 +37,50 @@ void SegsTreeRead::setBranches() {
     tr_segs->SetBranchAddress("mc_lam", &mc_lam);
     tr_segs->SetBranchAddress("mc_type", &mc_type);
     tr_segs->SetBranchAddress("mc_pid", &mc_pid);
+    tr_segs->SetBranchAddress("mc_vpca_offset", &mc_vpca_offset);
+    tr_segs->SetBranchAddress("mc_vpca_phi", &mc_vpca_phi);
 
-    //original hits of triplets
+    tr_segs->SetBranchAddress("tan01", &rec_tan01);
+    tr_segs->SetBranchAddress("tan12", &rec_tan12);
+    tr_segs->SetBranchAddress("lam01", &rec_lam01);
+    tr_segs->SetBranchAddress("lam12", &rec_lam12);
+
+//    //original hits of triplets
     tr_segs->SetBranchAddress("x00", &x00);
-    tr_segs->SetBranchAddress("x10", &x10);
-    tr_segs->SetBranchAddress("x20", &x20);
     tr_segs->SetBranchAddress("x01", &x01);
+    tr_segs->SetBranchAddress("x10", &x10);
     tr_segs->SetBranchAddress("x11", &x11);
+    tr_segs->SetBranchAddress("x20", &x20);
     tr_segs->SetBranchAddress("x21", &x21);
 
     tr_segs->SetBranchAddress("y00", &y00);
-    tr_segs->SetBranchAddress("y10", &y10);
-    tr_segs->SetBranchAddress("y20", &y20);
     tr_segs->SetBranchAddress("y01", &y01);
+    tr_segs->SetBranchAddress("y10", &y10);
     tr_segs->SetBranchAddress("y11", &y11);
+    tr_segs->SetBranchAddress("y20", &y20);
     tr_segs->SetBranchAddress("y21", &y21);
 
     tr_segs->SetBranchAddress("z00", &z00);
-    tr_segs->SetBranchAddress("z10", &z10);
-    tr_segs->SetBranchAddress("z20", &z20);
     tr_segs->SetBranchAddress("z01", &z01);
+    tr_segs->SetBranchAddress("z10", &z10);
     tr_segs->SetBranchAddress("z11", &z11);
+    tr_segs->SetBranchAddress("z20", &z20);
     tr_segs->SetBranchAddress("z21", &z21);
 
     //sensor ids of hits
     tr_segs->SetBranchAddress("sid00", &sid00);
-    tr_segs->SetBranchAddress("sid10", &sid10);
-    tr_segs->SetBranchAddress("sid20", &sid20);
     tr_segs->SetBranchAddress("sid01", &sid01);
+    tr_segs->SetBranchAddress("sid10", &sid10);
     tr_segs->SetBranchAddress("sid11", &sid11);
+    tr_segs->SetBranchAddress("sid20", &sid20);
     tr_segs->SetBranchAddress("sid21", &sid21);
 
     std::cout << "Branches set for segs..." << std::endl;
 }
 
-void SegsTreeRead::getEntry(const int &index) {
+void SegsTreeRead::getEntry(const int index) {
     this->tr_segs->GetEntry(index);
+    h->Fill(rec_zpca_x);
 }
 
 void SegsTreeReadPlus::calcAdditionalData() {
@@ -99,3 +105,5 @@ void SegsTreeReadPlus::calcAdditionalData() {
     this->p_inv_abs_error = this->rec_p_inv - this->mc_p_inv_corr;
     this->pt_inv_abs_error = this->rec_pt_inv - this-> mc_pt_inv_corr;
 }
+
+
