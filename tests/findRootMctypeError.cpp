@@ -65,7 +65,7 @@ void testRunWithSegsClass() {
 //  tinF.GetObject("segs", t_segs);
 
     //class representation for segs tree and read functionality
-    SegsTreeRead *Segs = new SegsTreeRead(t_segs);
+    SegsTreeReadPlus *Segs = new SegsTreeReadPlus(t_segs);
 
 
 

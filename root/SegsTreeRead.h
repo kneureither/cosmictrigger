@@ -84,17 +84,12 @@ public:
     void setBranchAddresses();
     explicit SegsTreeRead(TTree *t_segs);
     void getEntry(const int index);
+    void printTest();
 
-    ~SegsTreeRead() {
-        TCanvas c("title", "name", 500, 500);
-        TPad p("pad", "zpdca", 0, 0, 1, 1);
-        p.Draw();
-        p.cd();
-        h->Draw();
-
-        c.SaveAs("test.pdf");
-        delete h;
-    }
+//    ~SegsTreeRead() {
+//        this->printTest();
+//        delete h;
+//    }
 
 };
 
@@ -123,6 +118,7 @@ public:
     : SegsTreeRead(segs) {}
 
     void calcAdditionalData();
+
 };
 
 

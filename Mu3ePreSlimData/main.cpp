@@ -6,7 +6,7 @@
 #include "utilityFunctions.h"
 
 int main(int argc, char *argv[]) {
-    slimSegsDataScript(std::string("mu3e_slimmed_segs_000001.root"), 10, false);
+    slimSegsDataScript(2, 14, false);
 }
 
 

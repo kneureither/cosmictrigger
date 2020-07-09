@@ -6,6 +6,6 @@
 #define COSMICTRIGGER_SLIMSEGSDATASCRIPT_H
 #include <string>
 
-void slimSegsDataScript(std::string outputfilename, const int run, const bool appendToFile);
+void slimSegsDataScript(const int, const int run, const bool appendToFile);
 
 #endif //COSMICTRIGGER_SLIMSEGSDATASCRIPT_H

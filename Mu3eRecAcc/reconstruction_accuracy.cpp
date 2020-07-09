@@ -1001,8 +1001,8 @@ void reconstruction_accuracy(int run, int FILTER) {
 
         //pterr kari - rec over pt rec
         TGraph *g_ptdevkvsms_ptms = new TGraph(pt_inv_kvsms_errors.size(),&rec_inv_pts[0],&pt_inv_kvsms_errors[0]);
-        g_ptdevkvsms_ptms->SetTitle("pt_{kari}^{-1} #minus pt_{msfit}^{-1} over #pt_{msfit}^{-1} correlation");
-        labelAxis(g_ptdevkvsms_ptms, "#pt_{msfit}^{-1} [MeV^{-1}]", "pt_{kari}^{-1} #minus pt_{msfit}^{-1} [MeV^{-1}]");
+        g_ptdevkvsms_ptms->SetTitle("pt_{kari}^{-1} #minus pt_{msfit}^{-1} over pt_{msfit}^{-1} correlation");
+        labelAxis(g_ptdevkvsms_ptms, "pt_{msfit}^{-1} [MeV^{-1}]", "pt_{kari}^{-1} #minus pt_{msfit}^{-1} [MeV^{-1}]");
         setGraphRange(g_ptdevkvsms_ptms,-5e-4,5e-4, -1e-3,1e-3);
 
 

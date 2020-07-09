@@ -10,7 +10,7 @@
 SegsTreeRead::SegsTreeRead(TTree *t_segs) {
     this->tr_segs = t_segs;
     this->my_entries = this->tr_segs->GetEntries();
-    h = new TH1F("hist", "zdca", 30, -600,600);
+//    h = new TH1F("hist", "zdca", 30, 0,10);
     setBranchAddresses();
 }
 
@@ -80,7 +80,18 @@ void SegsTreeRead::setBranchAddresses() {
 
 void SegsTreeRead::getEntry(const int index) {
     this->tr_segs->GetEntry(index);
-    h->Fill(rec_zpca_x);
+    std::cout << "segs.nhit=" << rec_nhit << endl;
+//    h->Fill(1.0);
+}
+
+void SegsTreeRead::printTest() {
+    TCanvas c("title", "name", 500, 500);
+    TPad p("pad", "zpdca", 0, 0, 1, 1);
+    p.Draw();
+    p.cd();
+//    h->Draw();
+
+    c.SaveAs("plots/SegsTreeClass/test.pdf");
 }
 
 void SegsTreeReadPlus::calcAdditionalData() {

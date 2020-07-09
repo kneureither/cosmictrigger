@@ -339,7 +339,7 @@ void SlimSegsTreeRead::setBranches() {
 }
 
 void SlimSegsTreeRead::getEntry(const int &index) {
-    this->t_slimSegs->Print();
+//    this->t_slimSegs->Print();
     this->t_slimSegs->GetEntry(index);
 
     //copy these vectors
@@ -347,4 +347,9 @@ void SlimSegsTreeRead::getEntry(const int &index) {
     this->yp = (*this->ypp);
     this->zp = (*this->zpp);
     this->layerp = (*this->layerpp);
+
+    assert(xp[0] == (*xpp)[0]);
+    assert(yp[1] == (*ypp)[1]);
+    assert(zp[2] == (*zpp)[2]);
+    assert(layerp[3] == (*layerpp)[3]);
 }
