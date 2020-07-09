@@ -3,11 +3,13 @@
 //
 
 #include "TemplateBank.h"
+#include "PatternEngineSingle.h"
 #include "PatternEngine.h"
 
 
 void processSegsPrototype(int, int);
 
+const bool TEST_PES = false;
 const bool TEST_PE = false;
 const bool TEST_TB = false;
 const bool TEST_SEGS_PROCESS = true;
@@ -20,7 +22,13 @@ int main(int argc, char *argv[]) {
     }
 
     if(TEST_PE) {
-        PatternEngine PE(40, 10, 0);
+        PatternEngine PE(20, 100, "plots/Mu3eCosPat/");
+        PE.displayBinBoundaries();
+        PE.closePlot();
+    }
+
+    if(TEST_PES) {
+        PatternEngineSingle PE(40, 10, 0);
         PE.displayBinBoundaries();
 //    PE.testbinSearch();
 //    PE.testCoordImpl();
