@@ -17,9 +17,9 @@ struct TemplateID {
     std::string toString() {
         char buffer[4*TID_LEN];
         for(int i = 0; i<TID_LEN; i++) {
-            sprintf(&(buffer[i*4], "%04X");
+            sprintf(&(buffer[i*4], "%04X", HIDS[i]);
         }
-
+        return buffer;
     }
 };
 
