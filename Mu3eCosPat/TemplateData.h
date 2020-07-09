@@ -5,8 +5,23 @@
 #ifndef COSMICTRIGGER_TEMPLATEDATA_H
 #define COSMICTRIGGER_TEMPLATEDATA_H
 
+#define TID_LEN 4
+
 #include <vector>
+#include <string>
 #include "basicDefines.h"
+
+struct TemplateID {
+    //SIDs ids in order of hits 4x16bit
+    unsigned short HIDS[TID_LEN];
+    std::string toString() {
+        char buffer[4*TID_LEN];
+        for(int i = 0; i<TID_LEN; i++) {
+            sprintf(&(buffer[i*4], "%04X");
+        }
+
+    }
+};
 
 struct TemplateData {
     unsigned int SPIDs[TRIPLET_HIT_ARRAY_LENGTH];
