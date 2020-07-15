@@ -14,7 +14,7 @@ set(SRC main.cpp processSegsPrototype.cpp)
 add_executable(Mu3eCosPatPrototype ${SRC})
 target_link_libraries(Mu3eCosPatPrototype patterns)
 
-set(SRC2 main.cpp buildCosmicTrajTemplatesScript.cpp)
+set(SRC2 main.cpp buildCosmicTrajTemplatesScript.cpp ../root/TemplateDatabaseTree.cpp)
 add_executable(Mu3eCosPat ${SRC2})
 target_link_libraries(Mu3eCosPat patterns rootTreeFiles)
 

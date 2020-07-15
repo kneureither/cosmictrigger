@@ -27,6 +27,7 @@ public:
     unsigned int getSuperPixel(const float x, const float y, const float z);
     void displayBinBoundaries();
     void displayBinWeightDistribution();
+    std::string getModeTag();
     void closePlot();
 };
 

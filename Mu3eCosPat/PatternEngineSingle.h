@@ -101,11 +101,13 @@ public:
 
     void displayBinBoundaries();
     void displayBinWeightDistribution();
+    std::string getRunSpecs();
     void closePlot();
 
     void testbinSearch();
     void testCoordImpl();
     void testSPID();
+
 };
 
 

@@ -9,6 +9,7 @@
 class SPCalculations {
 public:
     static const int areaCount = 3;
+    bool PRINTS = false;
 
     ////Geometry
     //area index convention: 0=central, 1=recurl right, 2=recurl left

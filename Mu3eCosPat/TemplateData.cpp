@@ -11,6 +11,7 @@ TemplateData::TemplateData(const int &count, const float &p, const float &dca, c
     this->phi = phi;
     this->theta = theta;
     this->count = count;
+    //uEventId
 }
 
 TemplateData::TemplateData(const TemplateData &other) {
@@ -20,6 +21,7 @@ TemplateData::TemplateData(const TemplateData &other) {
     this->phi = other.phi;
     this->theta = other.theta;
     this->count = other.count;
+    this->uEventID = other.uEventID;
 }
 
 TemplateData &TemplateData::operator=(const TemplateData &other) {
@@ -29,6 +31,7 @@ TemplateData &TemplateData::operator=(const TemplateData &other) {
     this->phi = other.phi;
     this->theta = other.theta;
     this->count = other.count;
+    this->uEventID = other.uEventID;
 
     return *this;
 }

@@ -12,9 +12,9 @@ void processSegsPrototype(int, int);
 
 const bool TEST_PES = false;
 const bool TEST_PE = false;
-const bool TEST_TB = true;
+const bool TEST_TB = false;
 const bool TEST_SEGS_PROCESS = false;
-const bool TEST_buildDB = false;
+const bool TEST_buildDB = true;
 
 
 int main(int argc, char *argv[]) {
@@ -48,15 +48,17 @@ int main(int argc, char *argv[]) {
     }
 
     if(TEST_TB) {
-        TemplateBank TB;
+        TemplateBank TB("plots/Mu3eCosPat");
 //    TB.testTemplateID();
 //    TB.testFill();
         TB.testGetMostPopTemplates();
-        TB.displayTemplatePopulationHistogram();
+        TB.displayTemplatePopulationHistogram("test");
+
+        TB.testCheck();
     }
 
     if(TEST_buildDB) {
-        buildCosmicTemplatesScript(2);
+        buildCosmicTemplatesScript(3);
     }
 
     return 0;

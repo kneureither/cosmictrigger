@@ -56,6 +56,7 @@ struct TemplateData {
     float dca;
     float phi;
     float theta;
+    unsigned int uEventID;
 
     TemplateData(const int &count, const float &p, const float &dca, const float &phi, const float &theta);
     TemplateData(const TemplateData &other);

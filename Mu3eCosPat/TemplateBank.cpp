@@ -38,6 +38,23 @@ void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const floa
     }
 }
 
+bool TemplateBank::checkTemplate(temid &TID) {
+    if(AMem.count(TID) == 0) {
+        rejectedcount++;
+        return false;
+    } else {
+        accepetedcount++;
+        if(CMem.count(TID) > 0) {
+            CMem[TID]++;
+            if(PRINTS) std::cout << " -- found multi occurence TID=" + TID.toString() + " count=" << CMem[TID] << std::endl;
+        } else {
+            CMem[TID] = 1;
+            if(PRINTS) std::cout << " -- first occurence of TID=" + TID.toString() << std::endl;
+        }
+        return true;
+    }
+}
+
 temid TemplateBank::getTemplateID(unsigned int *SPIDs, const int count) {
     assert(count <= TID_LEN);
     temid TID;
@@ -56,7 +73,7 @@ temid TemplateBank::getTemplateID(unsigned int *SPIDs, const int count) {
             TID.HIDS[i] = 0;
         }
     }
-    if(PRINTS) printf("\n count=%d, sidindex=%d \n", count, sidindex);
+    printf("\nasserting... count=%d, sidindex=%d \n", count, sidindex);
     assert(count == sidindex);
     return TID;
 }
@@ -81,10 +98,11 @@ void TemplateBank::testTemplateID() {
     printf("\n");
 }
 
-TemplateBank::TemplateBank() {
+TemplateBank::TemplateBank(std::string plottingpath) {
     this->Nevents.push_back(0);
     this->Ntemplates.push_back(0);
     this->efficiency.push_back(1.0);
+    this->plottingpath = plottingpath;
 
     assert(TID_LEN % 2 == 0);
     hitorder.push_back(3);
@@ -135,6 +153,24 @@ void TemplateBank::testFill() {
     printf("- AMem filled with test data!\n");
 }
 
+
+void TemplateBank::testCheck() {
+    assert(AMem.size() > 0);
+    unsigned int SPIDs5[4] = {0x0017, 0x0026, 0x0076, 0x0087};
+    unsigned int SPIDs1[4] = {3, 2, 2, 3};
+    unsigned int SPIDs2[4] = {0xB, 0x2, 0x2, 0x3};
+
+    temid TID1 = getTemplateID(SPIDs1, 4);
+    temid TID2 = getTemplateID(SPIDs2, 4);
+    temid TID3 = getTemplateID(SPIDs5, 4);
+
+
+    assert(checkTemplate(TID1) == true);
+    assert(checkTemplate(TID1) == true);
+    assert(checkTemplate(TID2) == false);
+    assert(checkTemplate(TID3) == true);
+}
+
 std::vector<temid> TemplateBank::getMostPopulatedTemplates(int howmany) {
     assert(howmany <= this->AMem.size());
     AssociativeMemory::iterator it;
@@ -157,7 +193,7 @@ std::vector<temid> TemplateBank::getMostPopulatedTemplates(int howmany) {
     return priorityTemplates;
 }
 
-void TemplateBank::displayTemplatePopulationHistogram() {
+void TemplateBank::displayTemplatePopulationHistogram(std::string filetag) {
     auto *canvas = new TCanvas("template frequency", "template frequency", 1200, 900);
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
@@ -177,7 +213,7 @@ void TemplateBank::displayTemplatePopulationHistogram() {
         h_templfreq->Fill(frequency);
     }
     h_templfreq->Draw();
-    saveCanvas(canvas, "templateFrequency", "plots/Mu3eCosPat");
+    saveCanvas(canvas, ("templateFrequency" + filetag).c_str(), plottingpath);
 }
 
 void TemplateBank::testGetMostPopTemplates() {

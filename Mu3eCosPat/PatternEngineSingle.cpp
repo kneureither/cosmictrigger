@@ -202,7 +202,7 @@ unsigned int PatternEngineSingle::getSuperPixel(const float x, const float y, co
     unsigned int SPID = computeSPID(layer, area, sp2DID);
 
 //    int SPID = layer + 10 * area + 100 * sp2DID;
-    printf("Hit SuperPixel params\t x=%f, y=%f, z=%f, layer=%d zIndex=%d, phiIndex=%d, Sp2D=%d, SPID=%#X\n", x,y,z,layer, zSPIndex, phiSPIndex, sp2DID, SPID);
+    if(PRINTS) printf("Hit SuperPixel params\t x=%f, y=%f, z=%f, layer=%d zIndex=%d, phiIndex=%d, Sp2D=%d, SPID=%#X\n", x,y,z,layer, zSPIndex, phiSPIndex, sp2DID, SPID);
 
     //    printf("SP2D = %d, weights = %d \n", sp2DID, this->spWeights[0][sp2DID]);
     if(SPID != 0) this->spWeights[layer].at(sp2DID) = this->spWeights[layer].at(sp2DID) + 1;
@@ -395,6 +395,10 @@ std::string PatternEngineSingle::pltf() {
     }
 }
 
+std::string PatternEngineSingle::getRunSpecs() {
+    return this->runspecs;
+}
+
 void PatternEngineSingle::closePlot() {
     auto *c_final = new TCanvas("c_final", "c_final");
     c_final->Print((this->plottingpath + this->runspecs + pltf() + ")").c_str(), "pdf");
@@ -411,6 +415,8 @@ std::string PatternEngineSingle::getAreaTag() {
         return "area" + get_string(this->area);
     }
 }
+
+
 //// <------------ PRINT GRAPHS AND PLOTS
 
 

@@ -58,4 +58,8 @@ void PatternEngine::closePlot() {
     for(int area=0; area < this->areaCount; area++) this->PES[area].closePlot();
 }
 
+std::string PatternEngine::getModeTag() {
+    return PES[0].getRunSpecs();
+}
+
 
