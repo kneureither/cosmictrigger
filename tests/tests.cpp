@@ -11,6 +11,9 @@
 #include "SegsTreeRead.h"
 #include "SlimSegsTree.h"
 #include <iostream>
+#include "testTemplateData.h"
+#include "testTemplateID.h"
+#include "../Mu3eCosPat/TemplateBank.h"
 
 
 #ifndef TRIPLET_HIT_ARRAY_LENGTH
@@ -23,8 +26,10 @@ void TESTslimsegs();
 int main (int argc, char *argv[]) {
     srand (static_cast <unsigned> (time(0)));
 
-    TESTncombinedhits();
-    TESTslimsegs();
+//    TESTncombinedhits();
+//    TESTslimsegs();
+    TESTtemplateData();
+    testTemplateID();
 
 
     printf("SUCCESS! Finished all tests.\n");
