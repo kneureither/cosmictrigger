@@ -9,10 +9,12 @@
 #include <queue>
 #include "TemplateData.h"
 
-typedef std::map<unsigned long long, std::vector<TemplateData>> AssociativeMemory;
+typedef unsigned long long temid;
+//typedef TemplateID temid;
+typedef std::map<temid, std::vector<TemplateData>> AssociativeMemory;
 
 struct tidQueueNode {
-    unsigned long long TID; //the template
+    temid TID; //the template
     unsigned int frequency; //population
     bool operator<(const tidQueueNode& rhs) const {
         return frequency < rhs.frequency;
@@ -37,12 +39,11 @@ public:
 
     void displayTemplatePopulationHistogram(); //how many with one, two, three, ..., n roads stored
     void fillTemplate(unsigned int * SPIDs, int count, float p, float dca, float phi, float theta);
-    void fillTemplate(unsigned int * SPIDs, float * xps, float* yps, float* zps, int count, float p, float dca, float phi, float theta);
 
     void rmSinglePopulatedTemplates();
-    std::vector<unsigned long long>  getMostPopulatedTemplates(int howmany);
+    std::vector<temid>  getMostPopulatedTemplates(int howmany);
 
-    unsigned long long getTemplateID(unsigned int *SPIDs, int count);
+    temid getTemplateID(unsigned int *SPIDs, int count);
     unsigned int getSPIDfromTemplateID(unsigned long long TemplateID, int index);
 
     //tests

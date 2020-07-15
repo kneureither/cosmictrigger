@@ -41,23 +41,23 @@ struct TemplateID {
     bool operator==(const TemplateID& other) const {
         return std::equal(std::begin(this->HIDS), std::end(this->HIDS), std::begin(other.HIDS));
     }
+
+    TemplateID &operator=(const TemplateID &other) {
+        for(int i=0; i < TID_LEN; i++) {
+            this->HIDS[i] = other.HIDS[i];
+        }
+        return *this;
+    }
 };
 
 struct TemplateData {
-    unsigned int SPIDs[TRIPLET_HIT_ARRAY_LENGTH];
-    float xp[TRIPLET_HIT_ARRAY_LENGTH];
-    float yp[TRIPLET_HIT_ARRAY_LENGTH];
-    float zp[TRIPLET_HIT_ARRAY_LENGTH];
-
     int count;
-
     float p;
     float dca;
     float phi;
     float theta;
 
-    TemplateData(unsigned int * SPIDs, float * xps, float * yps, float * zps, int count, float p, float dca, float phi, float theta);
-    TemplateData(unsigned int * SPIDs, int count, float p, float dca, float phi, float theta);
+    TemplateData(const int &count, const float &p, const float &dca, const float &phi, const float &theta);
     TemplateData(const TemplateData &other);
     TemplateData& operator=(const TemplateData& other);
 };

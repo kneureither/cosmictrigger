@@ -4,32 +4,13 @@
 
 #include "TemplateData.h"
 
-TemplateData::TemplateData(unsigned int *SPIDs, float *xps, float *yps, float *zps, int count, float p, float dca, float phi,
-                           float theta) {
+TemplateData::TemplateData(const int &count, const float &p, const float &dca, const float &phi,
+                           const float &theta) {
     this->p = p;
     this->dca = dca;
     this->phi = phi;
     this->theta = theta;
     this->count = count;
-
-    for(int i = 0; i<count; i++) {
-        this->SPIDs[i] = SPIDs[i];
-        this->xp[i] = xps[i];
-        this->yp[i] = yps[i];
-        this->zp[i] = zps[i];
-    }
-}
-
-TemplateData::TemplateData(unsigned int *SPIDs, int count, float p, float dca, float phi, float theta) {
-    this->p = p;
-    this->dca = dca;
-    this->phi = phi;
-    this->theta = theta;
-    this->count = count;
-
-    for(int i = 0; i<count; i++) {
-        this->SPIDs[i] = SPIDs[i];
-    }
 }
 
 TemplateData::TemplateData(const TemplateData &other) {
@@ -39,14 +20,6 @@ TemplateData::TemplateData(const TemplateData &other) {
     this->phi = other.phi;
     this->theta = other.theta;
     this->count = other.count;
-
-    for(int i = 0; i < other.count; i++) {
-        this->SPIDs[i] = other.SPIDs[i];
-        this->xp[i] = other.xp[i];
-        this->yp[i] = other.yp[i];
-        this->zp[i] = other.zp[i];
-    }
-
 }
 
 TemplateData &TemplateData::operator=(const TemplateData &other) {
@@ -57,11 +30,7 @@ TemplateData &TemplateData::operator=(const TemplateData &other) {
     this->theta = other.theta;
     this->count = other.count;
 
-    for(int i = 0; i < other.count; i++) {
-        this->SPIDs[i] = other.SPIDs[i];
-        this->xp[i] = other.xp[i];
-        this->yp[i] = other.yp[i];
-        this->zp[i] = other.zp[i];
-    }
-
+    return *this;
 }
+
+

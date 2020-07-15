@@ -14,7 +14,7 @@
 void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const float p, const float dca, const float phi, const float theta) {
 
     //assume that SPIDs are already cleaned (only 4 entries)
-    unsigned long long TID = getTemplateID(SPIDs, count);
+    temid TID = getTemplateID(SPIDs, count);
     TemplateData TD(SPIDs, count, p, dca, phi, theta);
 
     if(AMem.count(TID) > 0) {
@@ -38,14 +38,9 @@ void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const floa
     }
 }
 
-void TemplateBank::fillTemplate(unsigned int *SPIDs, float *xps, float *yps, float *zps, int count, float p, float dca,
-                                float phi, float theta) {
-
-}
-
-unsigned long long TemplateBank::getTemplateID(unsigned int *SPIDs, const int count) {
+temid TemplateBank::getTemplateID(unsigned int *SPIDs, const int count) {
     assert(count == 4);
-    unsigned long long templateID; //uint64_t
+    temid templateID;
     templateID = 0x00;
 
     for(int i = 0; i<count; i++) {
@@ -54,7 +49,7 @@ unsigned long long TemplateBank::getTemplateID(unsigned int *SPIDs, const int co
     return templateID;
 }
 
-unsigned int TemplateBank::getSPIDfromTemplateID(unsigned long long TemplateID, int index) {
+unsigned int TemplateBank::getSPIDfromTemplateID(temid TemplateID, int index) {
     assert(0 <= index && index < 4);
     return (unsigned int) (TemplateID>>(16*(3-index))) &0xFFFF;
 }
@@ -63,7 +58,7 @@ void TemplateBank::testTemplateID() {
 //    printf("1 & 0xFFFF = %#018llX\n", (unsigned long long) (1 & 0xFFFF) << 48);
     unsigned int SPIDs[4] = {10465, 20345, 20845, 10245};
     for(int i=0; i<4; i++) printf("SPIDs=%d", SPIDs[i]);
-    unsigned long long TID = getTemplateID(SPIDs, 4);
+    temid TID = getTemplateID(SPIDs, 4);
     printf("Template ID dec=%llu hex=%#018llX\n", TID, TID);
 
     for(int i = 0; i<4; i++) {
@@ -103,12 +98,12 @@ void TemplateBank::testFill() {
     printf("- AMem filled with test data!\n");
 }
 
-std::vector<unsigned long long> TemplateBank::getMostPopulatedTemplates(int howmany) {
+std::vector<temid> TemplateBank::getMostPopulatedTemplates(int howmany) {
     assert(howmany <= this->AMem.size());
     AssociativeMemory::iterator it;
     std::priority_queue<tidQueueNode> templQueue;
 
-    unsigned long long TID;
+    temid TID;
     unsigned int frequency;
 
     for(it = AMem.begin(); it != AMem.end(); it++){
@@ -150,7 +145,7 @@ void TemplateBank::displayTemplatePopulationHistogram() {
 
 void TemplateBank::testGetMostPopTemplates() {
     testFill();
-    std::vector<unsigned long long> priorityTemplates;
+    std::vector<temid> priorityTemplates;
 
     int howmany=3;
     priorityTemplates = getMostPopulatedTemplates(howmany);
