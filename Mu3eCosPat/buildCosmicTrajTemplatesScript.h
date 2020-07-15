@@ -10,7 +10,9 @@
 
 void buildCosmicTemplatesScript(const int);
 
-static void getSymmetricRefHits(std::vector<unsigned int> &SPIDs, SlimSegsTree &SlimSegs, PatternEngine &PE) {
+static bool getSymmetricRefHits(std::vector<float> &xpr, std::vector<float> &ypr,
+        std::vector<float> &zpr, std::vector<int> &layerpr, SlimSegsTree &SlimSegs, const int &minlayer) {
+
     std::vector<int>::iterator itfwd = SlimSegs.layerp.begin();
     std::vector<int>::iterator itbackw = SlimSegs.layerp.end() - 1;
     int indexfwd = std::distance(SlimSegs.layerp.begin(), itfwd);
@@ -18,8 +20,6 @@ static void getSymmetricRefHits(std::vector<unsigned int> &SPIDs, SlimSegsTree &
     int layercounter[4] = {0,0,0,0};
     int countfrontinserted = 0;
     unsigned int SPID;
-
-    int minlayer = 0;
 
     while(itfwd != itbackw) {
         while(!(layercounter[*itfwd] < 2) && itfwd != itbackw) {
@@ -30,8 +30,10 @@ static void getSymmetricRefHits(std::vector<unsigned int> &SPIDs, SlimSegsTree &
         if (itfwd != itbackw) {
             if(*itfwd >= minlayer) {
                 layercounter[*itfwd]++;
-                SPID = PE.getSuperPixel(SlimSegs.xp[indexfwd], SlimSegs.yp[indexfwd], SlimSegs.zp[indexfwd]);
-                SPIDs.insert(SPIDs.begin() + countfrontinserted, SPID);
+                xpr.insert(xpr.begin() + countfrontinserted, SlimSegs.xp[indexfwd]);
+                ypr.insert(ypr.begin() + countfrontinserted, SlimSegs.yp[indexfwd]);
+                zpr.insert(zpr.begin() + countfrontinserted, SlimSegs.zp[indexfwd]);
+                layerpr.insert(layerpr.begin() + countfrontinserted, SlimSegs.layerp[indexfwd]);
                 countfrontinserted++;
             }
         } else {
@@ -47,9 +49,10 @@ static void getSymmetricRefHits(std::vector<unsigned int> &SPIDs, SlimSegsTree &
         if(itfwd != itbackw) {
             if(*itbackw >= minlayer) {
                 layercounter[*itbackw]++;
-                SPID = PE.getSuperPixel(SlimSegs.xp[indexbackw], SlimSegs.yp[indexbackw],
-                                        SlimSegs.zp[indexbackw]);
-                SPIDs.insert(SPIDs.begin() + countfrontinserted, SPID);
+                xpr.insert(xpr.begin() + countfrontinserted, SlimSegs.xp[indexbackw]);
+                ypr.insert(ypr.begin() + countfrontinserted, SlimSegs.yp[indexbackw]);
+                zpr.insert(zpr.begin() + countfrontinserted, SlimSegs.zp[indexbackw]);
+                layerpr.insert(layerpr.begin() + countfrontinserted, SlimSegs.layerp[indexbackw]);
             }
         } else {
             break;
@@ -64,6 +67,16 @@ static void getSymmetricRefHits(std::vector<unsigned int> &SPIDs, SlimSegsTree &
         } else {
             break;
         }
+    }
+
+    assert(xpr.size() == ypr.size());
+    assert(ypr.size() == zpr.size());
+    assert(zpr.size() == layerpr.size());
+
+    if(layercounter[3] < 2 || layercounter[2] < 2) {
+        return false;
+    } else {
+        return true;
     }
 }
 

@@ -28,7 +28,7 @@ void buildCosmicTemplatesScript(const int dataset) {
     const std::string pathtoplots = "plots/Mu3eCosPat/";
 
     const bool MAKE_PLOT = true;
-    const int MAX_ENTRIES = 0;
+    const int MAX_ENTRIES = 10;
     const bool PRINTS = true;
 
     std::string runpadded = get_padded_string(dataset, 6, '0');
@@ -64,6 +64,7 @@ void buildCosmicTemplatesScript(const int dataset) {
     int used_entries = 0;
     int too_many = 0;
     int twohittracks = 0;
+    int failed_count = 0;
 
 
     for (unsigned int entryno = 0; entryno < (MAX_ENTRIES == 0 ? SlimSegs.entries : MAX_ENTRIES); entryno++) {
@@ -75,7 +76,13 @@ void buildCosmicTemplatesScript(const int dataset) {
 
         if(PRINTS) printf("\nBUILD COSMIC TRAJ ENTRY %d\n------------------------------\n\n", entryno);
         std::vector<unsigned int> SPIDs;
+        std::vector<float> xpr;
+        std::vector<float> ypr;
+        std::vector<float> zpr;
+        std::vector<int> layerpr;
+
         unsigned int SPID;
+        bool enoughhits = false;
 
         // TODO
         // -- get hits from SlimSegs
@@ -83,37 +90,18 @@ void buildCosmicTemplatesScript(const int dataset) {
         // -- get TIDs for these hits
 
 
-        if( 2 <= SlimSegs.rec_ntriplet && SlimSegs.rec_ntriplet <= 10) {
-            for(int i = 0; i<SlimSegs.layerp.size(); i++) {
-                printf("  --layer=%d\t x=%f, y=%f, z=%f \n", SlimSegs.layerp[i], SlimSegs.xp[i], SlimSegs.yp[i], SlimSegs.zp[i]);
-                if(SlimSegs.layerp[i] == 2 || SlimSegs.layerp[i] == 3) {
-//                    SPID = PE.getSuperPixel(SlimSegs.xp[i], SlimSegs.yp[i], SlimSegs.zp[i]);
-//                    SPIDs.push_back(SPID);
-//                    printf("SID=%d, SIDhex=%#X, SIDs.size()=%d\n", SPID, SPID, SPIDs.size());
-                }
-            }
-        } else {
-            std::cout << "WARNING : triplet count out of bounds - is: " << SlimSegs.rec_ntriplet << std::endl;
+        for(int i = 0; i<SlimSegs.layerp.size(); i++) {
+            if(PRINTS) printf("  --layer=%d\t x=%f, y=%f, z=%f \n", SlimSegs.layerp[i], SlimSegs.xp[i], SlimSegs.yp[i], SlimSegs.zp[i]);
         }
 
-        getSymmetricRefHits(SPIDs, SlimSegs, PE);
+        enoughhits = getSymmetricRefHits(xpr, ypr, zpr, layerpr, SlimSegs, 0);
+        if(!enoughhits) {failed_count++; continue;}
 
-        for(int i=0; i<SPIDs.size(); i++) {
-            printf(" -- SPIDS =%#X \n", SPIDs[i]);
+        for(int i = 0; i < xpr.size(); i++) {
+            SPID = PE.getSuperPixel(xpr[i], ypr[i], zpr[i]);
+            SPIDs.push_back(SPID);
+            if(PRINTS) printf(" -- SPIDS =%#X \n", SPIDs[i]);
         }
-
-//        assert(SPIDs.size() == 4);
-//        assert(SlimSegs.rec_ntriplet < 7);
-
-//        if(SlimSegs.rec_ntriplet == 2) { // 4-hit tracks
-//
-//        } else if (SlimSegs.rec_ntriplet == 3) { // 6-hit tracks
-//
-//        } else if (SlimSegs.rec_ntriplet == 4) { // 8-hit tracks
-//
-//        } else {
-//            std::cout << "WARNING : More than 4 triplets" << std::endl;
-//        }
 
     }
 }
