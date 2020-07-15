@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/root)
 
-set(SRC tests.cpp ../root/SlimSegsTree.cpp)
+set(SRC tests.cpp ../root/SlimSegsTree.cpp testTemplateID.h ../Mu3eCosPat/TemplateData.cpp)
 add_executable(tests ${SRC})
 target_link_libraries(tests ${ROOT_LIBRARIES} f2clib karilib)
 add_compile_options("-lf2c" "-DMAIN")
