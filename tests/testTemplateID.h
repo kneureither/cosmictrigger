@@ -1,0 +1,8 @@
+//
+// Created by Konstantin Neureither on 15.07.20.
+//
+
+#ifndef COSMICTRIGGER_TESTTEMPLATEID_H
+#define COSMICTRIGGER_TESTTEMPLATEID_H
+
+#endif //COSMICTRIGGER_TESTTEMPLATEID_H
