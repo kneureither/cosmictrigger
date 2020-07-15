@@ -8,9 +8,10 @@
 #include <map>
 #include <queue>
 #include "TemplateData.h"
+#include "SPCalculations.h"
 
-typedef unsigned long long temid;
-//typedef TemplateID temid;
+//typedef unsigned long long temid;
+typedef TemplateID temid;
 typedef std::map<temid, std::vector<TemplateData>> AssociativeMemory;
 
 struct tidQueueNode {
@@ -25,6 +26,7 @@ class TemplateBank {
 private:
     AssociativeMemory AMem;
     //some data structure that stores population of templates: THF1 ?
+    SPCalculations SPC;
 
     unsigned int newtemplatecount = 0;
     unsigned int templatecount = 0;
@@ -32,6 +34,9 @@ private:
     std::vector<unsigned int> Nevents;
     std::vector<unsigned int>Ntemplates;
     std::vector<float> efficiency;
+    std::vector<int> hitorder;
+
+    bool PRINTS = false;
 
 public:
     TemplateBank();
@@ -44,7 +49,7 @@ public:
     std::vector<temid>  getMostPopulatedTemplates(int howmany);
 
     temid getTemplateID(unsigned int *SPIDs, int count);
-    unsigned int getSPIDfromTemplateID(unsigned long long TemplateID, int index);
+    unsigned int getSPIDfromTemplateID(temid TID, int index);
 
     //tests
     void testTemplateID();

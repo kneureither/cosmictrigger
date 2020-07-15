@@ -13,19 +13,19 @@
 
 void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const float p, const float dca, const float phi, const float theta) {
 
-    //assume that SPIDs are already cleaned (only 4 entries)
+    //assume that SPIDs are already cleaned (only two hits per entry)
     temid TID = getTemplateID(SPIDs, count);
-    TemplateData TD(SPIDs, count, p, dca, phi, theta);
+    TemplateData TD(count, p, dca, phi, theta);
 
     if(AMem.count(TID) > 0) {
         AMem[TID].push_back(TD);
-        printf(" -- appended to entry TID=%#018llX, TID count=%lu\n", TID, AMem[TID].size());
+        std::cout << " -- appended to entry TID=" + TID.toString() + " count=" << AMem[TID].size() << std::endl;
         matchedtemplatecount++;
     } else {
         std::vector<TemplateData> TDlist;
         TDlist.push_back(TD);
         AMem[TID] = TDlist;
-        printf(" -- added new entry TID=%#018llX\n", TID);
+        std::cout << " -- added new entry TID=" + TID.toString() << std::endl;
         newtemplatecount++;
     }
 
@@ -39,19 +39,31 @@ void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const floa
 }
 
 temid TemplateBank::getTemplateID(unsigned int *SPIDs, const int count) {
-    assert(count == 4);
-    temid templateID;
-    templateID = 0x00;
+    assert(count <= TID_LEN);
+    temid TID;
+    unsigned short SPID;
+    int sidindex=0;
 
-    for(int i = 0; i<count; i++) {
-        templateID |= (unsigned long long) (SPIDs[i] & 0xFFFF) << (16 * ((count - 1) - i));
+    for(int i = 0; i<TID_LEN; i++) {
+        SPID = SPIDs[sidindex];
+        if(PRINTS) printf("SPID to be added=%d ", SPID);
+        if(SPC.getLayerFromSPID(SPID) == hitorder[i]) {
+            if(PRINTS) printf(" -- added sidindex=%d as TID index=%d\n", sidindex, i);
+            TID.HIDS[i] = SPID;
+            sidindex++;
+        } else {
+            if(PRINTS) printf(" -- set to 0\n");
+            TID.HIDS[i] = 0;
+        }
     }
-    return templateID;
+    if(PRINTS) printf("\n count=%d, sidindex=%d \n", count, sidindex);
+    assert(count == sidindex);
+    return TID;
 }
 
-unsigned int TemplateBank::getSPIDfromTemplateID(temid TemplateID, int index) {
-    assert(0 <= index && index < 4);
-    return (unsigned int) (TemplateID>>(16*(3-index))) &0xFFFF;
+unsigned int TemplateBank::getSPIDfromTemplateID(temid TID, int index) {
+    assert(0 <= index && index < TID_LEN);
+    return (unsigned int) TID.HIDS[index];
 }
 
 void TemplateBank::testTemplateID() {
@@ -59,11 +71,11 @@ void TemplateBank::testTemplateID() {
     unsigned int SPIDs[4] = {10465, 20345, 20845, 10245};
     for(int i=0; i<4; i++) printf("SPIDs=%d", SPIDs[i]);
     temid TID = getTemplateID(SPIDs, 4);
-    printf("Template ID dec=%llu hex=%#018llX\n", TID, TID);
+    std::cout << "Template ID hex=" + TID.toString() << std::endl;
 
     for(int i = 0; i<4; i++) {
         unsigned int SPID = getSPIDfromTemplateID(TID, i);
-        printf("SID[%d]=%d", i, SPID);
+        printf("SID[%d]=%d  ", i, SPID);
         assert(SPID == SPIDs[i]);
     }
     printf("\n");
@@ -73,6 +85,23 @@ TemplateBank::TemplateBank() {
     this->Nevents.push_back(0);
     this->Ntemplates.push_back(0);
     this->efficiency.push_back(1.0);
+
+    assert(TID_LEN % 2 == 0);
+    hitorder.push_back(3);
+    hitorder.push_back(2);
+    if(TID_LEN > 4) {
+        hitorder.push_back(1);
+        if(TID_LEN > 6) {
+            hitorder.push_back(0);
+            hitorder.push_back(0);
+        }
+        hitorder.push_back(1);
+    }
+    hitorder.push_back(2);
+    hitorder.push_back(3);
+
+    printf("asserting hitorder.size() == TID_LEN : %d == %d\n", hitorder.size(), TID_LEN);
+    assert(hitorder.size() == TID_LEN);
 }
 
 TemplateBank::~TemplateBank() {
@@ -80,10 +109,12 @@ TemplateBank::~TemplateBank() {
 }
 
 void TemplateBank::testFill() {
-    unsigned int SPIDs1[4] = {1, 2, 3, 4};
-    unsigned int SPIDs2[4] = {10465, 20345, 20845, 10245};
-    unsigned int SPIDs3[4] = {234, 1231, 464, 3455};
-    unsigned int SPIDs4[4] = {3, 4, 5, 6};
+    unsigned int SPIDs1[4] = {3, 2, 2, 3};
+    unsigned int SPIDs2[4] = {0x1243, 0x2342, 0x3462, 0x2343};
+    unsigned int SPIDs3[8] = {0x0017, 0x0026, 0x0035, 0x0044, 0x0054, 0x0065, 0x0076, 0x0087};
+    unsigned int SPIDs4[6] = {7, 6,5, 5, 6, 7};
+    unsigned int SPIDs5[4] = {0x0017, 0x0026, 0x0076, 0x0087};
+    unsigned int SPIDs6[4] = {7, 6, 6, 7};
 
     fillTemplate(SPIDs1, 4, 1.0, 1.0, 2.0, 2.0);
     fillTemplate(SPIDs1, 4, 1.0, 1.0, 2.0, 2.0);
@@ -92,9 +123,15 @@ void TemplateBank::testFill() {
     fillTemplate(SPIDs2, 4, 1.0, 1.0, 2.0, 2.0);
     fillTemplate(SPIDs2, 4, 1.0, 1.0, 2.0, 2.0);
     fillTemplate(SPIDs2, 4, 1.0, 1.0, 2.0, 2.0);
-    fillTemplate(SPIDs3, 4, 1.0, 1.0, 2.0, 2.0);
-    fillTemplate(SPIDs4, 4, 1.0, 1.0, 2.0, 2.0);
-    fillTemplate(SPIDs4, 4, 1.0, 1.0, 2.0, 2.0);
+    if(TID_LEN == 8) {
+        fillTemplate(SPIDs3, 8, 1.0, 1.0, 2.0, 2.0);
+        fillTemplate(SPIDs4, 6, 1.0, 1.0, 2.0, 2.0);
+        fillTemplate(SPIDs4, 6, 1.0, 1.0, 2.0, 2.0);
+    } else {
+        fillTemplate(SPIDs5, 4, 1.0, 1.0, 2.0, 2.0);
+        fillTemplate(SPIDs6, 4, 1.0, 1.0, 2.0, 2.0);
+        fillTemplate(SPIDs6, 4, 1.0, 1.0, 2.0, 2.0);
+    }
     printf("- AMem filled with test data!\n");
 }
 
@@ -112,7 +149,7 @@ std::vector<temid> TemplateBank::getMostPopulatedTemplates(int howmany) {
         templQueue.push(tidQueueNode{TID, frequency});
     }
 
-    std::vector<unsigned long long> priorityTemplates;
+    std::vector<temid> priorityTemplates;
     for(int i=0; i<howmany; i++) {
         priorityTemplates.push_back(templQueue.top().TID);
         templQueue.pop();
@@ -150,13 +187,13 @@ void TemplateBank::testGetMostPopTemplates() {
     int howmany=3;
     priorityTemplates = getMostPopulatedTemplates(howmany);
     for(int i=0; i<priorityTemplates.size(); i++) {
-        printf("First run (howmany=%d) priorityTemplates[%d]=%#018llX\n", howmany, i, priorityTemplates[i]);
+        printf("First run (howmany=%d) priorityTemplates[%d]=%s\n", howmany, i, priorityTemplates[i].toString().c_str());
     }
 
     howmany=1;
     priorityTemplates = getMostPopulatedTemplates(howmany);
     for(int i=0; i<priorityTemplates.size(); i++) {
-        printf("second run (howmany=%d) priorityTemplates[%d]=%#018llX\n", howmany, i, priorityTemplates[i]);
+        printf("second run (howmany=%d) priorityTemplates[%d]=%s\n", howmany, i, priorityTemplates[i].toString().c_str());
     }
 
 //    howmany=10; //should throw an error

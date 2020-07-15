@@ -74,7 +74,7 @@ void buildCosmicTemplatesScript(const int dataset) {
 //            continue;
 //        }
 
-        if(PRINTS) printf("\nBUILD COSMIC TRAJ ENTRY %d\n------------------------------\n\n", entryno);
+        if(PRINTS) printf("\nSLIM SEGS ENTRY %d\n------------------------------\n\n", entryno);
         std::vector<unsigned int> SPIDs;
         std::vector<float> xpr;
         std::vector<float> ypr;
@@ -85,8 +85,8 @@ void buildCosmicTemplatesScript(const int dataset) {
         bool enoughhits = false;
 
         // TODO
-        // -- get hits from SlimSegs
-        // -- only use outer layer hits (function needed)
+        // -- get hits from SlimSegs -- check
+        // -- only use outer layer hits (function needed) -- check
         // -- get TIDs for these hits
 
 

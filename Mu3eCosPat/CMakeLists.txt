@@ -14,5 +14,9 @@ set(SRC main.cpp processSegsPrototype.cpp)
 add_executable(Mu3eCosPatPrototype ${SRC})
 target_link_libraries(Mu3eCosPatPrototype patterns)
 
+set(SRC2 main.cpp buildCosmicTrajTemplatesScript.cpp)
+add_executable(Mu3eCosPat ${SRC2})
+target_link_libraries(Mu3eCosPat patterns rootTreeFiles)
+
 #target_link_libraries(Mu3eCosPat ${ROOT_LIBRARIES} f2clib karilib)
 #add_compile_options("-lf2c" "-DMAIN")

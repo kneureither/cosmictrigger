@@ -5,14 +5,16 @@
 #include "TemplateBank.h"
 #include "PatternEngineSingle.h"
 #include "PatternEngine.h"
+#include "buildCosmicTrajTemplatesScript.h"
 
 
 void processSegsPrototype(int, int);
 
 const bool TEST_PES = false;
 const bool TEST_PE = false;
-const bool TEST_TB = false;
-const bool TEST_SEGS_PROCESS = true;
+const bool TEST_TB = true;
+const bool TEST_SEGS_PROCESS = false;
+const bool TEST_buildDB = false;
 
 
 int main(int argc, char *argv[]) {
@@ -51,6 +53,10 @@ int main(int argc, char *argv[]) {
 //    TB.testFill();
         TB.testGetMostPopTemplates();
         TB.displayTemplatePopulationHistogram();
+    }
+
+    if(TEST_buildDB) {
+        buildCosmicTemplatesScript(2);
     }
 
     return 0;

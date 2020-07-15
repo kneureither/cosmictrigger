@@ -5,7 +5,7 @@
 #ifndef COSMICTRIGGER_TEMPLATEDATA_H
 #define COSMICTRIGGER_TEMPLATEDATA_H
 
-#define TID_LEN 8
+#define TID_LEN 4
 
 #include <vector>
 #include <iostream>
@@ -18,7 +18,7 @@ struct TemplateID {
     unsigned short HIDS[TID_LEN];
 
     std::string toString() {
-        char buffer[4*TID_LEN];
+        char buffer[TID_LEN * 4]; //FIXME not working for 24 len. (when TID_LEN = 6)
         for(int i = 0; i<TID_LEN; i++) {
             sprintf(&(buffer[i*4]), "%04X", HIDS[i]);
         }
@@ -28,7 +28,7 @@ struct TemplateID {
     bool operator<(const TemplateID& other) const {
         for(int i=0; i < TID_LEN; i++) {
             if(this->HIDS[i] < other.HIDS[i]) {
-                std::cout << "ordered after inspecting the " << i << " element" << std::endl;
+//                std::cout << "ordered after inspecting the " << i << " element" << std::endl;
                 return true;
             } else if (this->HIDS[i] > other.HIDS[i]){
                 return false;
