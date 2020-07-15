@@ -69,6 +69,10 @@ void buildCosmicTemplatesScript(const int dataset) {
     for (unsigned int entryno = 0; entryno < (MAX_ENTRIES == 0 ? SlimSegs.entries : MAX_ENTRIES); entryno++) {
         SlimSegs.getEntry(entryno);
 
+//        if(SlimSegs.rec_ntriplet < 7) {
+//            continue;
+//        }
+
         if(PRINTS) printf("\nBUILD COSMIC TRAJ ENTRY %d\n------------------------------\n\n", entryno);
         std::vector<unsigned int> SPIDs;
         unsigned int SPID;
@@ -78,9 +82,8 @@ void buildCosmicTemplatesScript(const int dataset) {
         // -- only use outer layer hits (function needed)
         // -- get TIDs for these hits
 
-//        getReferenceHits(SPIDs, SlimSegs.rec_nhit, SlimSegs.ncombinedhits);
 
-        if( 2 <= SlimSegs.rec_ntriplet && SlimSegs.rec_ntriplet <= 8) {
+        if( 2 <= SlimSegs.rec_ntriplet && SlimSegs.rec_ntriplet <= 10) {
             for(int i = 0; i<SlimSegs.layerp.size(); i++) {
                 printf("  --layer=%d\t x=%f, y=%f, z=%f \n", SlimSegs.layerp[i], SlimSegs.xp[i], SlimSegs.yp[i], SlimSegs.zp[i]);
                 if(SlimSegs.layerp[i] == 2 || SlimSegs.layerp[i] == 3) {
@@ -93,63 +96,14 @@ void buildCosmicTemplatesScript(const int dataset) {
             std::cout << "WARNING : triplet count out of bounds - is: " << SlimSegs.rec_ntriplet << std::endl;
         }
 
-        std::vector<int>::iterator itfwd = SlimSegs.layerp.begin();
-        std::vector<int>::iterator itbackw = SlimSegs.layerp.end() - 1;
-        int indexfwd = std::distance(SlimSegs.layerp.begin(), itfwd);
-        int indexbackw = std::distance(SlimSegs.layerp.begin(), itbackw);
-        int layercounter[4] = {0,0,0,0};
-        int countfrontinserted = 0;
-
-        while(itfwd != itbackw) {
-
-            while(itfwd != itbackw) {
-                int layer = *itfwd;
-                if (layer == 3 || layer == 2 || layer == 1 || layer == 0) {
-                    if (layercounter[layer] < 2 ) {
-                        layercounter[layer]++;
-                        SPID = PE.getSuperPixel(SlimSegs.xp[indexfwd], SlimSegs.yp[indexfwd], SlimSegs.zp[indexfwd]);
-                        SPIDs.insert(SPIDs.begin() + countfrontinserted, SPID);
-                        countfrontinserted++;
-                        itfwd++; //der geht zu früh hoch und wird unten dann falsch verglichen
-                        indexfwd = std::distance(SlimSegs.layerp.begin(), itfwd);
-                        break;
-                    } else {
-                        itfwd++;
-                        indexfwd = std::distance(SlimSegs.layerp.begin(), itfwd);
-                        continue;
-                    }
-                }
-            }
-
-
-            while((itfwd) != itbackw) {
-                int layer = *itbackw;
-                if (layer == 3 || layer == 2 || layer == 1 || layer == 0) {
-                    if (layercounter[layer] < 2) {
-                        layercounter[layer]++;
-                        SPID = PE.getSuperPixel(SlimSegs.xp[indexbackw], SlimSegs.yp[indexbackw],
-                                                SlimSegs.zp[indexbackw]);
-                        SPIDs.insert(SPIDs.begin() + countfrontinserted, SPID);
-                        itbackw--;
-                        indexbackw = std::distance(SlimSegs.layerp.begin(), itbackw);
-                        break;
-                    } else {
-                        itbackw--;
-                        indexbackw = std::distance(SlimSegs.layerp.begin(), itbackw);
-                        continue;
-                    }
-                }
-            }
-
-
-        }
+        getSymmetricRefHits(SPIDs, SlimSegs, PE);
 
         for(int i=0; i<SPIDs.size(); i++) {
             printf(" -- SPIDS =%#X \n", SPIDs[i]);
         }
 
 //        assert(SPIDs.size() == 4);
-        assert(SlimSegs.rec_ntriplet < 7);
+//        assert(SlimSegs.rec_ntriplet < 7);
 
 //        if(SlimSegs.rec_ntriplet == 2) { // 4-hit tracks
 //
