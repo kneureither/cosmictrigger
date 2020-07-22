@@ -6,7 +6,8 @@
 #include "utilityFunctions.h"
 
 int main(int argc, char *argv[]) {
-    slimSegsDataScript(2, 14, false);
+//    slimSegsDataScript(4, 25, true);
+    //data set 4 contains 14,16,19,20,21,22,23,24,25
 }
 
 

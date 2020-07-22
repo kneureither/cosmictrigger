@@ -41,7 +41,6 @@ void slimSegsDataScript(const int outnum, const int run, const bool appendToFile
     check_create_directory(pathtoplots);
     check_create_directory(pathtorunplots);
 
-
     // FILE FOR WRITING
     TFile toutF(outputfile.c_str(), (appendToFile ? "update" : "recreate"));
     if (!toutF.IsOpen()) {
