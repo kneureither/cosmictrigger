@@ -41,9 +41,8 @@ void buildCosmicTemplatesScript(const int dataset) {
     check_create_directory(pathtorunplots);
 
     //Get the Pattern Engine and Template Manager
-    PatternEngine PE(1000, 4, pathtorunplots);
+    PatternEngine PE(5, 30, pathtorunplots);
     PE.PRINTS = PRINTS;
-    PE.displayBinBoundaries(); //check if it worked and was initialized correctly.
     TemplateBank TB(pathtorunplots);
     TB.PRINTS = PRINTS;
 
@@ -100,11 +99,6 @@ void buildCosmicTemplatesScript(const int dataset) {
             unsigned int SPID;
             bool enoughhits = 0;
 
-            // TODO
-            // -- get hits from SlimSegs -- check
-            // -- only use outer layer hits (function needed) -- check
-            // -- get TIDs for these hits
-
 
             enoughhits = getSymmetricRefHits(xpr, ypr, zpr, layerpr, SlimSegs, 4 - (TID_LEN / 2));
             if(!enoughhits) {
@@ -113,8 +107,10 @@ void buildCosmicTemplatesScript(const int dataset) {
             }
 
             for(int i = 0; i<SlimSegs.layerp.size(); i++) {
+//                SPID = PE.getSuperPixel(SlimSegs.xp[i], SlimSegs.yp[i], SlimSegs.zp[i]);
                 if(PRINTS) printf("  --layer=%d\t x=%f, y=%f, z=%f \n", SlimSegs.layerp[i], SlimSegs.xp[i], SlimSegs.yp[i], SlimSegs.zp[i]);
             }
+//            printf("\n");
 
             used_entries++;
 
@@ -129,12 +125,46 @@ void buildCosmicTemplatesScript(const int dataset) {
         }
     }
 
+    tinF.Close();
+
+
+    //open new TFile for plots
+    TFile * tF = new TFile((pathtorunplots +"TemplateBank_dataset_" +
+            get_padded_string(dataset, 3, '0') + "_plots.root").c_str(), "recreate");
+    if (!tF->IsOpen()) {
+        std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
+    }
+
+    //add some meta data for the
+    int datast = dataset;
+    TTree tT_met("MetadataTree","Metadata associated with these plots (SID config and dataset)");
+    tT_met.Branch("dataset", &datast, "dataset/I");
+    tT_met.Branch("area0Description", &PE.areaDescript[0], "area0Description/C");
+    tT_met.Branch("area1Description", &PE.areaDescript[1], "area1Description/C");
+    tT_met.Branch("area2Description", &PE.areaDescript[2], "area2Description/C");
+    tT_met.Branch("wBins0", &PE.WBins[0], "wBins0/I");
+    tT_met.Branch("wBins1", &PE.WBins[1], "wBins1/I");
+    tT_met.Branch("wBins2", &PE.WBins[2], "wBins2/I");
+    tT_met.Branch("zBins0", &PE.ZBins[0], "zBins0/I");
+    tT_met.Branch("zBins1", &PE.ZBins[1], "zBins1/I");
+    tT_met.Branch("zBins2", &PE.ZBins[2], "zBins2/I");
+    tT_met.Branch("mode", &PE.mode, "mode/I");
+    tT_met.Fill();
+    tT_met.Write();
+
+    //Make plots and add them to the root file
+    PE.displayBinBoundaries(); //check if it worked and was initialized correctly.
     PE.displayBinWeightDistribution();
     PE.closePlot();
     TB.displayTemplatePopulationHistogram(PE.getModeTag());
+    TB.displayEfficiency(PE.getModeTag());
+
+    //close plot root file
+    tF->Close();
+
+    TB.getMostPopulatedTemplates(50);
 
     std::cout << "\n\n>>>>> GENERAL STATS <<<<<\n\n";
-
 
     std::cout << " - total entries processed: " << processed_entries << endl;
     std::cout << "   of which " << used_entries << " (" << used_entries / (float) processed_entries *100 << "%) were used" << std::endl;

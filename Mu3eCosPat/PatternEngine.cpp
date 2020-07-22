@@ -15,6 +15,8 @@ PatternEngine::PatternEngine(const int spWBins, const int spZBins, std::string p
         this->ZBins[area] = spZBins;
     }
     this->plottingpath = plottingpath;
+    this->mode = 0;
+
  }
 
 PatternEngine::PatternEngine(const int spWBinsCenter, const int spZBinsCenter,
@@ -30,6 +32,7 @@ PatternEngine::PatternEngine(const int spWBinsCenter, const int spZBinsCenter,
         this->ZBins[area] = spZBinsRecurl;
     }
     this->plottingpath = plottingpath;
+    this->mode = 0;
 }
 
 int PatternEngine::getArea(const float z) {

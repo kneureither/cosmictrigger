@@ -315,7 +315,7 @@ void PatternEngineSingle::displayBinBoundaries() {
     canvas->SetGrid(1,1);
     canvas->SetTicks(1, 1);
 
-    TH2F * grid = new TH2F("h", ("Superpixel bin grid boundaries "+ this->getAreaTag()).c_str() , zBinCount, centralDetectorZmin, centralDetectorZmax, wBinCount, widthMin, widthMax);
+    TH2F * grid = new TH2F(("h_bins" + this->getAreaTag()).c_str(), ("Superpixel bin grid boundaries "+ this->getAreaTag()).c_str() , zBinCount, centralDetectorZmin, centralDetectorZmax, wBinCount, widthMin, widthMax);
     grid->SetStats(false);
     grid->GetYaxis()->SetBinLabel(1, "-#pi");
     grid->GetYaxis()->SetBinLabel((int) (grid->GetNbinsY() / 2), "0");
@@ -337,8 +337,11 @@ void PatternEngineSingle::displayBinBoundaries() {
         boundaries.push_back(l);
     }
 
-    for(int i = 0; i< boundaries.size(); i++) boundaries[i]->Draw();
+    for(int i = 0; i< boundaries.size(); i++){
+        boundaries[i]->Draw();
+    }
 
+    canvas->Write();
     canvas->Print((this->plottingpath + this->runspecs + pltf()).c_str(), "pdf");
 
 }
@@ -351,7 +354,7 @@ void PatternEngineSingle::displayBinWeightDistributionLayer(int layer) {
     canvas->SetGrid(1,1);
     canvas->SetTicks(1, 1);
 
-    TH2F * h_binweights = new TH2F("h", ("Superpixel bin weights layer " + layerno + " " + getAreaTag()).c_str(), zBinCount, 0, zBinCount, wBinCount, 0, wBinCount);
+    TH2F * h_binweights = new TH2F(("h_binweights" + layerno + getAreaTag()).c_str(), ("Superpixel bin weights layer " + layerno + " " + getAreaTag()).c_str(), zBinCount, 0, zBinCount, wBinCount, 0, wBinCount);
     h_binweights->SetStats(true);
     labelAxis(h_binweights, "z bins", "#phi bins");
 
@@ -368,19 +371,20 @@ void PatternEngineSingle::displayBinWeightDistributionLayer(int layer) {
 //    std::cout << "Bin z :" << h_binweights->GetXaxis()->GetBinWidth(1) << std::endl;
 
     h_binweights->Draw("colz");
+    h_binweights->Write();
 
     canvas->Print((this->plottingpath + this->runspecs + pltf()).c_str(), "pdf");
 
-    TFile * tF = new TFile("output.root", "RECREATE");
-    h_binweights->Write();
-    TH1F * tP = (TH1F*)h_binweights->ProjectionY();
-    tP->Write();
-    tF->Close();
+//    TFile * tF = new TFile("output.root", "RECREATE");
+//    h_binweights->Write();
+//    TH1F * tP = (TH1F*)h_binweights->ProjectionY();
+//    tP->Write();
+//    tF->Close();
 
 }
 
 void PatternEngineSingle::displayBinWeightDistribution() {
-    for(int i=0; i<4; i++) {
+    for(int i=(this->area == 0 ? 0 : 2); i<4; i++) {
         this->displayBinWeightDistributionLayer(i);
     }
 }
@@ -405,17 +409,12 @@ void PatternEngineSingle::closePlot() {
 }
 
 std::string PatternEngineSingle::getAreaTag() {
-    if(this->area == 0) {
-        return "central";
-    } else if (this->area == 1) {
-        return "recurlR";
-    } else if (this->area == 2) {
-        return "recurlL";
+    if(0 <= this->area && this->area <= 2) {
+        return std::string(areaDescript[this->area]);
     } else {
         return "area" + get_string(this->area);
     }
 }
-
 
 //// <------------ PRINT GRAPHS AND PLOTS
 

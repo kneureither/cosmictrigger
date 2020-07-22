@@ -64,8 +64,8 @@ private:
     int totalBinCount{};
 
     //only center region implemented for now
-    float centralDetectorZmin = -200.00;
-    float centralDetectorZmax = 200.00;
+    float centralDetectorZmin;
+    float centralDetectorZmax;
     float centralDetectorLength;
 
     float widthMax{};

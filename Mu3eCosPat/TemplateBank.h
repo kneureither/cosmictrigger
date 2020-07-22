@@ -25,7 +25,9 @@ struct tidQueueNode {
 
 class TemplateBank {
 private:
+    //stores cosmic templates
     AssociativeMemory AMem;
+    //stores found matches with data that is checked
     CheckedMemory CMem;
     //some data structure that stores population of templates: THF1 ?
     SPCalculations SPC;
@@ -34,8 +36,8 @@ private:
     unsigned int newtemplatecount = 0;
     unsigned int templatecount = 0;
     unsigned int matchedtemplatecount = 0;
-    std::vector<unsigned int> Nevents;
-    std::vector<unsigned int>Ntemplates;
+    std::vector<float> Nevents;
+    std::vector<float>Ntemplates;
     std::vector<float> efficiency;
     std::vector<int> hitorder;
 
@@ -51,6 +53,8 @@ public:
     bool PRINTS = false;
 
     void displayTemplatePopulationHistogram(std::string filetag); //how many with one, two, three, ..., n roads stored
+    void displayEfficiency(std::string filetag);
+
     void fillTemplate(unsigned int * SPIDs, int count, float p, float dca, float phi, float theta);
     bool checkTemplate(temid &TID);
 
@@ -60,7 +64,7 @@ public:
     temid getTemplateID(unsigned int *SPIDs, int count);
     unsigned int getSPIDfromTemplateID(temid TID, int index);
 
-    void writeAMtoFile(std::string path);
+    void writeAMtoFile(std::string path, int zBins, int wBins, int dataset, int mode);
     void readAMfromFile(std::string path);
 
     void resetStats();

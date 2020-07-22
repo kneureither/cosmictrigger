@@ -20,7 +20,7 @@ const bool TEST_buildDB = true;
 int main(int argc, char *argv[]) {
 
     if(TEST_SEGS_PROCESS) {
-        processSegsPrototype(10, 0);
+        processSegsPrototype(14, 0);
     }
 
     if(TEST_PE) {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
     }
 
     if(TEST_buildDB) {
-        buildCosmicTemplatesScript(3);
+        buildCosmicTemplatesScript(4);
     }
 
     return 0;

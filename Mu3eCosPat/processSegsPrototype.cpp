@@ -43,7 +43,7 @@ void processSegsPrototype(int run, int FILTER) {
     PatternEngine PE(20, 100, pathtorunplots);
     PE.displayBinBoundaries();
 
-    TemplateBank TB;
+    TemplateBank TB(pathtorunplots);
 
     std::string filtertag;
 
@@ -185,10 +185,11 @@ void processSegsPrototype(int run, int FILTER) {
         std::vector<int> sids;
         std::vector<double> phi_hits;
         std::vector<double> thetas;
+        std::vector<int> layers;
 
-        int ncombinedhits = combineHits(xp, yp, zp, sids, phi_hits, thetas, rec_nhit, rec_ntriplet,
-                                        x00, x10, x01, x20, x21, y00, y10, y01, y20, y21, z00, z10, z01, z20, z21,
-                                        sid00, sid10, sid01, sid20, sid21, rec_tan01, rec_tan12, rec_lam01, rec_lam12);
+
+        int ncombinedhits = combineBasicHits(xp, yp, zp, phi_hits, thetas, layers, rec_nhit, rec_ntriplet, x00, x20, y00, y20, z00, z20, sid00, sid20, rec_tan01, rec_tan12, rec_lam01, rec_lam12);
+
 
         if(true) {
             for(int i = 0; i < ncombinedhits; i++) {
@@ -290,7 +291,7 @@ void processSegsPrototype(int run, int FILTER) {
     PE.displayBinWeightDistribution();
     PE.closePlot();
 
-    TB.displayTemplatePopulationHistogram();
+    TB.displayTemplatePopulationHistogram("prototype");
 
     printf("Entries processed: %d, used entries=%d \n, entries with too many=%d, entries with too little=%d", processed_entries, used_entries, too_many, twohittracks);
 

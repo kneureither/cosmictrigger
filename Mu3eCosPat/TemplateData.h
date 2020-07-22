@@ -11,6 +11,7 @@
 #include <iostream>
 #include <algorithm>
 #include <string>
+#include <sstream>
 #include "basicDefines.h"
 
 struct TemplateID {
@@ -18,11 +19,13 @@ struct TemplateID {
     unsigned short HIDS[TID_LEN];
 
     std::string toString() {
-        char buffer[TID_LEN * 4]; //FIXME not working for 24 len. (when TID_LEN = 6)
+        std::stringstream ss;
+        char buffer[4]; //FIXME not working for 24 len. (when TID_LEN = 6)
         for(int i = 0; i<TID_LEN; i++) {
-            sprintf(&(buffer[i*4]), "%04X", HIDS[i]);
+            sprintf(buffer, "%04X", HIDS[i]);
+            ss << buffer;
         }
-        return buffer;
+        return ss.str();
     }
 
     bool operator<(const TemplateID& other) const {

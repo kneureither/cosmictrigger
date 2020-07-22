@@ -11,10 +11,6 @@
 
 class PatternEngine : public SPCalculations {
 private:
-    PatternEngineSingle PES[areaCount];
-
-    int WBins[areaCount];
-    int ZBins[areaCount];
 
     std::string plottingpath;
 
@@ -29,6 +25,11 @@ public:
     void displayBinWeightDistribution();
     std::string getModeTag();
     void closePlot();
+
+    PatternEngineSingle PES[areaCount];
+    int WBins[areaCount];
+    int ZBins[areaCount];
+    int mode;
 };
 
 

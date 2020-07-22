@@ -15,6 +15,7 @@ public:
     //area index convention: 0=central, 1=recurl right, 2=recurl left
     const float DetectorZmin[areaCount] = {-200.00, 200, -600};
     const float DetectorZmax[areaCount] = {200.00, 600, -200};
+    char areaDescript[areaCount][8] = {"central", "recurlR", "recurlL"};
     const float layerBoundaries[5] = {0.0, 26.00, 51.0, 78.5, 100.00}; //radial decision boundaries for layers
 
     ////Utility functions

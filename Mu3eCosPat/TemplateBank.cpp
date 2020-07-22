@@ -5,9 +5,13 @@
 
 #include "TemplateBank.h"
 #include "TemplateData.h"
+#include "utilityFunctions.h"
 #include <queue>
 #include <TROOT.h>
 #include <TH1F.h>
+#include <TGraph.h>
+#include <TCanvas.h>
+#include <TTree.h>
 #include "plots.h"
 
 
@@ -19,21 +23,25 @@ void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const floa
 
     if(AMem.count(TID) > 0) {
         AMem[TID].push_back(TD);
-        std::cout << " -- appended to entry TID=" + TID.toString() + " count=" << AMem[TID].size() << std::endl;
+//        std::cout << " -- appended to entry TID=" + TID.toString() + " count=" << AMem[TID].size() << std::endl;
         matchedtemplatecount++;
     } else {
         std::vector<TemplateData> TDlist;
         TDlist.push_back(TD);
         AMem[TID] = TDlist;
-        std::cout << " -- added new entry TID=" + TID.toString() << std::endl;
+//        std::cout << " -- added new entry TID=" + TID.toString() << std::endl;
         newtemplatecount++;
     }
 
-    if(templatecount / 100 == 0) {
-        float efficiency = 1.0 - (newtemplatecount - Nevents[Nevents.size() - 1]) / (float) (templatecount - Ntemplates[Ntemplates.size()-1]);
+    templatecount = matchedtemplatecount + newtemplatecount;
+    if((templatecount % (int) pow((float) 10, (float) std::floor(log10(templatecount))) == 0) && (templatecount >= 1000)) {
 
-        this->Nevents.push_back(matchedtemplatecount + newtemplatecount);
-        this->Ntemplates.push_back(newtemplatecount);
+        float newt = newtemplatecount - Ntemplates[Ntemplates.size() - 1];
+        float matched = matchedtemplatecount - Nevents[Nevents.size() - 1];
+        float efficiency = 1.0 - (newtemplatecount - Ntemplates[Ntemplates.size() - 1]) / (float) (templatecount - Nevents[Nevents.size() - 1]);
+
+        this->Nevents.push_back((float) (templatecount));
+        this->Ntemplates.push_back((float)newtemplatecount);
         this->efficiency.push_back(efficiency);
     }
 }
@@ -73,7 +81,7 @@ temid TemplateBank::getTemplateID(unsigned int *SPIDs, const int count) {
             TID.HIDS[i] = 0;
         }
     }
-    printf("\nasserting... count=%d, sidindex=%d \n", count, sidindex);
+    if(PRINTS) printf("\nasserting... count=%d, sidindex=%d \n", count, sidindex);
     assert(count == sidindex);
     return TID;
 }
@@ -101,7 +109,7 @@ void TemplateBank::testTemplateID() {
 TemplateBank::TemplateBank(std::string plottingpath) {
     this->Nevents.push_back(0);
     this->Ntemplates.push_back(0);
-    this->efficiency.push_back(1.0);
+    this->efficiency.push_back(0.0);
     this->plottingpath = plottingpath;
 
     assert(TID_LEN % 2 == 0);
@@ -185,9 +193,13 @@ std::vector<temid> TemplateBank::getMostPopulatedTemplates(int howmany) {
         templQueue.push(tidQueueNode{TID, frequency});
     }
 
+    std::cout << " -- Getting the " << howmany << " most populated templates: " << std::endl;
+
     std::vector<temid> priorityTemplates;
     for(int i=0; i<howmany; i++) {
         priorityTemplates.push_back(templQueue.top().TID);
+        frequency = templQueue.top().frequency;
+        std::cout << "  *rank["  << i+1 << "] " << priorityTemplates[i].toString() << "  frequency: " << frequency << std::endl;
         templQueue.pop();
     }
     return priorityTemplates;
@@ -199,8 +211,10 @@ void TemplateBank::displayTemplatePopulationHistogram(std::string filetag) {
     canvas->SetRightMargin(0.15);
     canvas->SetGrid(1,1);
     canvas->SetTicks(1, 1);
+    canvas->SetLogy(1);
 
-    TH1F * h_templfreq = new TH1F("h", "Template frequency distribution", 30, 0, 10);
+    TH1F * h_templfreq = new TH1F("h", "Template frequency distribution", 50, 0, 50);
+    h_templfreq->SetName("h_templfreq");
     h_templfreq->SetStats(true);
     labelAxis(h_templfreq, "frequency of templates", "count");
     AssociativeMemory::iterator it;
@@ -213,8 +227,56 @@ void TemplateBank::displayTemplatePopulationHistogram(std::string filetag) {
         h_templfreq->Fill(frequency);
     }
     h_templfreq->Draw();
+    h_templfreq->Write();
     saveCanvas(canvas, ("templateFrequency" + filetag).c_str(), plottingpath);
 }
+
+void TemplateBank::displayEfficiency(std::string filetag) {
+    auto *canvas = new TCanvas("template bank stats", "cosmic template bank stats", 1200, 900);
+
+    canvas->SetLeftMargin(0.15);
+    canvas->SetRightMargin(0.15);
+    canvas->SetGrid(1,1);
+    canvas->SetTicks(1, 1);
+    canvas->SetLogx(1);
+
+    auto *pad1 = new TPad("template efficiency", "template efficiency", 0, 0.5, 1, 1);
+    pad1->Draw();
+    auto *pad2 = new TPad("template count", "template count", 0, 0, 1, 0.5);
+    pad2->Draw();
+
+    //Efficiency
+    TGraph *g_efficiency = new TGraph( Nevents.size(),&Nevents[0],&efficiency[0]);
+    g_efficiency->SetName("g_efficiency");
+    g_efficiency->SetTitle("template efficiency");
+    labelAxis(g_efficiency, "N events", "efficiency");
+    setGraphRange(g_efficiency,100, Nevents[Nevents.size()-1], 0, 1);
+
+    g_efficiency->SetLineColor(kBlue);
+    g_efficiency->SetMarkerStyle(23);
+    g_efficiency->SetMarkerSize(1);
+    pad1->cd();
+    g_efficiency->Draw("ALP");
+    g_efficiency->Write();
+
+    //template count
+    TGraph *g_tnumber = new TGraph( Nevents.size(),&Nevents[0],&Ntemplates[0]);
+    g_tnumber->SetName("g_tnumber");
+    g_tnumber->SetTitle("template count");
+    labelAxis(g_tnumber, "N events", "number of template");
+    setGraphRange(g_tnumber,100, Nevents[Nevents.size()-1], 0, Ntemplates[Ntemplates.size()-1]);
+
+    g_tnumber->SetLineColor(kRed);
+    g_tnumber->SetMarkerStyle(23);
+    g_tnumber->SetMarkerSize(1);
+    pad2->cd();
+    g_tnumber->Draw("ALP");
+    g_tnumber->Write();
+
+    canvas->Update();
+    saveCanvas(canvas, ("templateBankStats" + filetag).c_str(), plottingpath);
+}
+
 
 void TemplateBank::testGetMostPopTemplates() {
     testFill();
@@ -236,4 +298,23 @@ void TemplateBank::testGetMostPopTemplates() {
 //    priorityTemplates = getMostPopulatedTemplates(howmany);
 }
 
+void TemplateBank::writeAMtoFile(std::string path, int zBins, int wBins, int dataset, int mode) {
+    TFile tF("CosmicPatternDatabase.root", "recreate");
+    if (!tF.IsOpen()) {
+        std::cout << "[ERROR] File " << tF.GetName() << " is not open!" << std::endl;
+    }
+    TTree tT_spconfig("ConfigTree","Tree with Superpixel configuration information");
+    TTree tT_tids("TIDTree","Tree with Template IDentification (TID) number");
+
+    short TID[TID_LEN];
+    int freq;
+    int tid_len = TID_LEN;
+
+    tT_tids.Branch("TID", &TID, ("TID["+ get_string(tid_len) + "]/s").c_str());
+    tT_tids.Branch("freq", &freq, ("freq/I"));
+
+    tT_spconfig.Branch("tid_len", &tid_len, "tid_len/I");
+    tT_spconfig.Branch("tid_len", &TID, "tid_len/I");
+    tT_spconfig.Branch("tid_len", &TID, "tid_len/I");
+}
 
