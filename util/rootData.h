@@ -25,6 +25,21 @@ static unsigned int get_layer(T sid) {
     }
 }
 
+static unsigned int get_layer(float x, float y) {
+    float r = sqrt(pow(x,2) + pow(y,2));
+    const float layerBoundaries[5] = {0.0, 26.00, 51.0, 78.5, 100.00};
+    if (layerBoundaries[0] <= r && r <= layerBoundaries[1]) {
+        return 0;
+    } else if (layerBoundaries[1] < r && r <= layerBoundaries[2]) {
+        return 1;
+    } else if (layerBoundaries[2] < r && r <= layerBoundaries[3]) {
+        return 2;
+    } else if (layerBoundaries[3] < r && r <= layerBoundaries[4]) {
+        return 3;
+    } else {
+        return -1;
+    }
+}
 
 static int combineHits(std::vector<double> &xp, std::vector<double> &yp, std::vector<double> &zp,
                 std::vector<int> &sids, std::vector<double> &phi_tracks, std::vector<double> &thetas, int nhits, int ntriplets,
@@ -193,7 +208,7 @@ static int combineBasicHits(std::vector<double> &xp, std::vector<double> &yp, st
         xp.push_back(x00[i]);
         yp.push_back(y00[i]);
         zp.push_back(z00[i]);
-        layers.push_back((int) get_layer(sid00[i]));
+        layers.push_back((int) get_layer(xp[xp.size()-1], yp[yp.size()-1]));
         phi_tracks.push_back(tan01[(i == 0 ? 0 : i-1)]);
         thetas.push_back(PI / 2 - lam01[(i == 0 ? 0 : i-1)]);
     }
@@ -201,7 +216,7 @@ static int combineBasicHits(std::vector<double> &xp, std::vector<double> &yp, st
         xp.push_back(x20[i]);
         yp.push_back(y20[i]);
         zp.push_back(z20[i]);
-        layers.push_back((int) get_layer(sid20[i]));
+        layers.push_back((int) get_layer(xp[xp.size()-1], yp[yp.size()-1]));
         phi_tracks.push_back(tan12[i]);
         thetas.push_back(PI / 2 - lam12[i]);
     }
