@@ -12,7 +12,7 @@
 
 //typedef unsigned long long temid;
 typedef TemplateID temid;
-typedef std::map<temid, std::vector<TemplateData>> AssociativeMemory;
+typedef std::map<temid, TemplateData> AssociativeMemory;
 typedef std::map<temid, int> CheckedMemory;
 
 struct tidQueueNode {

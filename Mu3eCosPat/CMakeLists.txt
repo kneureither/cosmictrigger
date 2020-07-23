@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 #SET_TARGET_PROPERTIES(util PROPERTIES LINKER_LANGUAGE C)
 #target_link_libraries(cospat ${ROOT_LIBRARIES})
 
-add_library(patterns SHARED SuperPixelHit.cpp PatternEngineSingle.cpp TemplateBank.cpp TemplateData.cpp PatternEngine.cpp SPCalculations.cpp)
+add_library(patterns SHARED SuperPixelHit.cpp PatternEngineSingle.cpp TemplateBank.cpp TemplateData.cpp PatternEngine.cpp SPCalculations.cpp ../root/TemplateDatabase.cpp)
 target_link_libraries(patterns ${ROOT_LIBRARIES})
 
 set(SRC main.cpp processSegsPrototype.cpp)

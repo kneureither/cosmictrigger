@@ -130,7 +130,7 @@ void buildCosmicTemplatesScript(const int dataset) {
 
     //open new TFile for plots
     TFile * tF = new TFile((pathtorunplots +"TemplateBank_dataset_" +
-            get_padded_string(dataset, 3, '0') + "_plots.root").c_str(), "UPDATE");
+            get_padded_string(dataset, 3, '0') + "_plots.root").c_str(), "recreate");
     if (!tF->IsOpen()) {
         std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
     }

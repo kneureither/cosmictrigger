@@ -20,16 +20,14 @@ void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const floa
 
     //assume that SPIDs are already cleaned (only two hits per entry)
     temid TID = getTemplateID(SPIDs, count);
-    TemplateData TD(count, p, dca, phi, theta);
 
     if(AMem.count(TID) > 0) {
-        AMem[TID].push_back(TD);
+        AMem[TID].add_track(count, p, dca, phi, theta);
 //        std::cout << " -- appended to entry TID=" + TID.toString() + " count=" << AMem[TID].size() << std::endl;
         matchedtemplatecount++;
     } else {
-        std::vector<TemplateData> TDlist;
-        TDlist.push_back(TD);
-        AMem[TID] = TDlist;
+        TemplateData TD = TemplateData(count, p, dca, phi, theta);
+        AMem[TID] = TD;
 //        std::cout << " -- added new entry TID=" + TID.toString() << std::endl;
         newtemplatecount++;
     }
@@ -209,7 +207,7 @@ std::vector<temid> TemplateBank::getMostPopulatedTemplates(int howmany) {
 
     for(it = AMem.begin(); it != AMem.end(); it++){
         TID = it->first;
-        frequency = (it->second).size();
+        frequency = (it->second).frequency;
         templQueue.push(tidQueueNode{TID, frequency});
     }
 
@@ -243,7 +241,7 @@ void TemplateBank::displayTemplatePopulationHistogram(std::string filetag) {
     unsigned int frequency;
 
     for(it = AMem.begin(); it != AMem.end(); it++){
-        frequency = (it->second).size();
+        frequency = (it->second).frequency;
         h_templfreq->Fill(frequency);
     }
     h_templfreq->Draw();
