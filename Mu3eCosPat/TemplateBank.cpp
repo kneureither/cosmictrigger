@@ -13,6 +13,7 @@
 #include <TCanvas.h>
 #include <TTree.h>
 #include "plots.h"
+#include "TemplateDatabase.h"
 
 
 void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const float p, const float dca, const float phi, const float theta) {
@@ -298,11 +299,14 @@ void TemplateBank::testGetMostPopTemplates() {
 //    priorityTemplates = getMostPopulatedTemplates(howmany);
 }
 
-void TemplateBank::writeAMtoFile(std::string path, int zBins, int wBins, int dataset, int mode) {
-    TFile tF("CosmicPatternDatabase.root", "recreate");
+void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, const char **areaDescript,
+        const int &dataset, const int &mode, std::string mode_description) {
+    std::string customnametag = ""; //dataset, mode, Bins?
+    TFile tF((path + "CosmicPatternDatabase_" + customnametag + ".root").c_str(), "recreate");
     if (!tF.IsOpen()) {
         std::cout << "[ERROR] File " << tF.GetName() << " is not open!" << std::endl;
     }
+
     TTree tT_spconfig("ConfigTree","Tree with Superpixel configuration information");
     TTree tT_tids("TIDTree","Tree with Template IDentification (TID) number");
 
@@ -310,11 +314,7 @@ void TemplateBank::writeAMtoFile(std::string path, int zBins, int wBins, int dat
     int freq;
     int tid_len = TID_LEN;
 
-    tT_tids.Branch("TID", &TID, ("TID["+ get_string(tid_len) + "]/s").c_str());
-    tT_tids.Branch("freq", &freq, ("freq/I"));
-
-    tT_spconfig.Branch("tid_len", &tid_len, "tid_len/I");
-    tT_spconfig.Branch("tid_len", &TID, "tid_len/I");
-    tT_spconfig.Branch("tid_len", &TID, "tid_len/I");
+    TemplateDatabaseWrite TDB = TemplateDatabaseWrite(tT_spconfig, tT_tids, dataset, zBins, wBins, areaDescript,
+            mode, this->efficiency[this->efficiency.size() - 1], mode_description);
 }
 
