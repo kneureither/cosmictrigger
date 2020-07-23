@@ -92,21 +92,6 @@ unsigned int TemplateBank::getSPIDfromTemplateID(temid TID, int index) {
     return (unsigned int) TID.HIDS[index];
 }
 
-void TemplateBank::testTemplateID() {
-//    printf("1 & 0xFFFF = %#018llX\n", (unsigned long long) (1 & 0xFFFF) << 48);
-    unsigned int SPIDs[4] = {10465, 20345, 20845, 10245};
-    for(int i=0; i<4; i++) printf("SPIDs=%d", SPIDs[i]);
-    temid TID = getTemplateID(SPIDs, 4);
-    std::cout << "Template ID hex=" + TID.toString() << std::endl;
-
-    for(int i = 0; i<4; i++) {
-        unsigned int SPID = getSPIDfromTemplateID(TID, i);
-        printf("SID[%d]=%d  ", i, SPID);
-        assert(SPID == SPIDs[i]);
-    }
-    printf("\n");
-}
-
 TemplateBank::TemplateBank(std::string plottingpath) {
     this->Nevents.push_back(0);
     this->Ntemplates.push_back(0);
@@ -133,6 +118,21 @@ TemplateBank::TemplateBank(std::string plottingpath) {
 
 TemplateBank::~TemplateBank() {
     //TODO call destructors of class members
+}
+
+void TemplateBank::testTemplateID() {
+//    printf("1 & 0xFFFF = %#018llX\n", (unsigned long long) (1 & 0xFFFF) << 48);
+    unsigned int SPIDs[4] = {10465, 20345, 20845, 10245};
+    for(int i=0; i<4; i++) printf("SPIDs=%d", SPIDs[i]);
+    temid TID = getTemplateID(SPIDs, 4);
+    std::cout << "Template ID hex=" + TID.toString() << std::endl;
+
+    for(int i = 0; i<4; i++) {
+        unsigned int SPID = getSPIDfromTemplateID(TID, i);
+        printf("SID[%d]=%d  ", i, SPID);
+        assert(SPID == SPIDs[i]);
+    }
+    printf("\n");
 }
 
 void TemplateBank::testFill() {
@@ -162,7 +162,6 @@ void TemplateBank::testFill() {
     printf("- AMem filled with test data!\n");
 }
 
-
 void TemplateBank::testCheck() {
     assert(AMem.size() > 0);
     unsigned int SPIDs5[4] = {0x0017, 0x0026, 0x0076, 0x0087};
@@ -178,6 +177,26 @@ void TemplateBank::testCheck() {
     assert(checkTemplate(TID1) == true);
     assert(checkTemplate(TID2) == false);
     assert(checkTemplate(TID3) == true);
+}
+
+void TemplateBank::testGetMostPopTemplates() {
+    testFill();
+    std::vector<temid> priorityTemplates;
+
+    int howmany=3;
+    priorityTemplates = getMostPopulatedTemplates(howmany);
+    for(int i=0; i<priorityTemplates.size(); i++) {
+        printf("First run (howmany=%d) priorityTemplates[%d]=%s\n", howmany, i, priorityTemplates[i].toString().c_str());
+    }
+
+    howmany=1;
+    priorityTemplates = getMostPopulatedTemplates(howmany);
+    for(int i=0; i<priorityTemplates.size(); i++) {
+        printf("second run (howmany=%d) priorityTemplates[%d]=%s\n", howmany, i, priorityTemplates[i].toString().c_str());
+    }
+
+//    howmany=10; //should throw an error
+//    priorityTemplates = getMostPopulatedTemplates(howmany);
 }
 
 std::vector<temid> TemplateBank::getMostPopulatedTemplates(int howmany) {
@@ -278,29 +297,10 @@ void TemplateBank::displayEfficiency(std::string filetag) {
     saveCanvas(canvas, ("templateBankStats" + filetag).c_str(), plottingpath);
 }
 
-
-void TemplateBank::testGetMostPopTemplates() {
-    testFill();
-    std::vector<temid> priorityTemplates;
-
-    int howmany=3;
-    priorityTemplates = getMostPopulatedTemplates(howmany);
-    for(int i=0; i<priorityTemplates.size(); i++) {
-        printf("First run (howmany=%d) priorityTemplates[%d]=%s\n", howmany, i, priorityTemplates[i].toString().c_str());
-    }
-
-    howmany=1;
-    priorityTemplates = getMostPopulatedTemplates(howmany);
-    for(int i=0; i<priorityTemplates.size(); i++) {
-        printf("second run (howmany=%d) priorityTemplates[%d]=%s\n", howmany, i, priorityTemplates[i].toString().c_str());
-    }
-
-//    howmany=10; //should throw an error
-//    priorityTemplates = getMostPopulatedTemplates(howmany);
-}
-
 void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, const char **areaDescript,
         const int &dataset, const int &mode, std::string mode_description) {
+    //iterate over the Associative Memory map this->AM and write data to root file
+
     std::string customnametag = ""; //dataset, mode, Bins?
     TFile tF((path + "CosmicPatternDatabase_" + customnametag + ".root").c_str(), "recreate");
     if (!tF.IsOpen()) {
@@ -314,7 +314,15 @@ void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, const
     int freq;
     int tid_len = TID_LEN;
 
-    TemplateDatabaseWrite TDB = TemplateDatabaseWrite(tT_spconfig, tT_tids, dataset, zBins, wBins, areaDescript,
+    TemplateDatabaseWrite TDB = TemplateDatabaseWrite(&tT_spconfig, &tT_tids, dataset, zBins, wBins, areaDescript,
             mode, this->efficiency[this->efficiency.size() - 1], mode_description);
+
+
+    //TODO Map -> TFile
+    /* iterate over the map and dump data into the databse
+     *
+     * TDB.fillTIDData(...)
+     *
+     * */
 }
 

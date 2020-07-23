@@ -303,14 +303,14 @@ void PatternEngineSingle::testSPID() {
 
 //    getIndexFromSPID(0x1234F000); //assertion must fail
 }
-//// <------------  TESTS ( ONLY WORK ON CENTRAL DETECTOR SO FAR)
+//// <------------  TESTS (ONLY WORK ON CENTRAL DETECTOR SO FAR)
 
 
 
 //// PRINT GRAPHS AND PLOTS ----------->
 void PatternEngineSingle::displayBinBoundaries() {
 
-    auto *canvas = new TCanvas("bin_boundaries", "bin_boundaries", 1200, 900);
+    auto *canvas = new TCanvas(("bin_boundaries" + this->getAreaTag()).c_str(), "bin_boundaries", 1200, 900);
     canvas->SetLeftMargin(0.15);
     canvas->SetGrid(1,1);
     canvas->SetTicks(1, 1);
