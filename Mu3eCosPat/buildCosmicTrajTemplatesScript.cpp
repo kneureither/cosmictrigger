@@ -41,7 +41,7 @@ void buildCosmicTemplatesScript(const int dataset) {
     check_create_directory(pathtorunplots);
 
     //Get the Pattern Engine and Template Manager
-    PatternEngine PE(5, 30, pathtorunplots);
+    PatternEngine PE(10, 10, pathtorunplots);
     PE.PRINTS = PRINTS;
     TemplateBank TB(pathtorunplots);
     TB.PRINTS = PRINTS;
@@ -130,7 +130,7 @@ void buildCosmicTemplatesScript(const int dataset) {
 
     //open new TFile for plots
     TFile * tF = new TFile((pathtorunplots +"TemplateBank_dataset_" +
-            get_padded_string(dataset, 3, '0') + "_plots.root").c_str(), "recreate");
+            get_padded_string(dataset, 3, '0') + "_plots.root").c_str(), "UPDATE");
     if (!tF->IsOpen()) {
         std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
     }
