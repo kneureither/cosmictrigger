@@ -54,16 +54,19 @@ struct TemplateID {
 };
 
 struct TemplateData {
-    int count;
-    float p;
-    float dca;
-    float phi;
-    float theta;
-    unsigned int uEventID;
+    int frequency = 0;
+    std::vector<int> count;
+    std::vector<float> p;
+    std::vector<float> dca;
+    std::vector<float> phi;
+    std::vector<float> theta;
+    std::vector<unsigned int> uEventID;
 
     TemplateData(const int &count, const float &p, const float &dca, const float &phi, const float &theta);
+    TemplateData();
     TemplateData(const TemplateData &other);
     TemplateData& operator=(const TemplateData& other);
+    void add_track(const int &count, const float &p, const float &dca, const float &phi, const float &theta);
 };
 
 
