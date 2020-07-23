@@ -69,7 +69,7 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
 
 void TemplateDatabaseWrite::fillTIDData(short *tid, const int tid_len, const int &freq, std::vector<int> &nhit,
                                      std::vector<float> &p, std::vector<float> &phi, std::vector<float> &theta,
-                                     std::vector<float> dca) {
+                                     std::vector<float> dca, std::vector<unsigned int> &uEventIDs) {
     this->reinitializeData();
     this->tid_len = tid_len;
     for(int i=0; i<this->tid_len; i++) this->tid[i] = tid[i];
@@ -83,7 +83,7 @@ void TemplateDatabaseWrite::fillTIDData(short *tid, const int tid_len, const int
     this->tT_tid->Fill();
 }
 
-void TemplateDatabaseWrite::fillTIDData(short *tid, const int tid_len, const int &freq) {
+void TemplateDatabaseWrite::fillTIDData(short *tid, const int &tid_len, const int &freq) {
     this->reinitializeData();
     this->tid_len = tid_len;
     for(int i=0; i<this->tid_len; i++) this->tid[i] = tid[i];
