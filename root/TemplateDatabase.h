@@ -12,6 +12,8 @@ public:
     TTree *tT_meta;
     TTree *tT_tid;
 
+    //TODO add some important plots, such as eff, tcount, etc.
+
     //pattern meta data -- once per tree
     int dataset;
     int zBins[3];
@@ -25,7 +27,7 @@ public:
     //actual templates -- every entry is one template
     //TID data
     int tid_len;
-    short tid[TID_LEN];
+    unsigned short tid[TID_LEN];
     std::string tid_repr;
     int frequency;
 
@@ -49,12 +51,12 @@ class TemplateDatabaseRead : public TemplateDatabase {
 class TemplateDatabaseWrite : private TemplateDatabase {
 public:
     TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int* zBins,const int* wBins,
-            const char **areaDescript, const int mode, const float efficiency, std::string mode_description);
+             char areaDescript[3][8], const int mode, const float efficiency, std::string mode_description);
 
-    void fillTIDData(short *tid, const int tid_len, const int &freq, std::vector<int> &nhit,
+    void fillTIDData(unsigned short *tid, const int tid_len, std::string tid_repr, const int &freq, std::vector<int> &nhit,
             std::vector<float> &p, std::vector<float> &phi, std::vector<float> &theta, std::vector<float> dca, std::vector<unsigned int> &uEventIDs);
 
-    void fillTIDData(short *tid, const int &tid_len, const int &freq);
+    void fillTIDData(unsigned short *tid, const int &tid_len, std::string tid_repr, const int &freq);
 };
 
 

@@ -64,7 +64,7 @@ public:
     temid getTemplateID(unsigned int *SPIDs, int count);
     unsigned int getSPIDfromTemplateID(temid TID, int index);
 
-    void writeAMtoFile(std::string path, int *zBins, int *wBins, const char **areaDescript,
+    void writeAMtoFile(std::string path, int *zBins, int *wBins, char areaDescript[3][8],
                        const int &dataset, const int &mode, std::string mode_description);
     void readAMfromFile(std::string path);
 

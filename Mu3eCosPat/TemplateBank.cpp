@@ -295,11 +295,13 @@ void TemplateBank::displayEfficiency(std::string filetag) {
     saveCanvas(canvas, ("templateBankStats" + filetag).c_str(), plottingpath);
 }
 
-void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, const char **areaDescript,
+void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, char areaDescript[3][8],
         const int &dataset, const int &mode, std::string mode_description) {
     //iterate over the Associative Memory map this->AM and write data to root file
 
-    std::string customnametag = ""; //dataset, mode, Bins?
+    std::cout << " -- Writing AM Template Database to file..." << std::endl;
+
+    std::string customnametag = "dataset" + get_string(dataset) + "_mode" + get_string(mode) + "zBins" + get_string(zBins[0]) + "wBins" + get_string(wBins[0]);
     TFile tF((path + "CosmicPatternDatabase_" + customnametag + ".root").c_str(), "recreate");
     if (!tF.IsOpen()) {
         std::cout << "[ERROR] File " << tF.GetName() << " is not open!" << std::endl;
@@ -308,19 +310,22 @@ void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, const
     TTree tT_spconfig("ConfigTree","Tree with Superpixel configuration information");
     TTree tT_tids("TIDTree","Tree with Template IDentification (TID) number");
 
-    short TID[TID_LEN];
-    int freq;
-    int tid_len = TID_LEN;
-
     TemplateDatabaseWrite TDB = TemplateDatabaseWrite(&tT_spconfig, &tT_tids, dataset, zBins, wBins, areaDescript,
             mode, this->efficiency[this->efficiency.size() - 1], mode_description);
 
+    int tid_len = TID_LEN;
+    AssociativeMemory::iterator it;
 
-    //TODO Map -> TFile
-    /* iterate over the map and dump data into the databse
-     *
-     * TDB.fillTIDData(...)
-     *
-     * */
+    for(it = AMem.begin(); it != AMem.end(); it++){
+        temid TID(it->first);
+        TDB.fillTIDData(TID.HIDS, tid_len, TID.toString(), (it->second).frequency);
+    }
+
+    std::string filename = tF.GetName();
+
+    tF.Write();
+    tF.Close();
+
+    std::cout << " -- CHECK: Wrote AM Template Database to file " << filename << std::endl;
 }
 

@@ -163,6 +163,7 @@ void buildCosmicTemplatesScript(const int dataset) {
     tF->Close();
 
     TB.getMostPopulatedTemplates(50);
+    TB.writeAMtoFile(pathtorunplots, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
 
     std::cout << "\n\n>>>>> GENERAL STATS <<<<<\n\n";
 

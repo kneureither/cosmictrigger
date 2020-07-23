@@ -20,10 +20,11 @@ void TemplateDatabase::reinitializeData() {
     dca.clear();
 }
 
-TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int *zBins, const int *wBins, const char **areaDescript,
+TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int *zBins, const int *wBins, char areaDescript[3][8],
                                              const int mode, const float efficiency, std::string mode_description) {
     this->tT_meta = tT_meta;
     this->tT_tid = tT_tid;
+    this->dataset = dataset;
     for(int i=0; i<this->tid_len; i++) this->tid[i] = tid[i];
     for(int i=0; i<3; i++) {
         this->zBins[i] = zBins[i];
@@ -48,7 +49,7 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
     this->tT_meta->Branch("zBins1", &this->zBins[1], "zBins1/I");
     this->tT_meta->Branch("zBins2", &this->zBins[2], "zBins2/I");
     this->tT_meta->Branch("mode", &this->mode, "mode/I");
-    this->tT_meta->Branch("mode_description", &this->mode_description);
+    this->tT_meta->Branch("mode_description", &this->mode_description, "mode_description/C");
     this->tT_meta->Branch("efficiency", &this->efficiency, "efficiency/F");
     this->tT_meta->Fill();
 
@@ -56,7 +57,7 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
     this->tT_tid->Branch("tid_len", &this->tid_len, "tid_len/I");
     this->tT_tid->Branch("tid", tid, "tid[tid_len]/s");
     this->tT_tid->Branch("tid_repr", &this->tid_repr, "tid_repr/C");
-    this->tT_tid->Branch("freq", &this->frequency, "frequency/F");
+    this->tT_tid->Branch("freq", &this->frequency, "frequency/I");
 
 //really needed?
 //    this->tT_tid->Branch("nhit", &this->nhit);
@@ -67,7 +68,7 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
 }
 
 
-void TemplateDatabaseWrite::fillTIDData(short *tid, const int tid_len, const int &freq, std::vector<int> &nhit,
+void TemplateDatabaseWrite::fillTIDData(unsigned short *tid, const int tid_len, std::string tid_repr, const int &freq, std::vector<int> &nhit,
                                      std::vector<float> &p, std::vector<float> &phi, std::vector<float> &theta,
                                      std::vector<float> dca, std::vector<unsigned int> &uEventIDs) {
     this->reinitializeData();
@@ -83,7 +84,7 @@ void TemplateDatabaseWrite::fillTIDData(short *tid, const int tid_len, const int
     this->tT_tid->Fill();
 }
 
-void TemplateDatabaseWrite::fillTIDData(short *tid, const int &tid_len, const int &freq) {
+void TemplateDatabaseWrite::fillTIDData(unsigned short *tid, const int &tid_len,std::string tid_repr, const int &freq) {
     this->reinitializeData();
     this->tid_len = tid_len;
     for(int i=0; i<this->tid_len; i++) this->tid[i] = tid[i];
