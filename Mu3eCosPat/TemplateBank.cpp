@@ -32,14 +32,15 @@ void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const floa
         newtemplatecount++;
     }
 
-    templatecount = matchedtemplatecount + newtemplatecount;
-    if((templatecount % (int) pow((float) 10, (float) std::floor(log10(templatecount))) == 0) && (templatecount >= 1000)) {
+    eventcount = matchedtemplatecount + newtemplatecount;
+    if(((eventcount % (int) pow((float) 10, (float) std::floor(log10(eventcount))) == 0) && (eventcount >= 1000))
+            || (eventcount >= 1000000 && eventcount % 100000 == 0)) {
 
         float newt = newtemplatecount - Ntemplates[Ntemplates.size() - 1];
         float matched = matchedtemplatecount - Nevents[Nevents.size() - 1];
-        float efficiency = 1.0 - (newtemplatecount - Ntemplates[Ntemplates.size() - 1]) / (float) (templatecount - Nevents[Nevents.size() - 1]);
+        float efficiency = 1.0 - (newtemplatecount - Ntemplates[Ntemplates.size() - 1]) / (float) (eventcount - Nevents[Nevents.size() - 1]);
 
-        this->Nevents.push_back((float) (templatecount));
+        this->Nevents.push_back((float) (eventcount));
         this->Ntemplates.push_back((float)newtemplatecount);
         this->efficiency.push_back(efficiency);
     }
@@ -307,12 +308,15 @@ void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, char 
         std::cout << "[ERROR] File " << tF.GetName() << " is not open!" << std::endl;
     }
 
+    std::cout << " -- reached checkpoint 1" << std::endl;
+
     TTree tT_spconfig("ConfigTree","Tree with Superpixel configuration information");
     TTree tT_tids("TIDTree","Tree with Template IDentification (TID) number");
 
     TemplateDatabaseWrite TDB = TemplateDatabaseWrite(&tT_spconfig, &tT_tids, dataset, zBins, wBins, areaDescript,
             mode, this->efficiency[this->efficiency.size() - 1], mode_description);
 
+    std::cout << " -- reached checkpoint 2" << std::endl;
     int tid_len = TID_LEN;
     AssociativeMemory::iterator it;
 
@@ -320,6 +324,7 @@ void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, char 
         temid TID(it->first);
         TDB.fillTIDData(TID.HIDS, tid_len, TID.toString(), (it->second).frequency);
     }
+    std::cout << " -- reached checkpoint 3" << std::endl;
 
     std::string filename = tF.GetName();
 
@@ -327,5 +332,13 @@ void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, char 
     tF.Close();
 
     std::cout << " -- CHECK: Wrote AM Template Database to file " << filename << std::endl;
+}
+
+float TemplateBank::getEfficiency() {
+    return this->efficiency[efficiency.size() - 1];
+}
+
+int TemplateBank::getTemplateCount() {
+    return this->newtemplatecount;
 }
 

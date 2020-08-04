@@ -23,7 +23,7 @@
 
 void getReferenceHits(unsigned int *pInt, int nhit, unsigned int ncombinedhits);
 
-void buildCosmicTemplatesScript(const int dataset) {
+void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, float spWZratio) {
     const std::string pathtodata = "data/SlimmedData/";
     const std::string pathtoplots = "plots/Mu3eCosPat/";
 
@@ -41,7 +41,10 @@ void buildCosmicTemplatesScript(const int dataset) {
     check_create_directory(pathtorunplots);
 
     //Get the Pattern Engine and Template Manager
-    PatternEngine PE(10, 10, pathtorunplots);
+    int wbins = (int) sqrt(spWZratio * (float) centralTPcount);
+    int zbins = (int) sqrt((float) centralTPcount / spWZratio);
+
+    PatternEngine PE(wbins, zbins, pathtorunplots);
     PE.PRINTS = PRINTS;
     TemplateBank TB(pathtorunplots);
     TB.PRINTS = PRINTS;
@@ -74,10 +77,13 @@ void buildCosmicTemplatesScript(const int dataset) {
 
     for(int treeid = 1; treeid <= treecount; treeid++) {
 
+
+
         TTree *t_slimsegs;
         std::string treename = "SlimSegs;" + get_string(treeid);
-        tinF.GetObject(treename.c_str(), t_slimsegs);
+        std::cout << "STATUS : Processing tree " << treename << std::endl;
 
+        tinF.GetObject(treename.c_str(), t_slimsegs);
         SlimSegsTreeRead SlimSegs = SlimSegsTreeRead(t_slimsegs);
 
         for (unsigned int entryno = 0; entryno < (MAX_ENTRIES == 0 ? SlimSegs.entries : MAX_ENTRIES); entryno++) {
@@ -137,6 +143,8 @@ void buildCosmicTemplatesScript(const int dataset) {
 
     //add some meta data for the
     int datast = dataset;
+    float eff = TB.getEfficiency();
+    int templatecount = TB.getTemplateCount();
     TTree tT_met("MetadataTree","Metadata associated with these plots (SID config and dataset)");
     tT_met.Branch("dataset", &datast, "dataset/I");
     tT_met.Branch("area0Description", &PE.areaDescript[0], "area0Description/C");
@@ -149,6 +157,9 @@ void buildCosmicTemplatesScript(const int dataset) {
     tT_met.Branch("zBins1", &PE.ZBins[1], "zBins1/I");
     tT_met.Branch("zBins2", &PE.ZBins[2], "zBins2/I");
     tT_met.Branch("mode", &PE.mode, "mode/I");
+    tT_met.Branch("efficiency", &eff, "efficiency/F");
+    tT_met.Branch("templ_count", &templatecount, "templ_count/I");
+    tT_met.Branch("processed_events", &processed_entries, "processed_events/I");
     tT_met.Fill();
     tT_met.Write();
 

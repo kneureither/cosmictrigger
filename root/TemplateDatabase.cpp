@@ -71,6 +71,8 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
 void TemplateDatabaseWrite::fillTIDData(unsigned short *tid, const int tid_len, std::string tid_repr, const int &freq, std::vector<int> &nhit,
                                      std::vector<float> &p, std::vector<float> &phi, std::vector<float> &theta,
                                      std::vector<float> dca, std::vector<unsigned int> &uEventIDs) {
+    //this method also stores the traj parameters to the database file
+
     this->reinitializeData();
     this->tid_len = tid_len;
     for(int i=0; i<this->tid_len; i++) this->tid[i] = tid[i];

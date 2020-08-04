@@ -34,7 +34,7 @@ private:
 
     //for creating templates
     unsigned int newtemplatecount = 0;
-    unsigned int templatecount = 0;
+    unsigned int eventcount = 0;
     unsigned int matchedtemplatecount = 0;
     std::vector<float> Nevents;
     std::vector<float>Ntemplates;
@@ -63,6 +63,8 @@ public:
 
     temid getTemplateID(unsigned int *SPIDs, int count);
     unsigned int getSPIDfromTemplateID(temid TID, int index);
+    float getEfficiency();
+    int getTemplateCount();
 
     void writeAMtoFile(std::string path, int *zBins, int *wBins, char areaDescript[3][8],
                        const int &dataset, const int &mode, std::string mode_description);
