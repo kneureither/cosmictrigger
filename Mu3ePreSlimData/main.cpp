@@ -3,10 +3,17 @@
 //
 #include "slimSegsDataScript.h"
 #include <iostream>
+#include <vector>
 #include "utilityFunctions.h"
 
 int main(int argc, char *argv[]) {
-//    slimSegsDataScript(4, 25, true);
+    std::vector<int> runs = {14,16,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37};
+    const int dataset = 6;
+
+    for(auto it = std::begin(runs); it != runs.end(); ++it) {
+        slimSegsDataScript(dataset, *it, true);
+    }
+
     //data set 4 contains 14,16,19,20,21,22,23,24,25
 }
 

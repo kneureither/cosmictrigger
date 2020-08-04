@@ -487,59 +487,59 @@ void slimSegsDataScript(const int outnum, const int run, const bool appendToFile
 
     ////###### PLOTS ##################################################
 
-//    TGraph * graphs[4];
-//    TH1F * hists[4];
-//
-//    graphs[0] = g_ptdev_ptmc; graphs[1]= g_ptkaridev_ptmc;
-//    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile + "(");
-//
-//    graphs[0] = g_invpt_invptmc; graphs[1]= g_ptkari_ptmc;
-//    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile);
-//
-//    hists[0] = h_pt_inv_err; hists[1]= h_pterr_kari;
-//    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile);
-//
-//    hists[0] =h_invptmc; hists[1]= h_invptrec; hists[2]= h_ptkari_inv;
-//    makeSimpleMultiCanvas(1, 3, 3, hists, plottingfile);
-//
-//    hists[0] =h_ptmc; hists[1]= h_pt; hists[2]= h_ptkari;
-//    makeSimpleMultiCanvas(1, 3, 3, hists, plottingfile);
-//
-//    hists[0] = h_rdca; hists[1]= h_dcakari;
-//    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile);
-//
-//    hists[0] = h_zdca; hists[1]= h_z0kari;
-//    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile);
-//
-//    //kari stuff
-//    hists[0] = h_r3dkari; hists[1]= h_rinvkari;
-//    hists[2] = h_tchi2nkari; hists[3]= h_zchi2kari;
-//    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile);
-//
-//    //graphs
-//    graphs[0] = g_pdev_z_dca; graphs[1]= g_ptkaridev_zdca;
-//    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile);
-//
-//    graphs[0] = g_pdev_dca; graphs[1]= g_ptkaridev_rdca;
-//    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile);
-//
-//    graphs[0] = g_pdev_phi; graphs[1]= g_ptkaridev_mcphi;
-//    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile);
-//
-//    graphs[0] = g_karizdca_mczdca; graphs[1]= g_ptdevkvsms_ptms;
-//    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile);
-//
-//    //mc info stuff
-//    hists[0] = h_rec_nhits; hists[1]= h_mctype;
-//    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile);
-//
-//    //phi
-//    hists[0] =h_phimc; hists[1]= h_phi; hists[2]= h_phikari;
-//    makeSimpleMultiCanvas(1, 3, 3, hists, plottingfile);
-//
-//    //theta
-//    hists[0] = h_theta; hists[1]= h_thetakari;
-//    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile + ")");
+    TGraph * graphs[4];
+    TH1F * hists[4];
+
+    graphs[0] = g_ptdev_ptmc; graphs[1]= g_ptkaridev_ptmc;
+    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile + "(");
+
+    graphs[0] = g_invpt_invptmc; graphs[1]= g_ptkari_ptmc;
+    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile);
+
+    hists[0] = h_pt_inv_err; hists[1]= h_pterr_kari;
+    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile);
+
+    hists[0] =h_invptmc; hists[1]= h_invptrec; hists[2]= h_ptkari_inv;
+    makeSimpleMultiCanvas(1, 3, 3, hists, plottingfile);
+
+    hists[0] =h_ptmc; hists[1]= h_pt; hists[2]= h_ptkari;
+    makeSimpleMultiCanvas(1, 3, 3, hists, plottingfile);
+
+    hists[0] = h_rdca; hists[1]= h_dcakari;
+    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile);
+
+    hists[0] = h_zdca; hists[1]= h_z0kari;
+    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile);
+
+    //kari stuff
+    hists[0] = h_r3dkari; hists[1]= h_rinvkari;
+    hists[2] = h_tchi2nkari; hists[3]= h_zchi2kari;
+    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile);
+
+    //graphs
+    graphs[0] = g_pdev_z_dca; graphs[1]= g_ptkaridev_zdca;
+    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile);
+
+    graphs[0] = g_pdev_dca; graphs[1]= g_ptkaridev_rdca;
+    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile);
+
+    graphs[0] = g_pdev_phi; graphs[1]= g_ptkaridev_mcphi;
+    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile);
+
+    graphs[0] = g_karizdca_mczdca; graphs[1]= g_ptdevkvsms_ptms;
+    makeSimpleMultiCanvas(1, 2, 2, graphs, plottingfile);
+
+    //mc info stuff
+    hists[0] = h_rec_nhits; hists[1]= h_mctype;
+    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile);
+
+    //phi
+    hists[0] =h_phimc; hists[1]= h_phi; hists[2]= h_phikari;
+    makeSimpleMultiCanvas(1, 3, 3, hists, plottingfile);
+
+    //theta
+    hists[0] = h_theta; hists[1]= h_thetakari;
+    makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile + ")");
 
     ////###########################################################################
 
