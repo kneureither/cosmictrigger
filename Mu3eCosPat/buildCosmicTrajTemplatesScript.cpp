@@ -23,7 +23,7 @@
 
 void getReferenceHits(unsigned int *pInt, int nhit, unsigned int ncombinedhits);
 
-void buildCosmicTemplatesScript(const int dataset) {
+void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, float spWZratio) {
     const std::string pathtodata = "data/SlimmedData/";
     const std::string pathtoplots = "plots/Mu3eCosPat/";
 
@@ -33,15 +33,22 @@ void buildCosmicTemplatesScript(const int dataset) {
 
     std::string runpadded = get_padded_string(dataset, 6, '0');
     std::string pathtorunplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    std::string pathtotemplatedb = "data/TemplateData/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     std::string infile = pathtodata + "mu3e_slimmed_segs_" + get_padded_string(dataset, 6, '0') + ".root";
 //    std::string infile = pathtodata + "mu3e_test_slimmed_file_000000.root";
 
     check_create_directory(pathtodata);
     check_create_directory(pathtoplots);
     check_create_directory(pathtorunplots);
+    check_create_directory(pathtotemplatedb);
 
     //Get the Pattern Engine and Template Manager
-    PatternEngine PE(10, 10, pathtorunplots);
+    const int spWbins = (int) sqrt((float) spWZratio * (float) centralTPcount);
+    const int spZbins = (int) sqrt((float) centralTPcount / (float) spWZratio);
+
+    std::cout << "\n -- PE config data:" << std::endl << "  wbins=" << spWbins << std::endl << "  zbins=" << spZbins << std::endl << std::endl;
+
+    PatternEngine PE(spWbins, spZbins, pathtorunplots);
     PE.PRINTS = PRINTS;
     TemplateBank TB(pathtorunplots);
     TB.PRINTS = PRINTS;
@@ -53,17 +60,6 @@ void buildCosmicTemplatesScript(const int dataset) {
         exit(0);
     }
 
-//    tinF.ls();
-    int treecount = 0;
-    TList *list = tinF.GetListOfKeys();
-    TIter iter(list->MakeIterator());
-    while(TObject* obj = iter()){
-        treecount++;
-//        TKey* theKey = (TKey*)obj;
-//        cout<< "name/type of Key is: "<<theKey->GetName() << " / " << theKey->GetClassName() << endl;
-//        theKey->Class()->Dump();
-    }
-
     //stats data
     int p_fail_count = 0;
     int processed_entries = 0;
@@ -71,12 +67,30 @@ void buildCosmicTemplatesScript(const int dataset) {
     int too_many = 0;
     int twohittracks = 0;
     int failed_count = 0;
+    unsigned int runID;
 
-    for(int treeid = 1; treeid <= treecount; treeid++) {
+//    tinF.ls();
 
-        TTree *t_slimsegs;
-        std::string treename = "SlimSegs;" + get_string(treeid);
+    int treecount = 0;
+    int cycle = 0;
+    std::string tree;
+
+    TList *list = tinF.GetListOfKeys();
+    TIter iter(list->MakeIterator());
+    while(TObject* obj = iter()){
+        treecount++;
+        TKey* theKey = (TKey*)obj;
+        tree = theKey->GetName();
+        cycle = theKey->GetCycle();
+//        cout<< "name/type of Key is: "<<theKey->GetName() << " / " << theKey->GetClassName() << endl;
+//        theKey->Class()->Dump();
+
+        TTree * t_slimsegs;
+        std::string treename = tree + ";" + get_string(cycle);
         tinF.GetObject(treename.c_str(), t_slimsegs);
+        t_slimsegs->SetBranchAddress("runID", &runID);
+        t_slimsegs->GetEntry(1);
+        std::cout << "STATUS : Processing tree " << tree << " cycle " << cycle << " -- run " << runID << std::endl;
 
         SlimSegsTreeRead SlimSegs = SlimSegsTreeRead(t_slimsegs);
 
@@ -94,7 +108,7 @@ void buildCosmicTemplatesScript(const int dataset) {
 //            continue;
 //        }
 
-            if(PRINTS) printf("\nSLIM SEGS;%d ENTRY %d\n------------------------------\n\n",treeid, entryno);
+            if(PRINTS) printf("\nSLIM SEGS;%d ENTRY %d\n------------------------------\n\n",treecount, entryno);
 
             unsigned int SPID;
             bool enoughhits = 0;
@@ -137,6 +151,8 @@ void buildCosmicTemplatesScript(const int dataset) {
 
     //add some meta data for the
     int datast = dataset;
+    float eff = TB.getEfficiency();
+    int templatecount = TB.getTemplateCount();
     TTree tT_met("MetadataTree","Metadata associated with these plots (SID config and dataset)");
     tT_met.Branch("dataset", &datast, "dataset/I");
     tT_met.Branch("area0Description", &PE.areaDescript[0], "area0Description/C");
@@ -149,6 +165,9 @@ void buildCosmicTemplatesScript(const int dataset) {
     tT_met.Branch("zBins1", &PE.ZBins[1], "zBins1/I");
     tT_met.Branch("zBins2", &PE.ZBins[2], "zBins2/I");
     tT_met.Branch("mode", &PE.mode, "mode/I");
+    tT_met.Branch("efficiency", &eff, "efficiency/F");
+    tT_met.Branch("templ_count", &templatecount, "templ_count/I");
+    tT_met.Branch("processed_events", &processed_entries, "processed_events/I");
     tT_met.Fill();
     tT_met.Write();
 
@@ -163,7 +182,7 @@ void buildCosmicTemplatesScript(const int dataset) {
     tF->Close();
 
     TB.getMostPopulatedTemplates(50);
-    TB.writeAMtoFile(pathtorunplots, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
+    TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
 
     std::cout << "\n\n>>>>> GENERAL STATS <<<<<\n\n";
 

@@ -9,7 +9,7 @@ void TemplateDatabase::reinitializeData() {
     tid_len = -1;
     tid_repr = "default";
 
-    frequency = -1.1;
+    frequency = -1;
 
     for(int i=0; i<this->tid_len; i++) this->tid[i] = 0;
 
@@ -22,10 +22,11 @@ void TemplateDatabase::reinitializeData() {
 
 TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int *zBins, const int *wBins, char areaDescript[3][8],
                                              const int mode, const float efficiency, std::string mode_description) {
+
     this->tT_meta = tT_meta;
     this->tT_tid = tT_tid;
     this->dataset = dataset;
-    for(int i=0; i<this->tid_len; i++) this->tid[i] = tid[i];
+    this->tid_len = TID_LEN;
     for(int i=0; i<3; i++) {
         this->zBins[i] = zBins[i];
         this->wBins[i] = wBins[i];
@@ -35,8 +36,6 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
     this->mode = mode;
     this->efficiency = efficiency;
     this->mode_description = mode_description;
-
-    this->tid_len = TID_LEN;
 
     this->tT_meta->Branch("dataset", &this->dataset, "dataset/I");
     this->tT_meta->Branch("area0Description", &this->areaDescript[0], "area0Description/C");
@@ -71,6 +70,8 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
 void TemplateDatabaseWrite::fillTIDData(unsigned short *tid, const int tid_len, std::string tid_repr, const int &freq, std::vector<int> &nhit,
                                      std::vector<float> &p, std::vector<float> &phi, std::vector<float> &theta,
                                      std::vector<float> dca, std::vector<unsigned int> &uEventIDs) {
+    //this method also stores the traj parameters to the database file
+
     this->reinitializeData();
     this->tid_len = tid_len;
     for(int i=0; i<this->tid_len; i++) this->tid[i] = tid[i];

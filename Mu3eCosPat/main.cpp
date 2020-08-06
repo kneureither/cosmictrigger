@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
     }
 
     if(TEST_buildDB) {
-        buildCosmicTemplatesScript(4);
+        buildCosmicTemplatesScript(4, 400, 1);
     }
 
     return 0;

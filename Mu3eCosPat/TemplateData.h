@@ -39,6 +39,8 @@ struct TemplateID {
                 if(i==TID_LEN-1) return false;
             }
         }
+
+        return false;
     }
 
     bool operator==(const TemplateID& other) const {

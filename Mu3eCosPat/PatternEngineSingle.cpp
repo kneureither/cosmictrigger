@@ -79,11 +79,12 @@ void PatternEngineSingle::initializeMembers(const int spXpartition, const int sp
     printf("z SP size=%f phi SP size=%f\n", SPZsize, SPWsize);
     printf("wBinCount=%d zbinCount=%d totalBinCount=%d\n", wBinCount, zBinCount, totalBinCount);
     printf("wdithMin=%f widthMax=%f widthDimLength=%f\n", widthMin, widthMax, widthDimLength);
+    printf("area=%d mode=%d\n", this->area, this->mode);
 
     for(int i=0; i<4; i++) {
 //        this->spWeights[i].reserve(this->totalBinCount);
         for(int j=0; j<(this->totalBinCount); j++) this->spWeights[i].push_back(0);
-        printf("initialized spWeights[%d]\n", i);
+//        printf("initialized spWeights[%d]\n", i);
     }
 }
 

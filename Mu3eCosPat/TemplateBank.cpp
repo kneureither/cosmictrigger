@@ -32,14 +32,15 @@ void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const floa
         newtemplatecount++;
     }
 
-    templatecount = matchedtemplatecount + newtemplatecount;
-    if((templatecount % (int) pow((float) 10, (float) std::floor(log10(templatecount))) == 0) && (templatecount >= 1000)) {
+    eventcount = matchedtemplatecount + newtemplatecount;
+    if(((eventcount % (int) pow((float) 10, (float) std::floor(log10(eventcount))) == 0) && (eventcount >= 1000))
+            || (eventcount >= 1000000 && eventcount % 100000 == 0)) {
 
         float newt = newtemplatecount - Ntemplates[Ntemplates.size() - 1];
         float matched = matchedtemplatecount - Nevents[Nevents.size() - 1];
-        float efficiency = 1.0 - (newtemplatecount - Ntemplates[Ntemplates.size() - 1]) / (float) (templatecount - Nevents[Nevents.size() - 1]);
+        float efficiency = 1.0 - (newtemplatecount - Ntemplates[Ntemplates.size() - 1]) / (float) (eventcount - Nevents[Nevents.size() - 1]);
 
-        this->Nevents.push_back((float) (templatecount));
+        this->Nevents.push_back((float) (eventcount));
         this->Ntemplates.push_back((float)newtemplatecount);
         this->efficiency.push_back(efficiency);
     }
@@ -110,7 +111,7 @@ TemplateBank::TemplateBank(std::string plottingpath) {
     hitorder.push_back(2);
     hitorder.push_back(3);
 
-    printf("asserting hitorder.size() == TID_LEN : %d == %d\n", hitorder.size(), TID_LEN);
+//    printf("asserting hitorder.size() == TID_LEN : %lu == %d\n", hitorder.size(), TID_LEN);
     assert(hitorder.size() == TID_LEN);
 }
 
@@ -295,7 +296,7 @@ void TemplateBank::displayEfficiency(std::string filetag) {
     saveCanvas(canvas, ("templateBankStats" + filetag).c_str(), plottingpath);
 }
 
-void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, char areaDescript[3][8],
+void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
         const int &dataset, const int &mode, std::string mode_description) {
     //iterate over the Associative Memory map this->AM and write data to root file
 
@@ -327,5 +328,13 @@ void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, char 
     tF.Close();
 
     std::cout << " -- CHECK: Wrote AM Template Database to file " << filename << std::endl;
+}
+
+float TemplateBank::getEfficiency() {
+    return this->efficiency[this->efficiency.size() - 1];
+}
+
+int TemplateBank::getTemplateCount() {
+    return this->newtemplatecount;
 }
 
