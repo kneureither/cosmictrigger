@@ -60,17 +60,6 @@ void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, 
         exit(0);
     }
 
-//    tinF.ls();
-    int treecount = 0;
-    TList *list = tinF.GetListOfKeys();
-    TIter iter(list->MakeIterator());
-    while(TObject* obj = iter()){
-        treecount++;
-//        TKey* theKey = (TKey*)obj;
-//        cout<< "name/type of Key is: "<<theKey->GetName() << " / " << theKey->GetClassName() << endl;
-//        theKey->Class()->Dump();
-    }
-
     //stats data
     int p_fail_count = 0;
     int processed_entries = 0;
@@ -79,13 +68,21 @@ void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, 
     int twohittracks = 0;
     int failed_count = 0;
 
-    treecount = 1;
+//    tinF.ls();
 
-    for(int treeid = 1; treeid <= treecount; treeid++) {
+    int treecount = 0;
+    TList *list = tinF.GetListOfKeys();
+    TIter iter(list->MakeIterator());
+    while(TObject* obj = iter()){
+        treecount++;
+        TKey* theKey = (TKey*)obj;
+//        cout<< "name/type of Key is: "<<theKey->GetName() << " / " << theKey->GetClassName() << endl;
+//        theKey->Class()->Dump();
 
-        TTree *t_slimsegs;
-        std::string treename = "SlimSegs;" + get_string(treeid);
-        std::cout << "STATUS : Processing tree " << treename << std::endl;
+        TTree *t_slimsegs = (TTree*) obj;
+
+        std::string treename = "SlimSegs;" + get_string(treecount);
+        std::cout << "STATUS : Processing tree " << theKey->GetName() << " cycle " << treecount << std::endl;
 
         tinF.GetObject(treename.c_str(), t_slimsegs);
         SlimSegsTreeRead SlimSegs = SlimSegsTreeRead(t_slimsegs);
@@ -104,7 +101,7 @@ void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, 
 //            continue;
 //        }
 
-            if(PRINTS) printf("\nSLIM SEGS;%d ENTRY %d\n------------------------------\n\n",treeid, entryno);
+            if(PRINTS) printf("\nSLIM SEGS;%d ENTRY %d\n------------------------------\n\n",treecount, entryno);
 
             unsigned int SPID;
             bool enoughhits = 0;
