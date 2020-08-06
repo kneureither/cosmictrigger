@@ -33,18 +33,22 @@ void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, 
 
     std::string runpadded = get_padded_string(dataset, 6, '0');
     std::string pathtorunplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    std::string pathtotemplatedb = "data/TemplateData/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     std::string infile = pathtodata + "mu3e_slimmed_segs_" + get_padded_string(dataset, 6, '0') + ".root";
 //    std::string infile = pathtodata + "mu3e_test_slimmed_file_000000.root";
 
     check_create_directory(pathtodata);
     check_create_directory(pathtoplots);
     check_create_directory(pathtorunplots);
+    check_create_directory(pathtotemplatedb);
 
     //Get the Pattern Engine and Template Manager
-    int wbins = (int) sqrt(spWZratio * (float) centralTPcount);
-    int zbins = (int) sqrt((float) centralTPcount / spWZratio);
+    const int spWbins = (int) sqrt((float) spWZratio * (float) centralTPcount);
+    const int spZbins = (int) sqrt((float) centralTPcount / (float) spWZratio);
 
-    PatternEngine PE(wbins, zbins, pathtorunplots);
+    std::cout << "\n -- PE config data:" << std::endl << "  wbins=" << spWbins << std::endl << "  zbins=" << spZbins << std::endl << std::endl;
+
+    PatternEngine PE(spWbins, spZbins, pathtorunplots);
     PE.PRINTS = PRINTS;
     TemplateBank TB(pathtorunplots);
     TB.PRINTS = PRINTS;
@@ -75,9 +79,9 @@ void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, 
     int twohittracks = 0;
     int failed_count = 0;
 
+    treecount = 1;
+
     for(int treeid = 1; treeid <= treecount; treeid++) {
-
-
 
         TTree *t_slimsegs;
         std::string treename = "SlimSegs;" + get_string(treeid);
@@ -174,7 +178,7 @@ void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, 
     tF->Close();
 
     TB.getMostPopulatedTemplates(50);
-    TB.writeAMtoFile(pathtorunplots, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
+    TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
 
     std::cout << "\n\n>>>>> GENERAL STATS <<<<<\n\n";
 

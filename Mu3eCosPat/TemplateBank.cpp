@@ -111,7 +111,7 @@ TemplateBank::TemplateBank(std::string plottingpath) {
     hitorder.push_back(2);
     hitorder.push_back(3);
 
-    printf("asserting hitorder.size() == TID_LEN : %d == %d\n", hitorder.size(), TID_LEN);
+//    printf("asserting hitorder.size() == TID_LEN : %lu == %d\n", hitorder.size(), TID_LEN);
     assert(hitorder.size() == TID_LEN);
 }
 
@@ -296,7 +296,7 @@ void TemplateBank::displayEfficiency(std::string filetag) {
     saveCanvas(canvas, ("templateBankStats" + filetag).c_str(), plottingpath);
 }
 
-void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, char areaDescript[3][8],
+void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
         const int &dataset, const int &mode, std::string mode_description) {
     //iterate over the Associative Memory map this->AM and write data to root file
 
@@ -308,15 +308,12 @@ void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, char 
         std::cout << "[ERROR] File " << tF.GetName() << " is not open!" << std::endl;
     }
 
-    std::cout << " -- reached checkpoint 1" << std::endl;
-
     TTree tT_spconfig("ConfigTree","Tree with Superpixel configuration information");
     TTree tT_tids("TIDTree","Tree with Template IDentification (TID) number");
 
     TemplateDatabaseWrite TDB = TemplateDatabaseWrite(&tT_spconfig, &tT_tids, dataset, zBins, wBins, areaDescript,
             mode, this->efficiency[this->efficiency.size() - 1], mode_description);
 
-    std::cout << " -- reached checkpoint 2" << std::endl;
     int tid_len = TID_LEN;
     AssociativeMemory::iterator it;
 
@@ -324,7 +321,6 @@ void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, char 
         temid TID(it->first);
         TDB.fillTIDData(TID.HIDS, tid_len, TID.toString(), (it->second).frequency);
     }
-    std::cout << " -- reached checkpoint 3" << std::endl;
 
     std::string filename = tF.GetName();
 
@@ -335,7 +331,7 @@ void TemplateBank::writeAMtoFile(std::string path, int *zBins, int *wBins, char 
 }
 
 float TemplateBank::getEfficiency() {
-    return this->efficiency[efficiency.size() - 1];
+    return this->efficiency[this->efficiency.size() - 1];
 }
 
 int TemplateBank::getTemplateCount() {
