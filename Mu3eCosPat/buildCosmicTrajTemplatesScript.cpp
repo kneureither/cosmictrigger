@@ -67,24 +67,31 @@ void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, 
     int too_many = 0;
     int twohittracks = 0;
     int failed_count = 0;
+    unsigned int runID;
 
 //    tinF.ls();
 
     int treecount = 0;
+    int cycle = 0;
+    std::string tree;
+
     TList *list = tinF.GetListOfKeys();
     TIter iter(list->MakeIterator());
     while(TObject* obj = iter()){
         treecount++;
         TKey* theKey = (TKey*)obj;
+        tree = theKey->GetName();
+        cycle = theKey->GetCycle();
 //        cout<< "name/type of Key is: "<<theKey->GetName() << " / " << theKey->GetClassName() << endl;
 //        theKey->Class()->Dump();
 
-        TTree *t_slimsegs = (TTree*) obj;
-
-        std::string treename = "SlimSegs;" + get_string(treecount);
-        std::cout << "STATUS : Processing tree " << theKey->GetName() << " cycle " << treecount << std::endl;
-
+        TTree * t_slimsegs;
+        std::string treename = tree + ";" + get_string(cycle);
         tinF.GetObject(treename.c_str(), t_slimsegs);
+        t_slimsegs->SetBranchAddress("runID", &runID);
+        t_slimsegs->GetEntry(1);
+        std::cout << "STATUS : Processing tree " << tree << " cycle " << cycle << " -- run " << runID << std::endl;
+
         SlimSegsTreeRead SlimSegs = SlimSegsTreeRead(t_slimsegs);
 
         for (unsigned int entryno = 0; entryno < (MAX_ENTRIES == 0 ? SlimSegs.entries : MAX_ENTRIES); entryno++) {
