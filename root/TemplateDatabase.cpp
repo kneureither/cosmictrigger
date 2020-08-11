@@ -3,11 +3,11 @@
 //
 
 #include "TemplateDatabase.h"
-#include "../Mu3eCosPat/TemplateData.h"
+#include "../Mu3eCosPat/include/TemplateData.h"
 
 void TemplateDatabase::reinitializeData() {
     tid_len = -1;
-    tid_repr = "default";
+    tid_repr = "0000000000000000";
 
     frequency = -1;
 
@@ -21,7 +21,7 @@ void TemplateDatabase::reinitializeData() {
 }
 
 TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int *zBins, const int *wBins, char areaDescript[3][8],
-                                             const int mode, const float efficiency, std::string mode_description) {
+                                             const int mode, const float efficiency, const int eventcount, std::string mode_description) {
 
     this->tT_meta = tT_meta;
     this->tT_tid = tT_tid;
@@ -35,6 +35,7 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
 
     this->mode = mode;
     this->efficiency = efficiency;
+    this->eventcount = eventcount;
     this->mode_description = mode_description;
 
     this->tT_meta->Branch("dataset", &this->dataset, "dataset/I");
@@ -48,8 +49,10 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
     this->tT_meta->Branch("zBins1", &this->zBins[1], "zBins1/I");
     this->tT_meta->Branch("zBins2", &this->zBins[2], "zBins2/I");
     this->tT_meta->Branch("mode", &this->mode, "mode/I");
-    this->tT_meta->Branch("mode_description", &this->mode_description, "mode_description/C");
+    this->tT_meta->Branch("mode_description", &this->mode_description);
     this->tT_meta->Branch("efficiency", &this->efficiency, "efficiency/F");
+    this->tT_meta->Branch("eventcount", &this->eventcount, "eventcount/I");
+    this->tT_meta->Branch("tid_len", &this->tid_len, "tid_len/I");
     this->tT_meta->Fill();
 
 
@@ -93,4 +96,43 @@ void TemplateDatabaseWrite::fillTIDData(unsigned short *tid, const int &tid_len,
     this->tid_repr = tid_repr;
 
     this->tT_tid->Fill();
+}
+
+TemplateDatabaseRead::TemplateDatabaseRead(TTree *tT_meta, TTree *tT_tid) {
+    this->tT_tid = tT_tid;
+    this->tT_meta = tT_meta;
+    this->setBranches();
+}
+
+void TemplateDatabaseRead::setBranches() {
+
+    //meta data
+    tT_meta->SetBranchAddress("dataset", &dataset);
+    tT_meta->SetBranchAddress("area0Description", &this->areaDescript[0]);
+    tT_meta->SetBranchAddress("area1Description", &this->areaDescript[1]);
+    tT_meta->SetBranchAddress("area2Description", &this->areaDescript[2]);
+    tT_meta->SetBranchAddress("wBins0", &this->wBins[0]);
+    tT_meta->SetBranchAddress("wBins1", &this->wBins[1]);
+    tT_meta->SetBranchAddress("wBins2", &this->wBins[2]);
+    tT_meta->SetBranchAddress("zBins0", &this->zBins[0]);
+    tT_meta->SetBranchAddress("zBins1", &this->zBins[1]);
+    tT_meta->SetBranchAddress("zBins2", &this->zBins[2]);
+    tT_meta->SetBranchAddress("mode", &this->mode);
+    tT_meta->SetBranchAddress("mode_description", &this->mode_description_ptr);
+    tT_meta->SetBranchAddress("efficiency", &this->efficiency);
+    tT_meta->SetBranchAddress("eventcount", &this->eventcount);
+    tT_meta->SetBranchAddress("tid_len", &this->tid_len);
+    tT_meta->GetEntry(0);
+
+    //template data
+    this->tT_tid->SetBranchAddress("tid_len", &this->tid_len);
+    this->tT_tid->SetBranchAddress("tid", &this->tid);
+    this->tT_tid->SetBranchAddress("tid_repr", &this->tid_repr_char);
+    this->tT_tid->SetBranchAddress("freq", &this->frequency);
+}
+
+void TemplateDatabaseRead::getEntry(const int &index) {
+    this->tT_tid->GetEntry(index);
+    this->mode_description = *mode_description_ptr;
+    this->tid_repr = std::string(tid_repr_char);
 }

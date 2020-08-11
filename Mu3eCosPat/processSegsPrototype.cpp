@@ -20,9 +20,9 @@
 
 #include "utilityFunctions.h"
 #include "plots.h"
-#include "PatternEngine.h"
+#include "include/PatternEngine.h"
 #include "rootData.h"
-#include "TemplateBank.h"
+#include "include/TemplateBank.h"
 #include "basicDefines.h"
 
 using std::cout;

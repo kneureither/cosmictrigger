@@ -2,7 +2,7 @@
 // Created by Konstantin Neureither on 16.06.20.
 //
 
-#include "SuperPixelHit.h"
+#include "include/SuperPixelHit.h"
 
 SuperPixelHit::SuperPixelHit() {
     this->layer=-1;

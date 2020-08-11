@@ -16,17 +16,17 @@
 #include "TemplateDatabase.h"
 
 
-void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const float p, const float dca, const float phi, const float theta) {
+void TemplateBank::fillTemplate(unsigned int *SPIDs, const int hitcount, const float p, const float dca, const float phi, const float theta) {
 
     //assume that SPIDs are already cleaned (only two hits per entry)
-    temid TID = getTemplateID(SPIDs, count);
+    temid TID = getTemplateID(SPIDs, hitcount);
 
     if(AMem.count(TID) > 0) {
-        AMem[TID].add_track(count, p, dca, phi, theta);
-//        std::cout << " -- appended to entry TID=" + TID.toString() + " count=" << AMem[TID].size() << std::endl;
+        AMem[TID].add_track(hitcount, p, dca, phi, theta);
+//        std::cout << " -- appended to entry TID=" + TID.toString() + " hitcount=" << AMem[TID].size() << std::endl;
         matchedtemplatecount++;
     } else {
-        TemplateData TD = TemplateData(count, p, dca, phi, theta);
+        TemplateData TD = TemplateData(hitcount, p, dca, phi, theta);
         AMem[TID] = TD;
 //        std::cout << " -- added new entry TID=" + TID.toString() << std::endl;
         newtemplatecount++;
@@ -36,14 +36,20 @@ void TemplateBank::fillTemplate(unsigned int *SPIDs, const int count, const floa
     if(((eventcount % (int) pow((float) 10, (float) std::floor(log10(eventcount))) == 0) && (eventcount >= 1000))
             || (eventcount >= 1000000 && eventcount % 100000 == 0)) {
 
-        float newt = newtemplatecount - Ntemplates[Ntemplates.size() - 1];
-        float matched = matchedtemplatecount - Nevents[Nevents.size() - 1];
         float efficiency = 1.0 - (newtemplatecount - Ntemplates[Ntemplates.size() - 1]) / (float) (eventcount - Nevents[Nevents.size() - 1]);
 
         this->Nevents.push_back((float) (eventcount));
-        this->Ntemplates.push_back((float)newtemplatecount);
+        this->Ntemplates.push_back((float) newtemplatecount);
         this->efficiency.push_back(efficiency);
     }
+}
+
+void TemplateBank::fillTemplateFromDB(temid TID, int frequency) {
+    TemplateData TD = TemplateData(frequency);
+    AMem[TID] = TD;
+    newtemplatecount++;
+    matchedtemplatecount += (frequency - 1);
+    eventcount += frequency;
 }
 
 bool TemplateBank::checkTemplate(temid &TID) {
@@ -63,14 +69,15 @@ bool TemplateBank::checkTemplate(temid &TID) {
     }
 }
 
-temid TemplateBank::getTemplateID(unsigned int *SPIDs, const int count) {
-    assert(count <= TID_LEN);
+template <typename spidtype>
+temid TemplateBank::getTemplateID(spidtype *SPIDs, const int hitcount) {
+    assert(hitcount <= TID_LEN);
     temid TID;
     unsigned short SPID;
     int sidindex=0;
 
     for(int i = 0; i<TID_LEN; i++) {
-        SPID = SPIDs[sidindex];
+        SPID = (unsigned short) SPIDs[sidindex];
         if(PRINTS) printf("SPID to be added=%d ", SPID);
         if(SPC.getLayerFromSPID(SPID) == hitorder[i]) {
             if(PRINTS) printf(" -- added sidindex=%d as TID index=%d\n", sidindex, i);
@@ -81,14 +88,22 @@ temid TemplateBank::getTemplateID(unsigned int *SPIDs, const int count) {
             TID.HIDS[i] = 0;
         }
     }
-    if(PRINTS) printf("\nasserting... count=%d, sidindex=%d \n", count, sidindex);
-    assert(count == sidindex);
+    if(PRINTS) printf("\nasserting... hitcount=%d, sidindex=%d \n", hitcount, sidindex);
+    assert(hitcount == sidindex);
     return TID;
 }
 
 unsigned int TemplateBank::getSPIDfromTemplateID(temid TID, int index) {
     assert(0 <= index && index < TID_LEN);
     return (unsigned int) TID.HIDS[index];
+}
+
+float TemplateBank::getEfficiency() {
+    return this->efficiency[this->efficiency.size() - 1];
+}
+
+int TemplateBank::getTemplateCount() {
+    return this->newtemplatecount;
 }
 
 TemplateBank::TemplateBank(std::string plottingpath) {
@@ -121,8 +136,8 @@ TemplateBank::~TemplateBank() {
 
 void TemplateBank::testTemplateID() {
 //    printf("1 & 0xFFFF = %#018llX\n", (unsigned long long) (1 & 0xFFFF) << 48);
-    unsigned int SPIDs[4] = {10465, 20345, 20845, 10245};
-    for(int i=0; i<4; i++) printf("SPIDs=%d", SPIDs[i]);
+    unsigned short SPIDs[4] = {0x1243, 0x2342, 0x3462, 0x2343};
+    for(int i=0; i<4; i++) printf("SPIDs=%d ", SPIDs[i]);
     temid TID = getTemplateID(SPIDs, 4);
     std::cout << "Template ID hex=" + TID.toString() << std::endl;
 
@@ -312,7 +327,7 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
     TTree tT_tids("TIDTree","Tree with Template IDentification (TID) number");
 
     TemplateDatabaseWrite TDB = TemplateDatabaseWrite(&tT_spconfig, &tT_tids, dataset, zBins, wBins, areaDescript,
-            mode, this->efficiency[this->efficiency.size() - 1], mode_description);
+            mode, this->efficiency[this->efficiency.size() - 1], eventcount, mode_description);
 
     int tid_len = TID_LEN;
     AssociativeMemory::iterator it;
@@ -330,11 +345,45 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
     std::cout << " -- CHECK: Wrote AM Template Database to file " << filename << std::endl;
 }
 
-float TemplateBank::getEfficiency() {
-    return this->efficiency[this->efficiency.size() - 1];
-}
+bool TemplateBank::readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset) {
+    std::string customnametag = "dataset" + get_string(dataset) + "_mode" + get_string(mode) + "zBins" + get_string(zbins) + "wBins" + get_string(wbins);
+    std::string filename = path + "CosmicPatternDatabase_" + customnametag + ".root";
+    std::cout << " -- START: Getting AM Template Database from file " << filename << std::endl;
 
-int TemplateBank::getTemplateCount() {
-    return this->newtemplatecount;
+    // FILE FOR READING
+    TFile tF(filename.c_str());
+    if (!tF.IsOpen()) {
+        std::cout << "[ERROR] File " << tF.GetName() << " is not open!" << std::endl;
+        return 0;
+    }
+
+    TTree* tT_tids;
+    TTree* tT_spconfig;
+    tF.GetObject("TIDTree", tT_tids);
+    tF.GetObject("ConfigTree", tT_spconfig);
+
+    TemplateDatabaseRead TDB = TemplateDatabaseRead(tT_spconfig, tT_tids);
+
+    //check if the meta data is okay
+    assert(TDB.tid_len == TID_LEN);
+    assert(TDB.wBins[0] == wbins);
+    assert(TDB.zBins[0] == zbins);
+    assert(TDB.mode == mode);
+    assert(TDB.dataset == dataset);
+
+    unsigned int entries = TDB.tT_tid->GetEntries();
+    this->efficiency.push_back(TDB.efficiency);
+    this->Nevents.push_back(TDB.eventcount); //not exactly correct, as the efficiency is calculated upt to the last 10e6 value.
+    this->Ntemplates.push_back(entries); //also not exactly correct
+
+    for(int i=0; i<entries; i++) {
+        TDB.getEntry(i);
+        temid TID = getTemplateID(TDB.tid, TID_LEN);
+        this->fillTemplateFromDB(TID, TDB.frequency);
+    }
+
+    tF.Close();
+
+    std::cout << " -- CHECK: Got AM Template Database from file " << filename << std::endl;
 }
 

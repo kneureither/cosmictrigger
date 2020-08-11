@@ -2,7 +2,7 @@
 // Created by Konstantin Neureither on 23.06.20.
 //
 
-#include "TemplateData.h"
+#include "include/TemplateData.h"
 
 TemplateData::TemplateData(const int &count, const float &p, const float &dca, const float &phi,
                            const float &theta) {
@@ -13,6 +13,10 @@ TemplateData::TemplateData(const int &count, const float &p, const float &dca, c
     this->theta.push_back(theta);
     this->frequency = 1;
     //uEventId
+}
+
+TemplateData::TemplateData(const int frequency) {
+    this->frequency = frequency;
 }
 
 TemplateData::TemplateData(const TemplateData &other) {
@@ -49,7 +53,7 @@ void TemplateData::add_track(const int &count, const float &p, const float &dca,
 }
 
 TemplateData::TemplateData() {
-    this->frequency =0;
+    this->frequency=0;
 }
 
 

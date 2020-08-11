@@ -47,6 +47,8 @@ private:
 
     std::string plottingpath;
 
+    void fillTemplateFromDB(temid TID, int frequency);
+
 public:
     TemplateBank(std::string plottingpath);
     ~TemplateBank();
@@ -55,20 +57,21 @@ public:
     void displayTemplatePopulationHistogram(std::string filetag); //how many with one, two, three, ..., n roads stored
     void displayEfficiency(std::string filetag);
 
-    void fillTemplate(unsigned int * SPIDs, int count, float p, float dca, float phi, float theta);
+    void fillTemplate(unsigned int * SPIDs, int hitcount, float p, float dca, float phi, float theta);
     bool checkTemplate(temid &TID);
 
     void rmSinglePopulatedTemplates();
     std::vector<temid>  getMostPopulatedTemplates(int howmany);
 
-    temid getTemplateID(unsigned int *SPIDs, int count);
+    template <typename spidtype>
+    temid getTemplateID(spidtype *SPIDs, int hitcount);
     unsigned int getSPIDfromTemplateID(temid TID, int index);
     float getEfficiency();
     int getTemplateCount();
 
     void writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
                        const int &dataset, const int &mode, std::string mode_description);
-    void readAMfromFile(std::string path);
+    bool readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset);
 
     void resetStats();
 

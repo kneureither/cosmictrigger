@@ -7,7 +7,6 @@
 #include <cassert>
 #include <iostream>
 
-
 //root
 #include "TROOT.h"
 #include "TFile.h"
@@ -15,15 +14,14 @@
 
 
 
-#include "buildCosmicTrajTemplatesScript.h"
+#include "cosmicTemplatesBuild.h"
 #include "PatternEngine.h"
 #include "TemplateBank.h"
-#include "../root/SlimSegsTree.h"
 #include "utilityFunctions.h"
 
 void getReferenceHits(unsigned int *pInt, int nhit, unsigned int ncombinedhits);
 
-void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, float spWZratio) {
+void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float spWZratio) {
     const std::string pathtodata = "data/SlimmedData/";
     const std::string pathtoplots = "plots/Mu3eCosPat/";
 
@@ -89,7 +87,7 @@ void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, 
         std::string treename = tree + ";" + get_string(cycle);
         tinF.GetObject(treename.c_str(), t_slimsegs);
         t_slimsegs->SetBranchAddress("runID", &runID);
-        t_slimsegs->GetEntry(1);
+        t_slimsegs->GetEntry(0);
         std::cout << "STATUS : Processing tree " << tree << " cycle " << cycle << " -- run " << runID << std::endl;
 
         SlimSegsTreeRead SlimSegs = SlimSegsTreeRead(t_slimsegs);
@@ -124,7 +122,7 @@ void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, 
 //                SPID = PE.getSuperPixel(SlimSegs.xp[i], SlimSegs.yp[i], SlimSegs.zp[i]);
                 if(PRINTS) printf("  --layer=%d\t x=%f, y=%f, z=%f \n", SlimSegs.layerp[i], SlimSegs.xp[i], SlimSegs.yp[i], SlimSegs.zp[i]);
             }
-//            printf("\n");
+//            if(PRINTS) printf("\n");
 
             used_entries++;
 
@@ -181,6 +179,7 @@ void buildCosmicTemplatesScript(const int dataset, unsigned int centralTPcount, 
     //close plot root file
     tF->Close();
 
+    //do some template bank stuff, eg. write the TemplateBank to a root database file
     TB.getMostPopulatedTemplates(50);
     TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
 

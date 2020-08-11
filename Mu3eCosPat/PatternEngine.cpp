@@ -2,7 +2,7 @@
 // Created by Konstantin Neureither on 06.07.20.
 //
 
-#include "PatternEngine.h"
+#include "include/PatternEngine.h"
 
 //init class members and Area pattern engines
 PatternEngine::PatternEngine(const int spWBins, const int spZBins, std::string plottingpath)

@@ -65,6 +65,7 @@ struct TemplateData {
     std::vector<unsigned int> uEventID;
 
     TemplateData(const int &count, const float &p, const float &dca, const float &phi, const float &theta);
+    TemplateData(const int frequency);
     TemplateData();
     TemplateData(const TemplateData &other);
     TemplateData& operator=(const TemplateData& other);

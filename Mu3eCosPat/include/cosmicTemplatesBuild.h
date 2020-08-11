@@ -2,13 +2,13 @@
 // Created by Konstantin Neureither on 09.07.20.
 //
 
-#ifndef COSMICTRIGGER_BUILDCOSMICTRAJTEMPLATESSCRIPT_H
-#define COSMICTRIGGER_BUILDCOSMICTRAJTEMPLATESSCRIPT_H
+#ifndef COSMICTRIGGER_COSMICTEMPLATESBUILD_H
+#define COSMICTRIGGER_COSMICTEMPLATESBUILD_H
 #include <vector>
 #include "SlimSegsTree.h"
 #include "PatternEngine.h"
 
-void buildCosmicTemplatesScript(const int, unsigned int, float);
+void cosmicTemplatesBuild(const int, unsigned int, float);
 
 static bool getSymmetricRefHits(std::vector<float> &xpr, std::vector<float> &ypr,
         std::vector<float> &zpr, std::vector<int> &layerpr, SlimSegsTree &SlimSegs, const int &minlayer) {
@@ -82,4 +82,4 @@ static bool getSymmetricRefHits(std::vector<float> &xpr, std::vector<float> &ypr
 
 
 
-#endif //COSMICTRIGGER_BUILDCOSMICTRAJTEMPLATESSCRIPT_H
+#endif //COSMICTRIGGER_COSMICTEMPLATESBUILD_H

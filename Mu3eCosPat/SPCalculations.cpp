@@ -2,7 +2,7 @@
 // Created by Konstantin Neureither on 06.07.20.
 //
 
-#include "SPCalculations.h"
+#include "include/SPCalculations.h"
 #include <assert.h>
 
 int SPCalculations::getLayerFromSPID(const unsigned int SPID) {
