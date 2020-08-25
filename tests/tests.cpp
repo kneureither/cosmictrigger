@@ -13,7 +13,7 @@
 #include <iostream>
 #include "testTemplateData.h"
 #include "testTemplateID.h"
-#include "../Mu3eCosPat/TemplateBank.h"
+#include "../Mu3eCosPat/include/TemplateBank.h"
 
 
 #ifndef TRIPLET_HIT_ARRAY_LENGTH
@@ -96,7 +96,6 @@ void TESTncombinedhits() {
     assert(phi_tracks[nhits - 2] == tan12[ntriplets-2]);
 
 }
-
 
 void TESTkarimaki() {
     printf("STATUS : Running TESTkarimaki()...\n");

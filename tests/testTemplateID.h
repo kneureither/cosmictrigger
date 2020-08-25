@@ -5,7 +5,7 @@
 #ifndef COSMICTRIGGER_TESTTEMPLATEID_H
 #define COSMICTRIGGER_TESTTEMPLATEID_H
 
-#include "../Mu3eCosPat/TemplateData.h"
+#include "../Mu3eCosPat/include/TemplateData.h"
 #include <cassert>
 
 void testTemplateID() {

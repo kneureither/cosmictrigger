@@ -12,9 +12,9 @@ include_directories(include)
 add_library(patterns SHARED SuperPixelHit.cpp PatternEngineSingle.cpp TemplateBank.cpp TemplateData.cpp PatternEngine.cpp SPCalculations.cpp ../root/TemplateDatabase.cpp)
 target_link_libraries(patterns ${ROOT_LIBRARIES})
 
-set(SRC main.cpp processSegsPrototype.cpp)
-add_executable(Mu3eCosPatPrototype ${SRC})
-target_link_libraries(Mu3eCosPatPrototype patterns)
+set(SRC main.cpp cosmicTemplatesBuild.cpp makePlots.cpp)
+add_executable(Mu3eCosPatSerie ${SRC})
+target_link_libraries(Mu3eCosPatSerie patterns rootTreeFiles)
 
 set(SRC2 main_CTbuild.cpp cosmicTemplatesBuild.cpp ../root/TemplateDatabase.cpp)
 add_executable(Mu3eCosPatBuild ${SRC2})
@@ -24,7 +24,7 @@ set(SRC3 main_CTeval.cpp cosmicTemplatesEval.cpp ../root/TemplateDatabase.cpp)
 add_executable(Mu3eCosPatEval ${SRC3})
 target_link_libraries(Mu3eCosPatEval patterns rootTreeFiles)
 
-set(SRC4 main_CTplots.cpp)
+set(SRC4 main_CTplots.cpp makePlots.cpp)
 add_executable(Mu3eCosPatPlots ${SRC4})
 target_link_libraries(Mu3eCosPatPlots rootTreeFiles)
 

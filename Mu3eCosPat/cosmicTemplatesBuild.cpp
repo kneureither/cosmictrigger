@@ -12,8 +12,6 @@
 #include "TFile.h"
 #include "TTree.h"
 
-
-
 #include "cosmicTemplatesBuild.h"
 #include "PatternEngine.h"
 #include "TemplateBank.h"
@@ -67,14 +65,16 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     int failed_count = 0;
     unsigned int runID;
 
-//    tinF.ls();
 
+    //get different cycles of trees in file
     int treecount = 0;
     int cycle = 0;
     std::string tree;
 
     TList *list = tinF.GetListOfKeys();
     TIter iter(list->MakeIterator());
+
+    //iterate over all cycles of trees separately
     while(TObject* obj = iter()){
         treecount++;
         TKey* theKey = (TKey*)obj;
@@ -142,7 +142,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
     //open new TFile for plots
     TFile * tF = new TFile((pathtorunplots +"TemplateBank_dataset_" +
-            get_padded_string(dataset, 3, '0') + "_plots.root").c_str(), "recreate");
+            get_padded_string(dataset, 3, '0') + "_plots.root").c_str(), "update");
     if (!tF->IsOpen()) {
         std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
     }

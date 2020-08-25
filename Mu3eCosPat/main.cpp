@@ -7,6 +7,7 @@
 #include "PatternEngine.h"
 #include "cosmicTemplatesBuild.h"
 #include "cosmicTemplatesEval.h"
+#include "makePlots.h"
 
 
 void processSegsPrototype(int, int);
@@ -20,6 +21,37 @@ const bool TEST_readDB = true;
 
 
 int main(int argc, char *argv[]) {
+
+    std::vector<float> SPratios;
+
+    SPratios.push_back(0.1);
+    SPratios.push_back(0.25);
+    SPratios.push_back(0.5);
+    SPratios.push_back(1);
+    SPratios.push_back(2);
+    SPratios.push_back(4);
+    SPratios.push_back(10);
+    int dataset;
+    int spcount;
+
+    if(argc < 2) {
+        std::cout << "ERROR: Error in argument! Usage: "
+                     "Mu3eCosPat <dataset number> <super pixel count (single station)>" << std::endl;
+        exit(0);
+    } else {
+        dataset = atoi(argv[1]);
+        spcount = atoi(argv[2]);
+    }
+
+    for(int i=0; i<SPratios.size(); i++) {
+        std::cout << "Building Template Database for dataset " << dataset << " SPratio? " << SPratios[i] <<"..." << std::endl;
+        cosmicTemplatesBuild(dataset, spcount, SPratios[i]);
+    }
+
+    std::cout << "Producing combined plots for dataset " << dataset << "..." << std::endl;
+    makeCosPatPlots(dataset);
+
+
 
     if(TEST_SEGS_PROCESS) {
         processSegsPrototype(14, 0);
