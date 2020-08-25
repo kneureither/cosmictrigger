@@ -9,7 +9,7 @@
 #include "TTree.h"
 
 
-class mu3eTree {
+class Mu3eTree {
 private:
 public:
     TTree *mu3e;
@@ -24,12 +24,13 @@ public:
     std::vector<unsigned int> *traj_ID = nullptr;
     std::vector<unsigned int> *traj_PID = nullptr;
 
-    mu3eTree(TTree *mu3e);
+    Mu3eTree(TTree *mu3e);
     void setBranches();
     void getEntry(const int &index);
+    void Print(int entry);
 };
 
-class mu3eMChitsTree {
+class Mu3eMChitsTree {
 private:
 public:
     TTree *mu3e_mchits;
@@ -40,13 +41,14 @@ public:
     int hid; //Hit number (of corresponding detector) along trajectory, negative if trajectory is radially inwards moving
     int hid_g; //Global hit id (pixel hid)
 
-    float pos_g_x;
-    float pos_g_y;
-    float pos_g_z;
+    double pos_g_x;
+    double pos_g_y;
+    double pos_g_z;
 
-    mu3eMChitsTree(TTree *mu3e_mchits);
+    Mu3eMChitsTree(TTree *mu3e_mchits);
     void setBranches();
     void getEntry(const int &index);
+    void Print(const int entry);
 };
 
 
