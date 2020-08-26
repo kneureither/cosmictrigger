@@ -53,6 +53,15 @@ struct TemplateID {
         }
         return *this;
     }
+
+    TemplateID(const unsigned short &h0, const unsigned short &h1, const unsigned short &h2, const unsigned short &h3) {
+        HIDS[0] = h0;
+        HIDS[1] = h1;
+        HIDS[2] = h2;
+        HIDS[3] = h3;
+    }
+
+    TemplateID() {}
 };
 
 struct TemplateData {

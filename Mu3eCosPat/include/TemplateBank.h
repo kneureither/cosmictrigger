@@ -43,11 +43,17 @@ private:
 
     //for checking templates
     unsigned int rejectedcount = 0;
-    unsigned int accepetedcount = 0;
+    unsigned int acceptedcount = 0;
 
     std::string plottingpath;
 
     void fillTemplateFromDB(temid TID, int frequency);
+
+    //for some meta information
+    int mywbins;
+    int myzbins;
+    int mydataset;
+    int mymode;
 
 public:
     TemplateBank(std::string plottingpath);
@@ -59,6 +65,8 @@ public:
 
     void fillTemplate(unsigned int * SPIDs, int hitcount, float p, float dca, float phi, float theta);
     bool checkTemplate(temid &TID);
+    int getRejectedCount();
+    int getAcceptedCount();
 
     void rmSinglePopulatedTemplates();
     std::vector<temid>  getMostPopulatedTemplates(int howmany);
@@ -72,6 +80,8 @@ public:
     void writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
                        const int &dataset, const int &mode, std::string mode_description);
     bool readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset);
+
+    std::string getcustomnamestring();
 
     void resetStats();
 

@@ -57,7 +57,7 @@ bool TemplateBank::checkTemplate(temid &TID) {
         rejectedcount++;
         return false;
     } else {
-        accepetedcount++;
+        acceptedcount++;
         if(CMem.count(TID) > 0) {
             CMem[TID]++;
             if(PRINTS) std::cout << " -- found multi occurence TID=" + TID.toString() + " count=" << CMem[TID] << std::endl;
@@ -346,7 +346,12 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
 }
 
 bool TemplateBank::readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset) {
-    std::string customnametag = "dataset" + get_string(dataset) + "_mode" + get_string(mode) + "zBins" + get_string(zbins) + "wBins" + get_string(wbins);
+    mydataset = dataset;
+    mywbins = wbins;
+    myzbins = zbins;
+    mymode = mode;
+
+    std::string customnametag = getcustomnamestring();
     std::string filename = path + "CosmicPatternDatabase_" + customnametag + ".root";
     std::cout << " -- START: Getting AM Template Database from file " << filename << std::endl;
 
@@ -385,5 +390,17 @@ bool TemplateBank::readAMfromFile(std::string path, int wbins, int zbins, int mo
     tF.Close();
 
     std::cout << " -- CHECK: Got AM Template Database from file " << filename << std::endl;
+}
+
+int TemplateBank::getRejectedCount() {
+    return rejectedcount;
+}
+
+int TemplateBank::getAcceptedCount() {
+    return acceptedcount;
+}
+
+std::string TemplateBank::getcustomnamestring() {
+    return "dataset" + get_string(mydataset) + "_mode" + get_string(mymode) + "zBins" + get_string(myzbins) + "wBins" + get_string(mywbins);
 }
 
