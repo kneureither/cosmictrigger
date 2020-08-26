@@ -5,9 +5,11 @@
 #ifndef COSMICTRIGGER_COSMICTEMPLATESBGEVAL_H
 #define COSMICTRIGGER_COSMICTEMPLATESBGEVAL_H
 
-void cosmicTemplatesBgEval(const int);
+#include <vector>
 
-struct bghit{
+void cosmicTemplatesBgEval(const int, unsigned int, const float);
+
+struct BGhit{
     double x;
     double y;
     double z;
@@ -19,7 +21,23 @@ struct bghit{
         this->z = z;
         this->type = type;
     }
-}BGHIT;
+};
+
+struct SIDtype{
+    unsigned short SID;
+    int type;
+    SIDtype(unsigned short SID, int type) {
+        this->SID = SID;
+        this->type = type;
+    }
+};
+
+struct BGSortedHits{
+    std::vector<SIDtype> h0; //first hit in TID order
+    std::vector<SIDtype> h1; //second hit (layer 2)
+    std::vector<SIDtype> h2; //third hit (layer 2, y<0)
+    std::vector<SIDtype> h3; //fourth hit (layer 3, y<0)
+};
 
 
 #endif //COSMICTRIGGER_COSMICTEMPLATESBGEVAL_H

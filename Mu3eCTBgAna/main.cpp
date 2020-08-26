@@ -4,6 +4,6 @@
 #include "inc/cosmicTemplatesBgEval.h"
 
 int main() {
-    cosmicTemplatesBgEval(102);
+    cosmicTemplatesBgEval(102, 400, 1);
     return 0;
 }
