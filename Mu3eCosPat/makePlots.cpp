@@ -22,7 +22,7 @@
 #include "utilityFunctions.h"
 #include "plots.h"
 
-void makeCosPatPlots(const int dataset) {
+void makeCosPatPlots(const int dataset, const int combination_id) {
     const std::string pathtodata = "plots/Mu3eCosPat/";
     const std::string pathtoplots = "plots/Mu3eCosPatPlots/";
     std::string pathtorunplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
@@ -41,7 +41,7 @@ void makeCosPatPlots(const int dataset) {
     check_create_directory(pathtorundata);
 
     //open file with plots from Pattern Engine and Template Bank
-    TFile tinF((pathtorundata + "TemplateBank_dataset_" + get_padded_string(dataset, 3, '0') + "_plots.root").c_str(), "update");
+    TFile tinF((pathtorundata + "TemplateBank_dataset_" + get_padded_string(dataset, 3, '0') + "_id" + get_padded_string(combination_id, 3, '0') + "_plots.root").c_str(), "update");
     if (!tinF.IsOpen()) {
         std::cout << "[ERROR] File " << tinF.GetName() << " is not open!" << std::endl;
         exit(0);
@@ -205,7 +205,7 @@ void makeCosPatPlots(const int dataset) {
     legend->SetTextFont(43);
     legend->SetTextSize(10);
     legend->Draw();
-    saveCanvas(canvas, "CosPatPlots_dataset_" +get_string(dataset), pathtorunplots);
+    saveCanvas(canvas, "CosPatPlots_dataset_" +get_string(dataset) + "_id" + get_padded_string(combination_id, 3, '0'), pathtorunplots);
 
     tinF.Close();
 

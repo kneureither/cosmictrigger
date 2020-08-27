@@ -8,7 +8,7 @@
 #include "SlimSegsTree.h"
 #include "PatternEngine.h"
 
-void cosmicTemplatesBuild(const int, unsigned int, float);
+void cosmicTemplatesBuild(const int, unsigned int, float, int);
 
 static bool getSymmetricRefHits(std::vector<float> &xpr, std::vector<float> &ypr,
         std::vector<float> &zpr, std::vector<int> &layerpr, SlimSegsTree &SlimSegs, const int &minlayer) {

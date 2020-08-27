@@ -5,6 +5,6 @@
 #ifndef COSMICTRIGGER_MAKEPLOTS_H
 #define COSMICTRIGGER_MAKEPLOTS_H
 
-void makeCosPatPlots(const int dataset);
+void makeCosPatPlots(const int dataset, const int combination_id);
 
 #endif //COSMICTRIGGER_MAKEPLOTS_H

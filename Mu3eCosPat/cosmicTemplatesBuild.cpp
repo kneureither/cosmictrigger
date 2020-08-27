@@ -19,7 +19,7 @@
 
 void getReferenceHits(unsigned int *pInt, int nhit, unsigned int ncombinedhits);
 
-void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float spWZratio) {
+void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float spWZratio, int combination_id) {
     const std::string pathtodata = "data/SlimmedData/";
     const std::string pathtoplots = "plots/Mu3eCosPat/";
 
@@ -142,7 +142,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
     //open new TFile for plots
     TFile * tF = new TFile((pathtorunplots +"TemplateBank_dataset_" +
-            get_padded_string(dataset, 3, '0') + "_plots.root").c_str(), "update");
+            get_padded_string(dataset, 3, '0') + "_id" + get_padded_string(combination_id, 3, '0') + "_plots.root").c_str(), "update");
     if (!tF->IsOpen()) {
         std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
     }

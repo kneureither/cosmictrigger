@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
 
     std::vector<float> SPratios;
 
+    //this must be set -->
     SPratios.push_back(0.1);
     SPratios.push_back(0.25);
     SPratios.push_back(0.5);
@@ -31,6 +32,9 @@ int main(int argc, char *argv[]) {
     SPratios.push_back(2);
     SPratios.push_back(4);
     SPratios.push_back(10);
+    int combination_id = 1; //will produce a separate file
+    //   <-- up till here.
+
     int dataset;
     int spcount;
 
@@ -45,11 +49,11 @@ int main(int argc, char *argv[]) {
 
     for(int i=0; i<SPratios.size(); i++) {
         std::cout << "Building Template Database for dataset " << dataset << " SPratio? " << SPratios[i] <<"..." << std::endl;
-        cosmicTemplatesBuild(dataset, spcount, SPratios[i]);
+        cosmicTemplatesBuild(dataset, spcount, SPratios[i], combination_id);
     }
 
     std::cout << "Producing combined plots for dataset " << dataset << "..." << std::endl;
-    makeCosPatPlots(dataset);
+    makeCosPatPlots(dataset, combination_id);
 
 
 
