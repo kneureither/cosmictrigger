@@ -8,13 +8,25 @@
 
 int main(int argc, char *argv[]) {
     std::vector<int> runs = {14,16,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37};
-    const int dataset = 6;
+//    std::vector<int> runs = {37, 1000};
+
+    //add the bunch data
+    for(int i=1000; i<=1025; i++) {
+        runs.push_back(i);
+    }
+
+    const int dataset = 7;
+
+    bool append = false;
 
     for(auto it = std::begin(runs); it != runs.end(); ++it) {
-        slimSegsDataScript(dataset, *it, true);
+        std::cout << "STATUS : adding run " << *it << " to dataset " << dataset << std::endl;
+        slimSegsDataScript(dataset, *it, append);
+        append = true;
     }
 
     //data set 4 contains 14,16,19,20,21,22,23,24,25
+    //data set 6 contains 14,16,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37
 }
 
 

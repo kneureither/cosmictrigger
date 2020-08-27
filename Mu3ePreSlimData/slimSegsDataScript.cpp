@@ -26,20 +26,20 @@
 using std::cout;
 using std::endl;
 
-void slimSegsDataScript(const int outnum, const int run, const bool appendToFile) {
+void slimSegsDataScript(const int dataset, const int run, const bool appendToFile) {
 
     const int MAX_ENTRIES = 0;
 
     const std::string pathtoplots = "plots/Mu3eSlimSegs/";
     const std::string pathtodata = "data/SimulationData/";
-    const std::string pathtorunplots = pathtoplots + "run_" + get_padded_string(run, 3, '0') + "/";
+    const std::string pathtodatasetplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string infile = pathtodata + "mu3e_run_" + get_padded_string(run, 6, '0') + "_trirec_cosmic.root";
-//    const std::string outputfile = pathtodata + "mu3e_slimmed_segs_" + get_padded_string(outnum, 6, '0') + ".root";
-    const std::string outputfile = "data/SlimmedData/mu3e_slimmed_segs_" + get_padded_string(outnum, 6, '0') + ".root";
+//    const std::string outputfile = pathtodata + "mu3e_slimmed_segs_" + get_padded_string(dataset, 6, '0') + ".root";
+    const std::string outputfile = "data/SlimmedData/mu3e_slimmed_segs_" + get_padded_string(dataset, 6, '0') + ".root";
 
     check_create_directory(pathtodata);
     check_create_directory(pathtoplots);
-    check_create_directory(pathtorunplots);
+    check_create_directory(pathtodatasetplots);
 
     // FILE FOR WRITING
     TFile toutF(outputfile.c_str(), (appendToFile ? "update" : "recreate"));
@@ -134,7 +134,7 @@ void slimSegsDataScript(const int outnum, const int run, const bool appendToFile
 
     //iterate through entries in segs tree
     for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? Segs.my_entries : MAX_ENTRIES); i++) {
-        printf("SEGS ENTRY %d ------- \n", i);
+//        printf("SEGS ENTRY %d ------- \n", i);
 
         //update data in Segs class
         Segs.getEntry(i);
@@ -297,8 +297,8 @@ void slimSegsDataScript(const int outnum, const int run, const bool appendToFile
     const float RIGHT_BOUNDARY_P = 3e4 ;
     const int BIN_COUNT = 50;
 
-    const std::string plottingfile = pathtorunplots + "Mu3eSlimSegsScript_run_" + get_padded_string(run, 3, '0') +
-            "_outfile_" + get_padded_string(outnum, 3, '0') + ".pdf";
+    const std::string plottingfile = pathtodatasetplots + "Mu3eSlimSegsScript_run_" + get_padded_string(run, 6, '0') +
+                                     "_dataset_" + get_padded_string(dataset, 3, '0') + ".pdf";
 
 
     TH1F *h_rec_nhits = new TH1F("h_rec_nhits", "hits per frame of trirec output", 20, 0., 20.);
