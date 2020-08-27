@@ -80,7 +80,7 @@ void SegsTreeRead::setBranchAddresses() {
 
 void SegsTreeRead::getEntry(const int index) {
     this->tr_segs->GetEntry(index);
-    std::cout << "segs.nhit=" << rec_nhit << endl;
+//    std::cout << "segs.nhit=" << rec_nhit << endl;
 //    h->Fill(1.0);
 }
 
