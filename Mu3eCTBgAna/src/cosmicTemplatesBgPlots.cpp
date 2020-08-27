@@ -50,7 +50,8 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
 
     //root file meta data
     TTree *tree_meta;
-    TH1F *h_disceff;
+    TH1F *h_bgeff;
+    TH1F h_disceff[4];
 
     THStack *hs = new THStack("hs","");
 
@@ -83,28 +84,30 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
     int cycle = 0;
     std::string tree;
 
-    TList *list = tinF.GetListOfKeys();
-    TIter iter(list->MakeIterator());
-    //iterate over all cycles of trees separately = different SP configs
-    while (TObject *obj = iter()) {
-        TKey *theKey = (TKey *) obj;
-        tree = theKey->GetName();
-        cycle = theKey->GetCycle();
+//    TList *list = tinF.GetListOfKeys();
+//    TIter iter(list->MakeIterator());
+//    //iterate over all cycles of trees separately = different SP configs
+//    while (TObject *obj = iter()) {
+//        TKey *theKey = (TKey *) obj;
+//        tree = theKey->GetName();
+//        cycle = theKey->GetCycle();
+//
+//        if(delete_cycle != 0) {
+//            if(cycle == delete_cycle) {
+//                std::string object_to_remove = tree + ";" + get_string(delete_cycle);
+//                std::cout << " now deleting object " << tree << " cycle " << cycle << " complete name " << object_to_remove << std::endl;
+//                gDirectory->Delete(object_to_remove.c_str());
+//                continue;
+//            }
+//        }
+//
+//        std::cout << tree << std::endl;
+//
+//        if(tree != "MetadataTree") continue;
+//        treecount++;
+//        std::cout << treecount << std::endl;
 
-        if(delete_cycle != 0) {
-            if(cycle == delete_cycle) {
-                std::string object_to_remove = tree + ";" + get_string(delete_cycle);
-                std::cout << " now deleting object " << tree << " cycle " << cycle << " complete name " << object_to_remove << std::endl;
-                gDirectory->Delete(object_to_remove.c_str());
-                continue;
-            }
-        }
-
-        std::cout << tree << std::endl;
-
-        if(tree != "MetadataTree") continue;
-        treecount++;
-        std::cout << treecount << std::endl;
+    for(cycle=1; cycle <= 3; cycle++) {
 
         std::cout << "STATUS : Processing tree " << tree << " cycle " << cycle << std::endl;
 
@@ -124,37 +127,39 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
         std::cout << "  -- SPcount=" << SPcount << " SPratio=" << spWZratio << " wBins=" << wBins[0] << " zBins=" << zBins[0] << std::endl;
         std::cout << "     max muon hits=" << max_muon_hits << std::endl;
 
-        tinF.GetObject(("h_bgeff;" + get_string(cycle)).c_str(), h_disceff);
+        tinF.GetObject(("h_bgeff;" + get_string(cycle)).c_str(), h_bgeff);
+
+        h_disceff[cycle] = *h_bgeff;
 
 
         //make the plots
         pad0->cd();
-        h_disceff->SetLineColor(colpalette[treecount-1]);
-        h_disceff->SetMarkerStyle(5);
-        h_disceff->SetMarkerColor(colpalette[treecount-1]);
+        h_disceff[cycle].SetLineColor(colpalette[treecount-1]);
+        h_disceff[cycle].SetMarkerStyle(5);
+        h_disceff[cycle].SetMarkerColor(colpalette[treecount-1]);
 
-        h_disceff->GetXaxis()->SetTitle("efficiency #epsilon_{templates matched/generated}");
-        h_disceff->GetXaxis()->SetLabelFont(43);
-        h_disceff->GetXaxis()->SetLabelSize(14);
-        h_disceff->GetXaxis()->SetTitleFont(63);
-        h_disceff->GetXaxis()->SetTitleSize(14);
-        h_disceff->GetXaxis()->SetTitleOffset(1.4);
-        h_disceff->GetXaxis()->CenterTitle(false);
+        h_disceff[cycle].GetXaxis()->SetTitle("efficiency #epsilon_{templates matched/generated}");
+        h_disceff[cycle].GetXaxis()->SetLabelFont(43);
+        h_disceff[cycle].GetXaxis()->SetLabelSize(14);
+        h_disceff[cycle].GetXaxis()->SetTitleFont(63);
+        h_disceff[cycle].GetXaxis()->SetTitleSize(14);
+        h_disceff[cycle].GetXaxis()->SetTitleOffset(1.4);
+        h_disceff[cycle].GetXaxis()->CenterTitle(false);
 
-        h_disceff->GetYaxis()->SetTitle("normalized distribution");
-        h_disceff->GetYaxis()->SetLabelFont(43);
-        h_disceff->GetYaxis()->SetLabelSize(14);
-        h_disceff->GetYaxis()->SetTitleFont(63);
-        h_disceff->GetYaxis()->SetTitleSize(11);
-        h_disceff->GetYaxis()->SetTitleOffset(1.6);
-        h_disceff->GetYaxis()->CenterTitle(false);
+        h_disceff[cycle].GetYaxis()->SetTitle("normalized distribution");
+        h_disceff[cycle].GetYaxis()->SetLabelFont(43);
+        h_disceff[cycle].GetYaxis()->SetLabelSize(14);
+        h_disceff[cycle].GetYaxis()->SetTitleFont(63);
+        h_disceff[cycle].GetYaxis()->SetTitleSize(11);
+        h_disceff[cycle].GetYaxis()->SetTitleOffset(1.6);
+        h_disceff[cycle].GetYaxis()->CenterTitle(false);
 
 
-        hs->Add(h_disceff);
+        hs->Add(&h_disceff[cycle]);
 
         std::string ltext="muon hits=" + get_string(max_muon_hits);
 
-        legend->AddEntry(h_disceff,ltext.c_str(),"l");
+        legend->AddEntry(&h_disceff[cycle],ltext.c_str(),"l");
     }
 
     std::string lline1 = "Analysed frames: " + get_string(bg_events);
@@ -162,7 +167,7 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
     std::string lline3 = "bins_{z}=" + get_string(zBins[0]) + " bins_{w}=" + get_string(wBins[0]);
 
 //    legend->SetHeader(("#splitline{" + lline1 + "}{" + lline2 + "}{" + lline3 + "}").c_str(), "C"); //"C" centers header)
-//    legend->SetHeader(lline1.c_str(), "C"); //"C" centers header)
+    legend->SetHeader(lline1.c_str(), "C"); //"C" centers header)
 
     hs->Draw();
 
