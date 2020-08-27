@@ -26,7 +26,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
      * check the frequency
      */
 
-    int MAX_ENTRIES = 1000;
+    int MAX_ENTRIES = 0;
     int MAX_MUON_HITS = max_muon_hits;
     const int MUONTYPE = 1;
     const int PRINTS = false;
@@ -243,7 +243,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     }
 
     //open new TFile for plots
-    TFile * tF = new TFile((pathtorunplots +"CosmicBackgroundEval_dataset_" + get_padded_string(dataset, 3, '0') +
+    TFile * tF = new TFile((pathtorunplots +"CosmicBackgroundEval_bgevents_" + get_padded_string(MAX_ENTRIES, 6, '0') +
                             "_run_" + get_padded_string(run, 6, '0') + "_" +
                             TB.getcustomnamestring() + "_plots.root").c_str(), "update");
     if (!tF->IsOpen()) {

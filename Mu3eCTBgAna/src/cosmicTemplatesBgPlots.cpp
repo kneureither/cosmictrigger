@@ -76,8 +76,9 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
 
     auto *pad0 = new TPad("background match efficiency", "background match efficiency", 0, 0, 1,1);
     pad0->Draw();
+    pad0->cd();
 
-    auto legend = new TLegend(0.3,0.6,0.7,0.9);
+//    auto legend = new TLegend(0.3,0.6,0.7,0.9);
 
     //get different cycles of trees in file
     int treecount = 0;
@@ -107,6 +108,7 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
 //        treecount++;
 //        std::cout << treecount << std::endl;
 
+
     for(cycle=1; cycle <= 3; cycle++) {
 
         std::cout << "STATUS : Processing tree " << tree << " cycle " << cycle << std::endl;
@@ -129,51 +131,59 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
 
         tinF.GetObject(("h_bgeff;" + get_string(cycle)).c_str(), h_bgeff);
 
-        h_disceff[cycle] = *h_bgeff;
-
-
         //make the plots
-        pad0->cd();
-        h_disceff[cycle].SetLineColor(colpalette[treecount-1]);
-        h_disceff[cycle].SetMarkerStyle(5);
-        h_disceff[cycle].SetMarkerColor(colpalette[treecount-1]);
-
-        h_disceff[cycle].GetXaxis()->SetTitle("efficiency #epsilon_{templates matched/generated}");
-        h_disceff[cycle].GetXaxis()->SetLabelFont(43);
-        h_disceff[cycle].GetXaxis()->SetLabelSize(14);
-        h_disceff[cycle].GetXaxis()->SetTitleFont(63);
-        h_disceff[cycle].GetXaxis()->SetTitleSize(14);
-        h_disceff[cycle].GetXaxis()->SetTitleOffset(1.4);
-        h_disceff[cycle].GetXaxis()->CenterTitle(false);
-
-        h_disceff[cycle].GetYaxis()->SetTitle("normalized distribution");
-        h_disceff[cycle].GetYaxis()->SetLabelFont(43);
-        h_disceff[cycle].GetYaxis()->SetLabelSize(14);
-        h_disceff[cycle].GetYaxis()->SetTitleFont(63);
-        h_disceff[cycle].GetYaxis()->SetTitleSize(11);
-        h_disceff[cycle].GetYaxis()->SetTitleOffset(1.6);
-        h_disceff[cycle].GetYaxis()->CenterTitle(false);
-
-
-        hs->Add(&h_disceff[cycle]);
+        h_bgeff->SetLineColor(colpalette[cycle-1]);
+        h_bgeff->SetMarkerStyle(5);
+        h_bgeff->SetMarkerColor(colpalette[cycle-1]);
+//
+//        h_disceff[cycle].GetXaxis()->SetTitle("efficiency #epsilon_{templates matched/generated}");
+//        h_disceff[cycle].GetXaxis()->SetLabelFont(43);
+//        h_disceff[cycle].GetXaxis()->SetLabelSize(14);
+//        h_disceff[cycle].GetXaxis()->SetTitleFont(63);
+//        h_disceff[cycle].GetXaxis()->SetTitleSize(14);
+//        h_disceff[cycle].GetXaxis()->SetTitleOffset(1.4);
+//        h_disceff[cycle].GetXaxis()->CenterTitle(false);
+//
+//        h_disceff[cycle].GetYaxis()->SetTitle("normalized distribution");
+//        h_disceff[cycle].GetYaxis()->SetLabelFont(43);
+//        h_disceff[cycle].GetYaxis()->SetLabelSize(14);
+//        h_disceff[cycle].GetYaxis()->SetTitleFont(63);
+//        h_disceff[cycle].GetYaxis()->SetTitleSize(11);
+//        h_disceff[cycle].GetYaxis()->SetTitleOffset(1.6);
+//        h_disceff[cycle].GetYaxis()->CenterTitle(false);
 
         std::string ltext="muon hits=" + get_string(max_muon_hits);
 
-        legend->AddEntry(&h_disceff[cycle],ltext.c_str(),"l");
+        TH1F *h_bgeffclone = (TH1F*) h_bgeff->Clone();
+        h_bgeffclone->SetTitle(ltext.c_str());
+//        legend->AddEntry(h_bgeffclone->Clone(),ltext.c_str(),"p");
+
+        hs->Add(h_bgeffclone);
     }
+
+
+//    auto legend = new T Legend(0.3,0.6,0.7,0.9);
+//
+//    for(int cycle=0; cycle < hs->GetNhists(); cycle++) {
+//        std::cout << hs->GetNhists() << std::endl;
+//        legend->AddEntry(hs->GetHists()->At(cycle),hs->GetHists()->At(cycle)->GetTitle(),"p");
+//    }
+
+        std::cout << hs->GetNhists() << std::endl;
+
 
     std::string lline1 = "Analysed frames: " + get_string(bg_events);
     std::string lline2 = "run: " + get_string(bg_run) + " SP ratio:" + (spWZratio < 1 ? "1:" + get_string(1/spWZratio) : get_string(spWZratio) + ":1");
     std::string lline3 = "bins_{z}=" + get_string(zBins[0]) + " bins_{w}=" + get_string(wBins[0]);
 
 //    legend->SetHeader(("#splitline{" + lline1 + "}{" + lline2 + "}{" + lline3 + "}").c_str(), "C"); //"C" centers header)
-    legend->SetHeader(lline1.c_str(), "C"); //"C" centers header)
+//    legend->SetHeader(lline1.c_str(), "C"); //"C" centers header)
 
-    hs->Draw();
+    hs->Draw("nostack");
 
-    legend->SetTextFont(43);
-    legend->SetTextSize(10);
-    legend->Draw();
+//    legend->SetTextFont(43);
+////    legend->SetTextSize(10);
+//    legend->Draw();
 
     std::cout << "check" << std::endl;
 
