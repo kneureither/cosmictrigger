@@ -7,7 +7,7 @@
 
 #include <vector>
 
-void cosmicTemplatesBgEval(const int, unsigned int, const float);
+void cosmicTemplatesBgEval(const int, unsigned int, const float, const int);
 
 struct BGhit{
     double x;

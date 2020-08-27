@@ -8,3 +8,7 @@ include_directories(src)
 set(SRC main.cpp src/cosmicTemplatesBgEval.cpp)
 add_executable(Mu3eCTBgAna ${SRC})
 target_link_libraries(Mu3eCTBgAna patterns rootTreeFiles)
+
+set(SRC main_bgeffplot.cpp src/cosmicTemplatesBgPlots.cpp)
+add_executable(Mu3eCTBgPlots ${SRC})
+target_link_libraries(Mu3eCTBgPlots rootTreeFiles)

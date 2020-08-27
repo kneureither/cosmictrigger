@@ -17,7 +17,7 @@
 #include "../Mu3eCosPat/include/TemplateData.h"
 
 
-void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spWZratio) {
+void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spWZratio, int max_muon_hits) {
     /*
      * Read and analyse the mu3e mc hits
      * get the hits in xyz
@@ -26,12 +26,12 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
      * check the frequency
      */
 
-    const int MAX_ENTRIES = 1000;
-    const int PRINTS = false;
-    const int dataset = 6; //determines which pretrained database will be used
-    const int mode = 0;
+    int MAX_ENTRIES = 1000;
+    int MAX_MUON_HITS = max_muon_hits;
     const int MUONTYPE = 1;
-    const int MAX_MUON_HITS = 2;
+    const int PRINTS = false;
+    const int dataset = 7; //determines which pretrained database will be used
+    const int mode = 0;
 
     const std::string pathtoBGdata = "data/SimulationData/";
     const std::string pathtoTemplateData = "data/TemplateData/";
@@ -73,6 +73,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
 
 
     //make some analysis plots
+    TH1F h_bgeff("h_bgeff", "background match efficiency", 100, 0, 0.01);
     TH1F h_discreff(("h_discreff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), ("h_discreff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), 100, 0, 0.01);
     TH1F h_oheff(("h_oheff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), "h_oheff", 100, 0, 1);
     TH1F h_heff(("h_heff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), "h_heff", 100, 0, 1);
@@ -113,12 +114,12 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
             bgframehits.push_back(BGHIT);
 
             SID = (unsigned short) PE.getSuperPixel(BGHIT.x, BGHIT.y, BGHIT.z);
-            if(SIDMem.count(SID) == 0) {
-                SIDMem[SID] = 1;
-            } else {
-                doublesid++;
-                continue;
-            }
+//            if(SIDMem.count(SID) == 0) {
+//                SIDMem[SID] = 1;
+//            } else {
+//                doublesid++;
+//                continue;
+//            }
 
             int layer=PE.getLayerFromSPID(SID);
 
@@ -144,10 +145,15 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
 
         std::cout << "   -> got cosmic at index " << randindex << " TID=" << COSMICTID.toString() << std::endl;
 
-        if(SIDMem.count(COSMICTID.HIDS[0]) == 0) hits.h0.push_back(SIDtype(COSMICTID.HIDS[0], MUONTYPE));
-        if(SIDMem.count(COSMICTID.HIDS[1]) == 0) hits.h1.push_back(SIDtype(COSMICTID.HIDS[1], MUONTYPE));
-        if(SIDMem.count(COSMICTID.HIDS[2]) == 0) hits.h2.push_back(SIDtype(COSMICTID.HIDS[2], MUONTYPE));
-        if(SIDMem.count(COSMICTID.HIDS[3]) == 0) hits.h3.push_back(SIDtype(COSMICTID.HIDS[3], MUONTYPE));
+//        if(SIDMem.count(COSMICTID.HIDS[0]) == 0) hits.h0.push_back(SIDtype(COSMICTID.HIDS[0], MUONTYPE));
+//        if(SIDMem.count(COSMICTID.HIDS[1]) == 0) hits.h1.push_back(SIDtype(COSMICTID.HIDS[1], MUONTYPE));
+//        if(SIDMem.count(COSMICTID.HIDS[2]) == 0) hits.h2.push_back(SIDtype(COSMICTID.HIDS[2], MUONTYPE));
+//        if(SIDMem.count(COSMICTID.HIDS[3]) == 0) hits.h3.push_back(SIDtype(COSMICTID.HIDS[3], MUONTYPE));
+
+        hits.h0.push_back(SIDtype(COSMICTID.HIDS[0], MUONTYPE));
+        hits.h1.push_back(SIDtype(COSMICTID.HIDS[1], MUONTYPE));
+        hits.h2.push_back(SIDtype(COSMICTID.HIDS[2], MUONTYPE));
+        hits.h3.push_back(SIDtype(COSMICTID.HIDS[3], MUONTYPE));
 
         //Go through all possible combinations of hits and create corresponding Template IDs
         //for all hits in upper layer 3
@@ -221,6 +227,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
         std::cout << "  > TB accepted " << TB.getAcceptedCount() << "    TB rejected " << TB.getRejectedCount();
         std::cout << "    TB ratio " << TB.getAcceptedCount() / (float) TB.getRejectedCount() << std::endl << std::endl;
 
+        h_bgeff.Fill(eff_templatecount);
         h_discreff.Fill(eff_templatecount);
         h_oheff.Fill(eff_outerhits);
         h_heff.Fill(eff_hits);
@@ -243,17 +250,39 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
         std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
     }
 
+    //add some meta data for the output file
+    int bg_run = run;
+    TTree tT_met("MetadataTree","Metadata associated with these plots (SID config and dataset)");
+    tT_met.Branch("bg_run", &bg_run, "bg_run/I");
+    tT_met.Branch("bg_events", &MAX_ENTRIES, "bg_events/I");
+    tT_met.Branch("max_muon_hits", &MAX_MUON_HITS, "max_muon_hits/I");
+
+
+    tT_met.Branch("area0Description", &PE.areaDescript[0], "area0Description/C");
+    tT_met.Branch("area1Description", &PE.areaDescript[1], "area1Description/C");
+    tT_met.Branch("area2Description", &PE.areaDescript[2], "area2Description/C");
+    tT_met.Branch("wBins0", &PE.WBins[0], "wBins0/I");
+    tT_met.Branch("wBins1", &PE.WBins[1], "wBins1/I");
+    tT_met.Branch("wBins2", &PE.WBins[2], "wBins2/I");
+    tT_met.Branch("zBins0", &PE.ZBins[0], "zBins0/I");
+    tT_met.Branch("zBins1", &PE.ZBins[1], "zBins1/I");
+    tT_met.Branch("zBins2", &PE.ZBins[2], "zBins2/I");
+    tT_met.Branch("mode", &PE.mode, "mode/I");
+    tT_met.Fill();
+    tT_met.Write();
+
     PE.displayBinBoundaries();
     PE.displayBinWeightDistribution();
     PE.closePlot();
 
     // Norm
+    h_bgeff.Scale(1.0 / h_bgeff.Integral());
     h_discreff.Scale(1.0 / h_discreff.Integral());
     h_oheff.Scale(1.0 / h_oheff.Integral());
     h_heff.Scale(1.0 / h_heff.Integral());
 
-
     //Write
+    h_bgeff.Write();
     h_discreff.Write();
     h_oheff.Write();
     h_heff.Write();
