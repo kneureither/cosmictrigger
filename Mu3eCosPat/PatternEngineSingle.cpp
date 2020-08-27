@@ -360,9 +360,9 @@ void PatternEngineSingle::displayBinWeightDistributionLayer(int layer) {
     labelAxis(h_binweights, "z bins", "#phi bins");
 
     //Fill 2d hist with weights
-    for(int i=1; i<totalBinCount; i++) {
-        for(int j=1; j<spWeights[layer].at(i); j++) {
-            h_binweights->Fill(getSPZcoord(i+1), getSPXcoord(i+1));
+    for(int i=0; i<totalBinCount; i++) {
+        for(int j=0; j<spWeights[layer].at(i); j++) {
+            h_binweights->Fill(getSPZcoord(i), getSPXcoord(i));
         }
     }
 
