@@ -6,6 +6,7 @@
 #include "TH1F.h"
 
 #include <cassert>
+#include <map>
 #include <stdlib.h>
 
 #include "../inc/cosmicTemplatesBgEval.h"
@@ -30,13 +31,13 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     const int dataset = 6; //determines which pretrained database will be used
     const int mode = 0;
     const int MUONTYPE = 1;
-    const int MAX_MUON_HITS = 0;
+    const int MAX_MUON_HITS = 2;
 
     const std::string pathtoBGdata = "data/SimulationData/";
     const std::string pathtoTemplateData = "data/TemplateData/";
     const std::string pathtoplots = "plots/Mu3eCosPatBgEval/";
     const std::string infile = pathtoBGdata + "mu3e_run_" + get_padded_string(run, 6, '0') + ".root";
-    std::string pathtorunplots = pathtoplots + "run_" + get_padded_string(run, 3, '0') + "/";
+    std::string pathtorunplots = pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/";
     std::string pathtodatasettemplatedata = pathtoTemplateData + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
 
     check_create_directory(pathtoBGdata);
@@ -88,18 +89,20 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
         Mu3e.getEntry(frame);
         if(PRINTS) Mu3e.Print(frame);
 
-        if(Mu3e.Nhit > 50) {
-            continue;
-        }
+//        if(Mu3e.Nhit > 50) {
+//            continue;
+//        }
 
         std::vector<BGhit> bgframehits;
         BGSortedHits hits;
         std::vector<TemplateID> TIDS;
         std::vector<TemplateID> TIDSnocosmics;
+        std::map<unsigned short, int> SIDMem;
         BGhit BGHIT;
         unsigned short SID;
         int innerhits=0;
         int outerhits=0;
+        int doublesid=0;
 
         //get all hits from one frame
         assert(Mu3e.Nhit == Mu3e.hit_mc_i->size());
@@ -110,9 +113,15 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
             bgframehits.push_back(BGHIT);
 
             SID = (unsigned short) PE.getSuperPixel(BGHIT.x, BGHIT.y, BGHIT.z);
+            if(SIDMem.count(SID) == 0) {
+                SIDMem[SID] = 1;
+            } else {
+                doublesid++;
+                continue;
+            }
+
             int layer=PE.getLayerFromSPID(SID);
 
-            //FIXME: Now double SIDs are not ignored. Should be checked before pushing back into hits vector
             if(layer == 3 && BGHIT.y >= 0) {
                 hits.h0.push_back(SIDtype(SID, BGHIT.type));
             } else if (layer == 2 && BGHIT.y >= 0) {
@@ -135,11 +144,10 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
 
         std::cout << "   -> got cosmic at index " << randindex << " TID=" << COSMICTID.toString() << std::endl;
 
-        hits.h0.push_back(SIDtype(COSMICTID.HIDS[0], MUONTYPE));
-        hits.h1.push_back(SIDtype(COSMICTID.HIDS[1], MUONTYPE));
-        hits.h2.push_back(SIDtype(COSMICTID.HIDS[2], MUONTYPE));
-        hits.h3.push_back(SIDtype(COSMICTID.HIDS[3], MUONTYPE));
-
+        if(SIDMem.count(COSMICTID.HIDS[0]) == 0) hits.h0.push_back(SIDtype(COSMICTID.HIDS[0], MUONTYPE));
+        if(SIDMem.count(COSMICTID.HIDS[1]) == 0) hits.h1.push_back(SIDtype(COSMICTID.HIDS[1], MUONTYPE));
+        if(SIDMem.count(COSMICTID.HIDS[2]) == 0) hits.h2.push_back(SIDtype(COSMICTID.HIDS[2], MUONTYPE));
+        if(SIDMem.count(COSMICTID.HIDS[3]) == 0) hits.h3.push_back(SIDtype(COSMICTID.HIDS[3], MUONTYPE));
 
         //Go through all possible combinations of hits and create corresponding Template IDs
         //for all hits in upper layer 3
@@ -174,7 +182,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
             }
         }
 
-        assert(bgframehits.size() == (hits.h0.size() + hits.h1.size() + hits.h2.size() + hits.h3.size() + innerhits) - 4);
+//        assert(bgframehits.size() == (hits.h0.size() + hits.h1.size() + hits.h2.size() + hits.h3.size() + innerhits) - 4);
 
         int acceptedcount=0;
         int acceptedcountnocos=0;
@@ -202,6 +210,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
         std::cout << "  > hits in upper layer 2 --- " << hits.h1.size() << std::endl;
         std::cout << "  > hits in lower layer 2 --- " << hits.h2.size() << std::endl;
         std::cout << "  > hits in lower layer 3 --- " << hits.h3.size() << std::endl;
+        std::cout << "  > double sids           --- " << doublesid << std::endl;
 
         std::cout << "  > templates created: " << TIDS.size() << "    (templates excluded: " << toomanycosmicscount << ")" << std::endl;
         std::cout << "  > from which were accepted: " << acceptedcount << std::endl;
@@ -242,6 +251,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     h_discreff.Scale(1.0 / h_discreff.Integral());
     h_oheff.Scale(1.0 / h_oheff.Integral());
     h_heff.Scale(1.0 / h_heff.Integral());
+
 
     //Write
     h_discreff.Write();
