@@ -73,9 +73,9 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
     canvas->SetTicks(1, 1);
     canvas->SetLogx(1);
 
-    auto *pad0 = new TPad("title", "title", 0, 0.3, 1, 0.99);
-    pad0->SetLogx(0);
-    pad0->Draw();
+//    auto *pad0 = new TPad("title", "title", 0, 0.3, 1, 0.99);
+//    pad0->SetLogx(0);
+//    pad0->Draw();
 
     auto *pad1 = new TPad("template efficiency", "template efficiency", 0, 0.3, 1, 0.99);
     pad1->SetLogx(0);
