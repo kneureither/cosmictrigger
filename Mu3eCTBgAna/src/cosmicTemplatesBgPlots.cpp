@@ -5,6 +5,7 @@
 #include <string>
 #include <cassert>
 #include <iostream>
+#include <vector>
 
 //root
 #include "TROOT.h"
@@ -30,9 +31,9 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
     std::string pathtorundata = pathtodata + "bgrun_" + get_padded_string(bgrun, 3, '0') + "/";
 
     const bool MAKE_PLOT = true;
-    const int MAX_ENTRIES = 0;
     const bool PRINTS = false;
     const int delete_cycle=0;
+    std::vector<int> cycles = {3,2};
 
     gStyle->SetTitleFontSize(0.06);
 
@@ -51,7 +52,8 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
     //root file meta data
     TTree *tree_meta;
     TH1F *h_bgeff;
-    TH1F h_disceff[4];
+    std::vector<TH1F*> h_bgeffs;
+    std::string ltext;
 
     THStack *hs = new THStack("hs","");
 
@@ -67,51 +69,26 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
 
     int colpalette[10] = {632,600,427,420,410,414,601,603,861,854};
 
-    TCanvas *canvas = new TCanvas("canvas", "Template Bank Pattern Result", 900, 600);
+    TCanvas *canvas = new TCanvas("canvas", "Background match efficiency result", 900, 600);
 //    canvas->SetLeftMargin(0.15);
 //    canvas->SetRightMargin(0.15);
     canvas->SetGrid(1, 1);
     canvas->SetTicks(1, 1);
-    canvas->SetLogx(1);
+    canvas->SetLogy(1);
 
     auto *pad0 = new TPad("background match efficiency", "background match efficiency", 0, 0, 1,1);
+//    pad0->SetLogy(1);
     pad0->Draw();
     pad0->cd();
 
-//    auto legend = new TLegend(0.3,0.6,0.7,0.9);
 
     //get different cycles of trees in file
-    int treecount = 0;
-    int cycle = 0;
-    std::string tree;
-
-//    TList *list = tinF.GetListOfKeys();
-//    TIter iter(list->MakeIterator());
-//    //iterate over all cycles of trees separately = different SP configs
-//    while (TObject *obj = iter()) {
-//        TKey *theKey = (TKey *) obj;
-//        tree = theKey->GetName();
-//        cycle = theKey->GetCycle();
-//
-//        if(delete_cycle != 0) {
-//            if(cycle == delete_cycle) {
-//                std::string object_to_remove = tree + ";" + get_string(delete_cycle);
-//                std::cout << " now deleting object " << tree << " cycle " << cycle << " complete name " << object_to_remove << std::endl;
-//                gDirectory->Delete(object_to_remove.c_str());
-//                continue;
-//            }
-//        }
-//
-//        std::cout << tree << std::endl;
-//
-//        if(tree != "MetadataTree") continue;
-//        treecount++;
-//        std::cout << treecount << std::endl;
+    int cycle;
 
 
-    for(cycle=1; cycle <= 3; cycle++) {
+    for(const auto cycle : cycles) {
 
-        std::cout << "STATUS : Processing tree " << tree << " cycle " << cycle << std::endl;
+        std::cout << "STATUS : Processing cycle " << cycle << std::endl;
 
         std::string treename = "MetadataTree;" + get_string(cycle);
         tinF.GetObject(treename.c_str(), tree_meta);
@@ -131,64 +108,77 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
 
         tinF.GetObject(("h_bgeff;" + get_string(cycle)).c_str(), h_bgeff);
 
-        //make the plots
-        h_bgeff->SetLineColor(colpalette[cycle-1]);
-        h_bgeff->SetMarkerStyle(5);
-        h_bgeff->SetMarkerColor(colpalette[cycle-1]);
-//
-//        h_disceff[cycle].GetXaxis()->SetTitle("efficiency #epsilon_{templates matched/generated}");
-//        h_disceff[cycle].GetXaxis()->SetLabelFont(43);
-//        h_disceff[cycle].GetXaxis()->SetLabelSize(14);
-//        h_disceff[cycle].GetXaxis()->SetTitleFont(63);
-//        h_disceff[cycle].GetXaxis()->SetTitleSize(14);
-//        h_disceff[cycle].GetXaxis()->SetTitleOffset(1.4);
-//        h_disceff[cycle].GetXaxis()->CenterTitle(false);
-//
-//        h_disceff[cycle].GetYaxis()->SetTitle("normalized distribution");
-//        h_disceff[cycle].GetYaxis()->SetLabelFont(43);
-//        h_disceff[cycle].GetYaxis()->SetLabelSize(14);
-//        h_disceff[cycle].GetYaxis()->SetTitleFont(63);
-//        h_disceff[cycle].GetYaxis()->SetTitleSize(11);
-//        h_disceff[cycle].GetYaxis()->SetTitleOffset(1.6);
-//        h_disceff[cycle].GetYaxis()->CenterTitle(false);
-
-        std::string ltext="muon hits=" + get_string(max_muon_hits);
-
         TH1F *h_bgeffclone = (TH1F*) h_bgeff->Clone();
-        h_bgeffclone->SetTitle(ltext.c_str());
-//        legend->AddEntry(h_bgeffclone->Clone(),ltext.c_str(),"p");
+        h_bgeffs.push_back(h_bgeffclone);
 
         hs->Add(h_bgeffclone);
+
+        //make the plots
+        h_bgeffclone->SetLineColor(colpalette[cycle-1]);
+        h_bgeffclone->SetMarkerStyle(5);
+        h_bgeffclone->SetMarkerColor(colpalette[cycle-1]);
+
+        float stddev = h_bgeffclone->GetStdDev();
+        float mean = h_bgeffclone->GetMean();
+
+        if(max_muon_hits != 0) {
+            ltext = "#splitline{#bf{FRAMES WITH MUON} (max hits included: " + get_string(max_muon_hits) + ")}"+
+                    "{#it{mean:}  " + get_string(mean) + "  #it{std dev:}  " +get_string(stddev) + "}";
+        } else {
+            ltext = "#splitline{#bf{FRAMES WITHOUT MOUN}}"
+                    "{#it{mean:}  " + get_string(mean) + "  #it{std dev:}  " + get_string(stddev) + "}";
+        }
+        h_bgeffclone->SetTitle(ltext.c_str());
     }
 
 
-//    auto legend = new T Legend(0.3,0.6,0.7,0.9);
-//
-//    for(int cycle=0; cycle < hs->GetNhists(); cycle++) {
-//        std::cout << hs->GetNhists() << std::endl;
-//        legend->AddEntry(hs->GetHists()->At(cycle),hs->GetHists()->At(cycle)->GetTitle(),"p");
-//    }
 
+
+    std::cout << hs->GetNhists() << std::endl;
+
+    std::string lline1 = "Processed frames of background data: " + get_string(bg_events);
+    std::string lline2 = "#it{run:}    #bf{" + get_string(bg_run) + "}   #it{sp aspect ratio:}  #bf{" + (spWZratio < 1 ? "1:" + get_string(1/spWZratio) : get_string(spWZratio) + ":1") + "}";
+    std::string lline3 = "#it{bins_{z}:}   #bf{" + get_string(zBins[0]) + "}   #it{bins_{w}:} #bf{" + get_string(wBins[0]) + "}  #it{dataset:} #bf{" + get_string(dataset) + "}";
+
+    auto legend = new TLegend(0.6,0.7,0.9,0.9);
+    legend->SetTextFont(43);
+    legend->SetTextSize(15);
+    legend->SetHeader(lline1.c_str(), "c"); //"C" centers header)
+
+    legend->SetTextSize(10);
+    legend->AddEntry((TObject*)0, ("#splitline{" + lline2 + "}{" + lline3 + "}").c_str(), "");
+
+    for(int cycle=0; cycle < hs->GetNhists(); cycle++) {
         std::cout << hs->GetNhists() << std::endl;
-
-
-    std::string lline1 = "Analysed frames: " + get_string(bg_events);
-    std::string lline2 = "run: " + get_string(bg_run) + " SP ratio:" + (spWZratio < 1 ? "1:" + get_string(1/spWZratio) : get_string(spWZratio) + ":1");
-    std::string lline3 = "bins_{z}=" + get_string(zBins[0]) + " bins_{w}=" + get_string(wBins[0]);
-
-//    legend->SetHeader(("#splitline{" + lline1 + "}{" + lline2 + "}{" + lline3 + "}").c_str(), "C"); //"C" centers header)
-//    legend->SetHeader(lline1.c_str(), "C"); //"C" centers header)
+        TH1F* h_current = (TH1F*) (hs->GetHists()->At(cycle));
+        legend->AddEntry(h_current,h_current->GetTitle(),"p");
+    }
 
     hs->Draw("nostack");
 
-//    legend->SetTextFont(43);
-////    legend->SetTextSize(10);
-//    legend->Draw();
+    hs->GetXaxis()->SetTitle("efficiency #epsilon = #frac{#tau_{matched}}{#tau_{combinatorics}}");
+    hs->GetXaxis()->SetLabelFont(43);
+    hs->GetXaxis()->SetLabelSize(14);
+    hs->GetXaxis()->SetTitleFont(53);
+    hs->GetXaxis()->SetTitleSize(14);
+    hs->GetXaxis()->SetTitleOffset(1.4);
+    hs->GetXaxis()->CenterTitle (false);
 
-    std::cout << "check" << std::endl;
+    hs->GetYaxis()->SetTitle("normalized distribution");
+    hs->GetYaxis()->SetLabelFont(43);
+    hs->GetYaxis()->SetLabelSize(14);
+    hs->GetYaxis()->SetTitleFont(53);
+    hs->GetYaxis()->SetTitleSize(14);
+    hs->GetYaxis()->SetTitleOffset(1.6);
+    hs->GetYaxis()->CenterTitle(false);
 
-    canvas->SaveAs((pathtorunplots + "CosPatBGeff.pdf").c_str());
-//    saveCanvas(canvas, "CosPatPlots_dataset_" + get_string(dataset) + "_bgrun_" + get_padded_string(bgrun, 6, '0'), pathtorunplots);
+    canvas->Modified();
+
+    legend->SetBorderSize(1);
+    legend->Draw();
+
+//    canvas->SaveAs((pathtorunplots + "CosPatBGeff.pdf").c_str());
+    saveCanvas(canvas, "CosPatPlots_dataset_" + get_string(dataset) + "_bgrun_" + get_padded_string(bgrun, 6, '0') + "_bgevents_" + get_string(bg_events), pathtorunplots);
 
     tinF.Close();
 

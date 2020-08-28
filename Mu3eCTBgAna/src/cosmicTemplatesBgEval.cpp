@@ -85,8 +85,9 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     std::vector<temid> COSMICTIDs = TB.getMostPopulatedTemplates(cosmicpool);
 
 
+    int bg_events = (MAX_ENTRIES == 0 ? Mu3e.my_entries : MAX_ENTRIES);
 
-    for(int frame=0; frame <= (MAX_ENTRIES == 0 ? Mu3e.my_entries : MAX_ENTRIES); frame++) {
+    for(int frame=0; frame <= bg_events; frame++) {
         Mu3e.getEntry(frame);
         if(PRINTS) Mu3e.Print(frame);
 
@@ -243,7 +244,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     }
 
     //open new TFile for plots
-    TFile * tF = new TFile((pathtorunplots +"CosmicBackgroundEval_bgevents_" + get_padded_string(MAX_ENTRIES, 6, '0') +
+    TFile * tF = new TFile((pathtorunplots +"CosmicBackgroundEval_bgevents_" + get_padded_string(bg_events, 6, '0') +
                             "_run_" + get_padded_string(run, 6, '0') + "_" +
                             TB.getcustomnamestring() + "_plots.root").c_str(), "update");
     if (!tF->IsOpen()) {
@@ -254,7 +255,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     int bg_run = run;
     TTree tT_met("MetadataTree","Metadata associated with these plots (SID config and dataset)");
     tT_met.Branch("bg_run", &bg_run, "bg_run/I");
-    tT_met.Branch("bg_events", &MAX_ENTRIES, "bg_events/I");
+    tT_met.Branch("bg_events", &bg_events, "bg_events/I");
     tT_met.Branch("max_muon_hits", &MAX_MUON_HITS, "max_muon_hits/I");
 
 
