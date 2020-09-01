@@ -41,3 +41,11 @@ mu3eSim run-cosmics.mac
 
 #trirec:
 mu3eTrirec --input data/mu3e_run_000014.root --output data/mu3e_run_000014_trirec_cosmic_chi2.root --conf trirec_cosmic.conf --cosmic
+
+
+
+
+# run simulation in parallel
+parallel -j$1 --timeout 7200 -a /home/mue/immig/testbeamanalysis/runlist/desy202006/merge_list.txt --colsep "\t" /home/mue/immig/git/analysis/mupix8_daq/build/analysis/analyze 202006 {1} {1}
+
+
