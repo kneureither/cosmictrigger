@@ -13,6 +13,7 @@
 //typedef unsigned long long temid;
 typedef TemplateID temid;
 typedef std::map<temid, TemplateData> AssociativeMemory;
+typedef std::pair<temid, TemplateData> AssociativePair;
 typedef std::map<temid, int> CheckedMemory;
 
 struct tidQueueNode {
@@ -61,34 +62,40 @@ public:
     bool PRINTS = false;
 
     void displayTemplatePopulationHistogram(std::string filetag); //how many with one, two, three, ..., n roads stored
+    void displayTemplateMatchedFreqHistogram(std::string filetag);
+    void displayTemplatePopHistSortedbyFreq(std::string filetag);
     void displayEfficiency(std::string filetag);
+    void plotFreqTimesTemplatecount(std::string filetag);
 
     void fillTemplate(unsigned int * SPIDs, int hitcount, float p, float dca, float phi, float theta);
     bool checkTemplate(temid &TID);
     int getRejectedCount();
+
     int getAcceptedCount();
 
     void rmSinglePopulatedTemplates();
     std::vector<temid>  getMostPopulatedTemplates(int howmany);
 
+    std::vector<temid>  getMostMatchedTemplates(int howmany);
     template <typename spidtype>
     temid getTemplateID(spidtype *SPIDs, int hitcount);
     unsigned int getSPIDfromTemplateID(temid TID, int index);
     float getEfficiency();
-    int getTemplateCount();
 
+    int getTemplateCount();
     void writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
                        const int &dataset, const int &mode, std::string mode_description);
+
     bool readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset);
 
     std::string getcustomnamestring();
 
     void resetStats();
-
     //tests
     void testTemplateID();
     void testFill();
     void testCheck();
+
     void testGetMostPopTemplates();
 };
 

@@ -181,7 +181,9 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
     //do some template bank stuff, eg. write the TemplateBank to a root database file
     TB.getMostPopulatedTemplates(50);
-    TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
+//    TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
+
+    TB.plotFreqTimesTemplatecount(PE.getModeTag());
 
     std::cout << "\n\n>>>>> GENERAL STATS <<<<<\n\n";
 

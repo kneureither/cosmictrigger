@@ -26,7 +26,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
      * check the frequency
      */
 
-    int MAX_ENTRIES = 0;
+    int MAX_ENTRIES = 1000;
     int MAX_MUON_HITS = max_muon_hits;
     const int MUONTYPE = 1;
     const int PRINTS = false;
@@ -66,7 +66,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     Mu3eMChitsTree Mu3eMChits = Mu3eMChitsTree(t_mu3e_mchits);
 
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
-    TemplateBank TB(pathtoplots);
+    TemplateBank TB(pathtorunplots);
     TB.PRINTS = PRINTS;
     TB.readAMfromFile(pathtodatasettemplatedata, spWbins, spZbins, mode, dataset);
 
@@ -275,6 +275,12 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     PE.displayBinBoundaries();
     PE.displayBinWeightDistribution();
     PE.closePlot();
+
+    TB.getMostPopulatedTemplates(50);
+    TB.getMostMatchedTemplates(50);
+    TB.displayTemplatePopulationHistogram(TB.getcustomnamestring());
+    TB.displayTemplateMatchedFreqHistogram(TB.getcustomnamestring());
+//    TB.displayTemplatePopHistSortedbyFreq(TB.getcustomnamestring());
 
     // Norm
     h_bgeff.Scale(1.0 / h_bgeff.Integral());
