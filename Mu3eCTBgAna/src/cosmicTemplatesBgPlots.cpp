@@ -33,7 +33,7 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
     const bool MAKE_PLOT = true;
     const bool PRINTS = false;
     const int delete_cycle=0;
-    std::vector<int> cycles = {3,2};
+    std::vector<int> cycles = {3};
 
     gStyle->SetTitleFontSize(0.06);
 
@@ -61,6 +61,8 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
     int bg_events;
     int bg_run;
     int max_muon_hits;
+    int max_frame_nhits;
+    int processed_frames;
     int data_ds;
     int wBins[3];
     int zBins[3];
@@ -95,6 +97,8 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
         tree_meta->SetBranchAddress("bg_events", &bg_events);
         tree_meta->SetBranchAddress("bg_run", &bg_run);
         tree_meta->SetBranchAddress("max_muon_hits", &max_muon_hits);
+        tree_meta->SetBranchAddress("max_frame_nhits", &max_frame_nhits);
+        tree_meta->SetBranchAddress("processed_frames", &processed_frames);
         tree_meta->SetBranchAddress("mode", &mode);
         tree_meta->SetBranchAddress("wBins0", &wBins[0]);
         tree_meta->SetBranchAddress("zBins0", &zBins[0]);
@@ -105,6 +109,7 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
 
         std::cout << "  -- SPcount=" << SPcount << " SPratio=" << spWZratio << " wBins=" << wBins[0] << " zBins=" << zBins[0] << std::endl;
         std::cout << "     max muon hits=" << max_muon_hits << std::endl;
+        std::cout << "     max frame nhits=" << max_frame_nhits << std::endl;
 
         tinF.GetObject(("h_bgeff;" + get_string(cycle)).c_str(), h_bgeff);
 
@@ -125,7 +130,9 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
             ltext = "#splitline{#bf{FRAMES WITH MUON} (max hits included: " + get_string(max_muon_hits) + ")}"+
                     "{#it{mean:}  " + get_string(mean) + "  #it{std dev:}  " +get_string(stddev) + "}";
         } else {
-            ltext = "#splitline{#bf{FRAMES WITHOUT MOUN}}"
+//            ltext = "#splitline{#bf{FRAMES WITHOUT MOUN}}"
+//                    "{#it{mean:}  " + get_string(mean) + "  #it{std dev:}  " + get_string(stddev) + "}";
+            ltext = "#splitline{#bf{FALSE POSITIVE} #it{max nhit:} " + get_string(max_frame_nhits) + " #it{# frames: }" + get_string(processed_frames) +"}"
                     "{#it{mean:}  " + get_string(mean) + "  #it{std dev:}  " + get_string(stddev) + "}";
         }
         h_bgeffclone->SetTitle(ltext.c_str());
@@ -140,7 +147,7 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
     std::string lline2 = "#it{run:}    #bf{" + get_string(bg_run) + "}   #it{sp aspect ratio:}  #bf{" + (spWZratio < 1 ? "1:" + get_string(1/spWZratio) : get_string(spWZratio) + ":1") + "}";
     std::string lline3 = "#it{bins_{z}:}   #bf{" + get_string(zBins[0]) + "}   #it{bins_{w}:} #bf{" + get_string(wBins[0]) + "}  #it{dataset:} #bf{" + get_string(dataset) + "}";
 
-    auto legend = new TLegend(0.6,0.7,0.9,0.9);
+    auto legend = new TLegend(0.55,0.8 - 0.05*hs->GetNhists(),0.9,0.9);
     legend->SetTextFont(43);
     legend->SetTextSize(15);
     legend->SetHeader(lline1.c_str(), "c"); //"C" centers header)
@@ -176,6 +183,13 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
 
     legend->SetBorderSize(1);
     legend->Draw();
+
+    TH1F* h_clusterSizeTP;
+    TH1F* h_clusterSizeAP;
+    int timepixnum;
+
+    legend->AddEntry(h_clusterSizeTP,("#splitline{sensor: Timepix3_" + get_string(timepixnum) + "}{#textbf{MEAN:} " + get_string(h_clusterSizeTP->GetMean()) + " #textbf{STD DEV:} " + get_string(h_clusterSizeTP->GetStdDev()) + "}").c_str());
+    legend->AddEntry(h_clusterSizeAP,("#splitline{sensor: ATLASpix}{#textbf{MEAN:} " + get_string(h_clusterSizeAP->GetMean()) + " #textbf{STD DEV:} " + get_string(h_clusterSizeAP->GetStdDev()) + "}").c_str());
 
 //    canvas->SaveAs((pathtorunplots + "CosPatBGeff.pdf").c_str());
     saveCanvas(canvas, "CosPatPlots_dataset_" + get_string(dataset) + "_bgrun_" + get_padded_string(bgrun, 6, '0') + "_bgevents_" + get_string(bg_events), pathtorunplots);

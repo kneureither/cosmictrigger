@@ -8,7 +8,7 @@ int main() {
 
     //only muon background
     max_muon_hits = 0;
-    cosmicTemplatesBgEval(102, 400, 1, max_muon_hits);
+    cosmicTemplatesBgEval(106, 400, 1, max_muon_hits);
 
     //each frame gets one cosmic
 //    max_muon_hits = 4;

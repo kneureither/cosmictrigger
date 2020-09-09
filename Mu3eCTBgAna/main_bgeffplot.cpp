@@ -4,6 +4,7 @@
 
 #include "inc/cosmicTemplatesBgPlots.h"
 #include <iostream>
+#include <string>
 
 int main(int argc, char *argv[]) {
     int dataset;
@@ -18,7 +19,10 @@ int main(int argc, char *argv[]) {
         filename = std::string(argv[2]);
     }
 
+    int runidx = filename.find("run_");
+    int run = stoi(filename.substr(runidx + 4, 6));
+
     std::cout << "Producing combined plots for dataset " << dataset << " filename " << filename << "..." << std::endl;
-    makeBgEvalPlots(dataset, 102, filename);
+    makeBgEvalPlots(dataset, run, filename);
     return 0;
 }

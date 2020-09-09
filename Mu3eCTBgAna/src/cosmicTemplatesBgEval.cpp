@@ -26,8 +26,10 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
      * check the frequency
      */
 
-    int MAX_ENTRIES = 1000;
+    int MAX_ENTRIES = 0;
     int MAX_MUON_HITS = max_muon_hits;
+    int MAX_NHITS = 1000;
+    const bool RECREATE_FILE = false;
     const int MUONTYPE = 1;
     const int PRINTS = false;
     const int dataset = 7; //determines which pretrained database will be used
@@ -74,7 +76,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
 
     //make some analysis plots
     TH1F h_bgeff("h_bgeff", "background match efficiency", 100, 0, 0.01);
-    TH1F h_discreff(("h_discreff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), ("h_discreff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), 100, 0, 0.01);
+    TH1F h_discreff(("h_discreff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), ("h_discreff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), 100, 0, 0.1);
     TH1F h_oheff(("h_oheff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), "h_oheff", 100, 0, 1);
     TH1F h_heff(("h_heff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), "h_heff", 100, 0, 1);
 
@@ -86,14 +88,16 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
 
 
     int bg_events = (MAX_ENTRIES == 0 ? Mu3e.my_entries : MAX_ENTRIES);
+    int processed_frames = 0;
 
     for(int frame=0; frame <= bg_events; frame++) {
         Mu3e.getEntry(frame);
         if(PRINTS) Mu3e.Print(frame);
 
-//        if(Mu3e.Nhit > 50) {
-//            continue;
-//        }
+        if(Mu3e.Nhit > MAX_NHITS) {
+            continue;
+        }
+        processed_frames++;
 
         std::vector<BGhit> bgframehits;
         BGSortedHits hits;
@@ -246,7 +250,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     //open new TFile for plots
     TFile * tF = new TFile((pathtorunplots +"CosmicBackgroundEval_bgevents_" + get_padded_string(bg_events, 6, '0') +
                             "_run_" + get_padded_string(run, 6, '0') + "_" +
-                            TB.getcustomnamestring() + "_plots.root").c_str(), "update");
+                            TB.getcustomnamestring() + "_plots.root").c_str(), (RECREATE_FILE ? "recreate" : "update"));
     if (!tF->IsOpen()) {
         std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
     }
@@ -257,6 +261,8 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     tT_met.Branch("bg_run", &bg_run, "bg_run/I");
     tT_met.Branch("bg_events", &bg_events, "bg_events/I");
     tT_met.Branch("max_muon_hits", &MAX_MUON_HITS, "max_muon_hits/I");
+    tT_met.Branch("max_frame_nhits", &MAX_NHITS, "max_frame_nhits/I");
+    tT_met.Branch("processed_frames", &processed_frames, "processed_frames/I");
 
 
     tT_met.Branch("area0Description", &PE.areaDescript[0], "area0Description/C");
