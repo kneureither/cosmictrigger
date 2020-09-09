@@ -242,7 +242,11 @@ std::vector<temid> TemplateBank::getMostPopulatedTemplates(int howmany) {
 
 //TODO: Would be nicer to call a generic function e.g. getTopElementsFromMap(int howmany, T* Mem) to avoid code duplication
 std::vector<temid>  TemplateBank::getMostMatchedTemplates(int howmany) {
-    assert(howmany <= this->CMem.size());
+    if(howmany > this->CMem.size()) {
+        howmany = this->CMem.size();
+        std::cout << " WARNING : howmany > CMem.size(). Setting howmany to CMem.size()=" << howmany << std::endl;
+    }
+
     CheckedMemory::iterator it;
     std::priority_queue<tidQueueNode> templQueue;
 
@@ -279,13 +283,13 @@ void TemplateBank::displayTemplateMatchedFreqHistogram(std::string filetag) {
     h_templfreq->SetName("h_templmatchfreq");
     h_templfreq->SetStats(true);
     labelAxis(h_templfreq, "number of matches per template", "# templates");
-    AssociativeMemory::iterator it;
+    CheckedMemory::iterator it;
 
 
     unsigned int frequency;
 
-    for(it = AMem.begin(); it != AMem.end(); it++){
-        frequency = (it->second).frequency;
+    for(it = CMem.begin(); it != CMem.end(); it++){
+        frequency = (it->second);
         h_templfreq->Fill(frequency);
     }
     h_templfreq->Draw();
