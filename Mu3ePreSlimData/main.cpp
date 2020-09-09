@@ -7,15 +7,16 @@
 #include "utilityFunctions.h"
 
 int main(int argc, char *argv[]) {
-    std::vector<int> runs = {14,16,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37};
-//    std::vector<int> runs = {37, 1000};
+//    std::vector<int> runs = {14,16,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37};
+    std::vector<int> runs = {1026};
+//    std::vector<int> runs;
 
     //add the bunch data
-    for(int i=1000; i<=1025; i++) {
-        runs.push_back(i);
-    }
+//    for(int i=1000; i<=1025; i++) {
+//        runs.push_back(i);
+//    }
 
-    const int dataset = 7;
+    const int dataset = 9;
 
     bool append = false;
 
@@ -28,6 +29,10 @@ int main(int argc, char *argv[]) {
     //data set 4 contains 14,16,19,20,21,22,23,24,25
     //data set 6 contains 14,16,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37
     //run 26 is broken
+    //data set 7 contains 14,16,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37 and 1000-1025
+    //data set 8 contains 14,16,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37 and 1000-1025
+    //data set 9 contains 14,16,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37 and 1000-1025 and 1026
+
 }
 
 
