@@ -82,7 +82,8 @@ static void fillHistWithVector(TH1F * h, std::vector<T> &data) {
 static void saveCanvas(TCanvas* c1, const std::string& name, const std::string& path) {
 //    c1->SaveAs((path + "/" + name + ".eps").c_str());
 //    c1->SaveAs((path + "/" + name + ".png").c_str());
-    c1->SaveAs((path + "/" + name + ".pdf").c_str());
+//    c1->SaveAs((path + "/" + name + ".pdf").c_str());
+    c1->SaveAs((path + (path.substr(path.size()-1, 1) == "/" ? "" : "/") + name + ".pdf").c_str());
 }
 
 template <typename RootGraph>
