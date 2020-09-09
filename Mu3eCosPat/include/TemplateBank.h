@@ -49,6 +49,7 @@ private:
     std::string plottingpath;
 
     void fillTemplateFromDB(temid TID, int frequency);
+    void initializeMembers();
 
     //for some meta information
     int mywbins;
@@ -56,8 +57,11 @@ private:
     int mydataset;
     int mymode;
 
+    float stopping_efficiency;
+
 public:
     TemplateBank(std::string plottingpath);
+    TemplateBank(std::string plottingpath, float stopping_efficiency);
     ~TemplateBank();
     bool PRINTS = false;
 
@@ -67,7 +71,7 @@ public:
     void displayEfficiency(std::string filetag);
     void plotFreqTimesTemplatecount(std::string filetag);
 
-    void fillTemplate(unsigned int * SPIDs, int hitcount, float p, float dca, float phi, float theta);
+    bool fillTemplate(unsigned int * SPIDs, int hitcount, float p, float dca, float phi, float theta);
     bool checkTemplate(temid &TID);
     int getRejectedCount();
 

@@ -17,7 +17,8 @@
 #include "TemplateDatabase.h"
 
 
-void TemplateBank::fillTemplate(unsigned int *SPIDs, const int hitcount, const float p, const float dca, const float phi, const float theta) {
+bool TemplateBank::fillTemplate(unsigned int *SPIDs, const int hitcount, const float p, const float dca, const float phi, const float theta) {
+    //returns 0 if stopping point reched, else 1
 
     //assume that SPIDs are already cleaned (only two hits per entry)
     temid TID = getTemplateID(SPIDs, hitcount);
@@ -39,10 +40,14 @@ void TemplateBank::fillTemplate(unsigned int *SPIDs, const int hitcount, const f
 
         float efficiency = 1.0 - (newtemplatecount - Ntemplates[Ntemplates.size() - 1]) / (float) (eventcount - Nevents[Nevents.size() - 1]);
 
-        this->Nevents.push_back((float) (eventcount));
+        this->Nevents.push_back((float) eventcount);
         this->Ntemplates.push_back((float) newtemplatecount);
         this->efficiency.push_back(efficiency);
+
+        if(efficiency >= this->stopping_efficiency) return true; //stopping efficiency reached
     }
+
+    return false; //efficiency not reached or not checked
 }
 
 void TemplateBank::fillTemplateFromDB(temid TID, int frequency) {
@@ -107,11 +112,10 @@ int TemplateBank::getTemplateCount() {
     return this->newtemplatecount;
 }
 
-TemplateBank::TemplateBank(std::string plottingpath) {
+void TemplateBank::initializeMembers() {
     this->Nevents.push_back(0);
     this->Ntemplates.push_back(0);
     this->efficiency.push_back(0.0);
-    this->plottingpath = plottingpath;
 
     assert(TID_LEN % 2 == 0);
     hitorder.push_back(3);
@@ -129,6 +133,17 @@ TemplateBank::TemplateBank(std::string plottingpath) {
 
 //    printf("asserting hitorder.size() == TID_LEN : %lu == %d\n", hitorder.size(), TID_LEN);
     assert(hitorder.size() == TID_LEN);
+}
+
+TemplateBank::TemplateBank(std::string plottingpath) {
+    initializeMembers();
+    this->plottingpath = plottingpath;
+}
+
+TemplateBank::TemplateBank(std::string plottingpath, float stopping_efficiency) {
+    initializeMembers();
+    this->plottingpath = plottingpath;
+    this->stopping_efficiency = stopping_efficiency;
 }
 
 TemplateBank::~TemplateBank() {
