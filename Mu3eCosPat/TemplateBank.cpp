@@ -18,7 +18,7 @@
 
 
 bool TemplateBank::fillTemplate(unsigned int *SPIDs, const int hitcount, const float p, const float dca, const float phi, const float theta) {
-    //returns 0 if stopping point reched, else 1
+    //returns 0 if stopping point reached, else 1
 
     //assume that SPIDs are already cleaned (only two hits per entry)
     temid TID = getTemplateID(SPIDs, hitcount);

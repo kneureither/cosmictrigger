@@ -178,7 +178,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     tT_met.Write();
 
     //Make plots and add them to the root file
-    PE.displayBinBoundaries(); //check if it worked and was initialized correctly.
+    PE.displayBinBoundaries(); //check if PE worked and was initialized correctly.
     PE.displayBinWeightDistribution();
     PE.closePlot();
     TB.displayTemplatePopulationHistogram(PE.getModeTag());
