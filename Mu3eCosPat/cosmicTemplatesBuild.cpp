@@ -26,6 +26,8 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     const bool MAKE_PLOT = true;
     const int MAX_ENTRIES = 0;
     const bool PRINTS = false;
+    const float MAX_EFFICIENCY = 0.7;
+    const bool WRITE_DB_FILE = true;
 
     std::string runpadded = get_padded_string(dataset, 6, '0');
     std::string pathtorunplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
@@ -46,7 +48,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
     PE.PRINTS = PRINTS;
-    TemplateBank TB(pathtorunplots);
+    TemplateBank TB(pathtorunplots, MAX_EFFICIENCY);
     TB.PRINTS = PRINTS;
 
     // FILE FOR READING
@@ -64,6 +66,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     int twohittracks = 0;
     int failed_count = 0;
     unsigned int runID;
+    bool stopping_point_reached = false;
 
 
     //get different cycles of trees in file
@@ -132,9 +135,14 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
                 if(PRINTS) printf(" -- SPIDS =%#X \n", SPIDs[i]);
             }
 
-            TB.fillTemplate(&SPIDs[0], SPIDs.size(), SlimSegs.kari_p, SlimSegs.kari_dca, SlimSegs.kari_phi, SlimSegs.kari_theta);
+            stopping_point_reached = TB.fillTemplate(&SPIDs[0], SPIDs.size(), SlimSegs.kari_p, SlimSegs.kari_dca, SlimSegs.kari_phi, SlimSegs.kari_theta);
 
+            if(stopping_point_reached){
+                std::cout << "STATUS : Reached efficiency stopping point! MAX_EFF=" << MAX_EFFICIENCY <<  " TB EFF=" << TB.getEfficiency() << std::endl;
+                break;
+            }
         }
+        if(stopping_point_reached) break;
     }
 
     tinF.Close();
@@ -170,7 +178,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     tT_met.Write();
 
     //Make plots and add them to the root file
-    PE.displayBinBoundaries(); //check if it worked and was initialized correctly.
+    PE.displayBinBoundaries(); //check if PE worked and was initialized correctly.
     PE.displayBinWeightDistribution();
     PE.closePlot();
     TB.displayTemplatePopulationHistogram(PE.getModeTag());
@@ -181,7 +189,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
     //do some template bank stuff, eg. write the TemplateBank to a root database file
     TB.getMostPopulatedTemplates(50);
-//    TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
+    if(WRITE_DB_FILE) TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
 
     TB.plotFreqTimesTemplatecount(PE.getModeTag());
 

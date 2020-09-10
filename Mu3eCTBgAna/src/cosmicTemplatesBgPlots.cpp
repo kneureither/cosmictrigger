@@ -184,13 +184,6 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
     legend->SetBorderSize(1);
     legend->Draw();
 
-    TH1F* h_clusterSizeTP;
-    TH1F* h_clusterSizeAP;
-    int timepixnum;
-
-    legend->AddEntry(h_clusterSizeTP,("#splitline{sensor: Timepix3_" + get_string(timepixnum) + "}{#textbf{MEAN:} " + get_string(h_clusterSizeTP->GetMean()) + " #textbf{STD DEV:} " + get_string(h_clusterSizeTP->GetStdDev()) + "}").c_str());
-    legend->AddEntry(h_clusterSizeAP,("#splitline{sensor: ATLASpix}{#textbf{MEAN:} " + get_string(h_clusterSizeAP->GetMean()) + " #textbf{STD DEV:} " + get_string(h_clusterSizeAP->GetStdDev()) + "}").c_str());
-
 //    canvas->SaveAs((pathtorunplots + "CosPatBGeff.pdf").c_str());
     saveCanvas(canvas, "CosPatPlots_dataset_" + get_string(dataset) + "_bgrun_" + get_padded_string(bgrun, 6, '0') + "_bgevents_" + get_string(bg_events), pathtorunplots);
 
