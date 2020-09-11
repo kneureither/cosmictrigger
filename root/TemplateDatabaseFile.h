@@ -2,12 +2,12 @@
 // Created by Konstantin Neureither on 15.07.20.
 //
 
-#ifndef COSMICTRIGGER_TEMPLATEDATABASE_H
-#define COSMICTRIGGER_TEMPLATEDATABASE_H
+#ifndef COSMICTRIGGER_TEMPLATEDATABASEFILE_H
+#define COSMICTRIGGER_TEMPLATEDATABASEFILE_H
 #include "../Mu3eCosPat/include/TemplateData.h"
 #include "TTree.h"
 
-class TemplateDatabase {
+class TemplateDatabaseFile {
 public:
     TTree *tT_meta;
     TTree *tT_tid;
@@ -45,14 +45,14 @@ public:
     void reinitializeData();
 };
 
-class TemplateDatabaseRead : public TemplateDatabase {
+class TemplateDatabaseRead : public TemplateDatabaseFile {
 public:
     TemplateDatabaseRead(TTree* tT_meta, TTree* tT_tid);
     void setBranches();
     void getEntry(const int &index);
 };
 
-class TemplateDatabaseWrite : private TemplateDatabase {
+class TemplateDatabaseWrite : private TemplateDatabaseFile {
 public:
     TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int* zBins,const int* wBins,
              char areaDescript[3][8], const int mode, const float efficiency, const int eventcount, std::string mode_description);
@@ -64,4 +64,4 @@ public:
 };
 
 
-#endif //COSMICTRIGGER_TEMPLATEDATABASE_H
+#endif //COSMICTRIGGER_TEMPLATEDATABASEFILE_H

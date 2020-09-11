@@ -2,10 +2,10 @@
 // Created by Konstantin Neureither on 15.07.20.
 //
 
-#include "TemplateDatabase.h"
+#include "TemplateDatabaseFile.h"
 #include "../Mu3eCosPat/include/TemplateData.h"
 
-void TemplateDatabase::reinitializeData() {
+void TemplateDatabaseFile::reinitializeData() {
     tid_len = -1;
     tid_repr = "0000000000000000";
 
