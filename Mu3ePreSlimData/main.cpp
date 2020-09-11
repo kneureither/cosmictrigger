@@ -8,7 +8,7 @@
 
 int main(int argc, char *argv[]) {
 //    std::vector<int> runs = {14,16,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37};
-    std::vector<int> runs = {1026};
+    std::vector<int> runs = {1026, 1036};
 //    std::vector<int> runs;
 
     //add the bunch data
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 
     const int dataset = 9;
 
-    bool append = false;
+    bool append = true;
 
     for(auto it = std::begin(runs); it != runs.end(); ++it) {
         std::cout << "STATUS : adding run " << *it << " to dataset " << dataset << std::endl;
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     //run 26 is broken
     //data set 7 contains 14,16,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37 and 1000-1025
     //data set 8 contains 14,16,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37 and 1000-1025
-    //data set 9f contains 14,16,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37 and 1000-1025 and 1026
+    //data set 9 contains 14,16,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37 and 1000-1025 and 1026, 1036
 
 }
 

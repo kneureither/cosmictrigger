@@ -136,6 +136,15 @@ void slimSegsDataScript(const int dataset, const int run, const bool appendToFil
     for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? Segs.my_entries : MAX_ENTRIES); i++) {
 //        printf("SEGS ENTRY %d ------- \n", i);
 
+//        if(((i % (int) pow((float) 10, (float) std::floor(log10(i))) == 0) && (i >= 1000))
+//           || (i >= 1000000 && i % 100000 == 0)) {
+//
+//        }
+
+        if(i % 1000 == 0) {
+            std::cout << " -- processing entry " << i << " of " << Segs.my_entries << std::endl;
+        }
+
         //update data in Segs class
         Segs.getEntry(i);
         Segs.calcAdditionalData();
