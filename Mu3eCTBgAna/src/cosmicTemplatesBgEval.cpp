@@ -17,7 +17,8 @@
 #include "../Mu3eCosPat/include/TemplateData.h"
 
 
-void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spWZratio, int max_muon_hits) {
+void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spWZratio, int max_muon_hits,
+                           const float tb_stopping_efficiency) {
     /*
      * Read and analyse the mu3e mc hits
      * get the hits in xyz
@@ -28,19 +29,21 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
 
     int MAX_ENTRIES = 0;
     int MAX_MUON_HITS = max_muon_hits;
-    int MAX_NHITS = 1000;
+    int MAX_NHITS = 100;
+    float TB_STOPPING_EFF = tb_stopping_efficiency;
     const bool RECREATE_FILE = false;
     const int MUONTYPE = 1;
     const int PRINTS = false;
-    const int dataset = 7; //determines which pretrained database will be used
+    const int dataset = 9; //determines which pretrained database will be used
     const int mode = 0;
 
     const std::string pathtoBGdata = "data/SimulationData/";
     const std::string pathtoTemplateData = "data/TemplateData/";
     const std::string pathtoplots = "plots/Mu3eCosPatBgEval/";
     const std::string infile = pathtoBGdata + "mu3e_run_" + get_padded_string(run, 6, '0') + ".root";
-    std::string pathtorunplots = pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/";
-    std::string pathtodatasettemplatedata = pathtoTemplateData + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    const std::string pathtooutfile = pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/"; //this is where the root file is stored
+    const std::string pathtorunplots = pathtooutfile +"/PDF/"; //this is where the pdf files are stored
+    const std::string pathtodatasettemplatedata = pathtoTemplateData + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
 
     check_create_directory(pathtoBGdata);
     check_create_directory(pathtoTemplateData);
@@ -62,7 +65,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     //Get the Pattern Engine and Template Manager
     const int spWbins = (int) sqrt((float) spWZratio * (float) centralTPcount);
     const int spZbins = (int) sqrt((float) centralTPcount / (float) spWZratio);
-    std::cout << "\n -- PE config data:" << std::endl << "  wbins=" << spWbins << std::endl << "  zbins=" << spZbins << std::endl << std::endl;
+//    std::cout << "\n -- PE config data:" << std::endl << "  wbins=" << spWbins << std::endl << "  zbins=" << spZbins << std::endl << std::endl;
 
     Mu3eTree Mu3e = Mu3eTree(t_mu3e);
     Mu3eMChitsTree Mu3eMChits = Mu3eMChitsTree(t_mu3e_mchits);
@@ -70,8 +73,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
     TemplateBank TB(pathtorunplots);
     TB.PRINTS = PRINTS;
-    TB.readAMfromFile(pathtodatasettemplatedata, spWbins, spZbins, mode, dataset);
-
+    TB.readAMfromFile(pathtodatasettemplatedata, spWbins, spZbins, mode, dataset, TB_STOPPING_EFF);
 
 
     //make some analysis plots
@@ -89,6 +91,11 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
 
     int bg_events = (MAX_ENTRIES == 0 ? Mu3e.my_entries : MAX_ENTRIES);
     int processed_frames = 0;
+    int rejected_frames = 0;
+
+    //for some plots with bg eff / hits in bg frame
+    std::vector<float> frame_eff;
+    std::vector<int> frame_bghits;
 
     for(int frame=0; frame <= bg_events; frame++) {
         Mu3e.getEntry(frame);
@@ -148,7 +155,7 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
         int randindex = (rand() % cosmicpool);
         temid COSMICTID = COSMICTIDs[randindex];
 
-        std::cout << "   -> got cosmic at index " << randindex << " TID=" << COSMICTID.toString() << std::endl;
+        if(PRINTS) std::cout << "   -> got cosmic at index " << randindex << " TID=" << COSMICTID.toString() << std::endl;
 
 //        if(SIDMem.count(COSMICTID.HIDS[0]) == 0) hits.h0.push_back(SIDtype(COSMICTID.HIDS[0], MUONTYPE));
 //        if(SIDMem.count(COSMICTID.HIDS[1]) == 0) hits.h1.push_back(SIDtype(COSMICTID.HIDS[1], MUONTYPE));
@@ -195,9 +202,9 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
 
 //        assert(bgframehits.size() == (hits.h0.size() + hits.h1.size() + hits.h2.size() + hits.h3.size() + innerhits) - 4);
 
+        //calculate the discrimination efficiency in a frame ---->
         int acceptedcount=0;
         int acceptedcountnocos=0;
-
 
         //check if the templates match to templates in the database
         for(auto &tid : TIDS) {
@@ -211,32 +218,46 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
         float eff_templatecountnc = (float) acceptedcountnocos / (float) TIDSnocosmics.size();
         float eff_outerhits = (float) acceptedcount / (float) outerhits;
         float eff_hits = (float) acceptedcount / (float) bgframehits.size();
+        // <---- end of calculating the efficiencies in a frame
 
-        //show some stats
-        std::cout << std::endl;
-        std::cout << "----frame number " << frame << std::endl;
-        std::cout << "  > total hits            --- " << bgframehits.size() << std::endl;
-        std::cout << "  > inner hits            --- " << innerhits << std::endl;
-        std::cout << "  > hits in upper layer 3 --- " << hits.h0.size() << std::endl;
-        std::cout << "  > hits in upper layer 2 --- " << hits.h1.size() << std::endl;
-        std::cout << "  > hits in lower layer 2 --- " << hits.h2.size() << std::endl;
-        std::cout << "  > hits in lower layer 3 --- " << hits.h3.size() << std::endl;
-        std::cout << "  > double sids           --- " << doublesid << std::endl;
 
-        std::cout << "  > templates created: " << TIDS.size() << "    (templates excluded: " << toomanycosmicscount << ")" << std::endl;
-        std::cout << "  > from which were accepted: " << acceptedcount << std::endl;
-        std::cout << "  > template efficiency (accepted tmpl/tested tmpl) : " << eff_templatecount << std::endl;
-        std::cout << "  > template efficiency no cosmics                  : " << eff_templatecountnc << std::endl;
-        std::cout << "  > outerhit efficiency (accepted tmpl/outerhits)   : " << eff_outerhits << std::endl;
-        std::cout << "  > hit efficiency      (accepted tmpl/hits)        : " << eff_hits << std::endl;
-        std::cout << "  > TB accepted " << TB.getAcceptedCount() << "    TB rejected " << TB.getRejectedCount();
-        std::cout << "    TB ratio " << TB.getAcceptedCount() / (float) TB.getRejectedCount() << std::endl << std::endl;
+        if(PRINTS) {
+
+            //show some stats
+            std::cout << std::endl;
+            std::cout << "----frame number " << frame << std::endl;
+            std::cout << "  > total hits            --- " << bgframehits.size() << std::endl;
+            std::cout << "  > inner hits            --- " << innerhits << std::endl;
+            std::cout << "  > hits in upper layer 3 --- " << hits.h0.size() << std::endl;
+            std::cout << "  > hits in upper layer 2 --- " << hits.h1.size() << std::endl;
+            std::cout << "  > hits in lower layer 2 --- " << hits.h2.size() << std::endl;
+            std::cout << "  > hits in lower layer 3 --- " << hits.h3.size() << std::endl;
+            std::cout << "  > double sids           --- " << doublesid << std::endl;
+
+            std::cout << "  > templates created: " << TIDS.size() << "    (templates excluded: " << toomanycosmicscount
+                      << ")" << std::endl;
+            std::cout << "  > from which were accepted: " << acceptedcount << std::endl;
+            std::cout << "  > template efficiency (accepted tmpl/tested tmpl) : " << eff_templatecount << std::endl;
+            std::cout << "  > template efficiency no cosmics                  : " << eff_templatecountnc << std::endl;
+            std::cout << "  > outerhit efficiency (accepted tmpl/outerhits)   : " << eff_outerhits << std::endl;
+            std::cout << "  > hit efficiency      (accepted tmpl/hits)        : " << eff_hits << std::endl;
+            std::cout << "  > TB accepted " << TB.getAcceptedCount() << "    TB rejected " << TB.getRejectedCount();
+            std::cout << "    TB ratio " << TB.getAcceptedCount() / (float) TB.getRejectedCount() << std::endl
+                      << std::endl;
+        }
+
 
         h_bgeff.Fill(eff_templatecount);
         h_discreff.Fill(eff_templatecount);
         h_oheff.Fill(eff_outerhits);
         h_heff.Fill(eff_hits);
 
+        frame_eff.push_back(eff_templatecount);
+        frame_bghits.push_back(bgframehits.size());
+
+        if(acceptedcount == 0) {
+            rejected_frames++;
+        }
 
         //calculate rations:
             /*
@@ -247,22 +268,34 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
              */
     }
 
+    float background_efficiency = (float) rejected_frames / (float) processed_frames;
+
+    std::cout << "rejected frames: " << rejected_frames << " processed frames: " << processed_frames << std::endl;
+    std::cout << " --  BG efficiency: " << background_efficiency << std::endl;
+
     //open new TFile for plots
-    TFile * tF = new TFile((pathtorunplots +"CosmicBackgroundEval_bgevents_" + get_padded_string(bg_events, 6, '0') +
+    TFile * tF = new TFile((pathtooutfile + "CosmicBackgroundEval_bgevents_" + get_padded_string(bg_events, 6, '0') +
                             "_run_" + get_padded_string(run, 6, '0') + "_" +
-                            TB.getcustomnamestring() + "_plots.root").c_str(), (RECREATE_FILE ? "recreate" : "update"));
+            TB.getfileidtag(1) + "_plots.root").c_str(), (RECREATE_FILE ? "recreate" : "update"));
     if (!tF->IsOpen()) {
         std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
     }
 
+    std::string mydirectory = "trainingEff" + get_string(TB_STOPPING_EFF);
+    tF->mkdir(mydirectory.c_str());
+    tF->cd(mydirectory.c_str());
+
     //add some meta data for the output file
     int bg_run = run;
+    float tb_max_efficiency = TB.getEfficiency();
+
     TTree tT_met("MetadataTree","Metadata associated with these plots (SID config and dataset)");
     tT_met.Branch("bg_run", &bg_run, "bg_run/I");
     tT_met.Branch("bg_events", &bg_events, "bg_events/I");
     tT_met.Branch("max_muon_hits", &MAX_MUON_HITS, "max_muon_hits/I");
     tT_met.Branch("max_frame_nhits", &MAX_NHITS, "max_frame_nhits/I");
     tT_met.Branch("processed_frames", &processed_frames, "processed_frames/I");
+    tT_met.Branch("tb_stopping_eff", &TB_STOPPING_EFF, "tb_stopping_eff/F");
 
 
     tT_met.Branch("area0Description", &PE.areaDescript[0], "area0Description/C");
@@ -278,15 +311,24 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     tT_met.Fill();
     tT_met.Write();
 
+
+    TTree tT_efficiencies("BackgroundEfficiency", "Contains the Bg efficiencies per Frame");
+    tT_efficiencies.Branch("background_efficiency", &background_efficiency, "background_efficiency/F");
+    tT_efficiencies.Branch("tb_training_eff", &tb_max_efficiency, "tb_training_eff/F");
+    tT_efficiencies.Branch("frame_eff", &frame_eff);
+    tT_efficiencies.Branch("frame_bghits", &frame_bghits);
+    tT_efficiencies.Fill();
+    tT_efficiencies.Write();
+
     PE.displayBinBoundaries();
     PE.displayBinWeightDistribution();
     PE.closePlot();
 
-    TB.getMostPopulatedTemplates(50);
-    TB.getMostMatchedTemplates(50);
-    TB.displayTemplatePopulationHistogram(TB.getcustomnamestring());
-    TB.displayTemplateMatchedFreqHistogram(TB.getcustomnamestring());
-//    TB.displayTemplatePopHistSortedbyFreq(TB.getcustomnamestring());
+//    TB.getMostPopulatedTemplates(50);
+//    TB.getMostMatchedTemplates(50);
+    TB.displayTemplatePopulationHistogram(TB.getfileidtag(0));
+    TB.displayTemplateMatchedFreqHistogram(TB.getfileidtag(0));
+//    TB.displayTemplatePopHistSortedbyFreq(TB.getfileidtag());
 
     // Norm
     h_bgeff.Scale(1.0 / h_bgeff.Integral());

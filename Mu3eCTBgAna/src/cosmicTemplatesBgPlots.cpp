@@ -33,7 +33,7 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
     const bool MAKE_PLOT = true;
     const bool PRINTS = false;
     const int delete_cycle=0;
-    std::vector<int> cycles = {3};
+    std::vector<int> cycles = {1,3};
 
     gStyle->SetTitleFontSize(0.06);
 
@@ -70,6 +70,8 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
     float spWZratio;
 
     int colpalette[10] = {632,600,427,420,410,414,601,603,861,854};
+
+    gStyle->SetPalette(kBlueGreenYellow);
 
     TCanvas *canvas = new TCanvas("canvas", "Background match efficiency result", 900, 600);
 //    canvas->SetLeftMargin(0.15);
@@ -119,9 +121,7 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
         hs->Add(h_bgeffclone);
 
         //make the plots
-        h_bgeffclone->SetLineColor(colpalette[cycle-1]);
         h_bgeffclone->SetMarkerStyle(5);
-        h_bgeffclone->SetMarkerColor(colpalette[cycle-1]);
 
         float stddev = h_bgeffclone->GetStdDev();
         float mean = h_bgeffclone->GetMean();
@@ -161,7 +161,7 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
         legend->AddEntry(h_current,h_current->GetTitle(),"p");
     }
 
-    hs->Draw("nostack");
+    hs->Draw("nostack PLC PMC");
 
     hs->GetXaxis()->SetTitle("efficiency #epsilon = #frac{#tau_{matched}}{#tau_{combinatorics}}");
     hs->GetXaxis()->SetLabelFont(43);
