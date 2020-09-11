@@ -9,7 +9,8 @@
 #include "../Mu3eCosPat/include/TemplateData.h"
 #include "TTree.h"
 
-typedef unsigned short[TID_LEN] temidarr;
+using temidarr = std::vector<unsigned short>;
+//typedef std::vector<unsigned short>  temidarr[TID_LEN];
 
 
 class BackgroundDataFile {
@@ -17,8 +18,7 @@ public:
     TTree *tT_meta;
     TTree *tT_frames;
 
-    //pattern meta data -- once per tree
-    int dataset;
+    //consolidated background meta data -- once per tree
     int zBins[3];
     int wBins[3];
     char areaDescript[3][8];
@@ -53,10 +53,11 @@ public:
 };
 
 class BackgroundDataWrite : public BackgroundDataFile {
-    BackgroundDataWrite(TTree *tT_meta, TTree *tT_frames, const int dataset, const int *zBins, const int *wBins, char areaDescript[3][8],
-                                                 const int mode, const float efficiency, const int eventcount, std::string mode_description);
+public:
     void fillBGTIDData(std::vector<temidarr> &bgtids, std::vector<int> types, temidarr cosmic_track, int nhits, int max_cosmics_hits);
 
+    BackgroundDataWrite(TTree *tT_meta, TTree *tT_frames, const int *zBins, const int *wBins, char areaDescript[3][8],
+                                                 const int mode, const int eventcount, std::string mode_description);
 };
 
 #endif //COSMICTRIGGER_BACKGROUNDDATAFILE_H

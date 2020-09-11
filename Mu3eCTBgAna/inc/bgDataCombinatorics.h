@@ -4,5 +4,5 @@
 
 #ifndef COSMICTRIGGER_BGDATACOMBINATORICS_H
 #define COSMICTRIGGER_BGDATACOMBINATORICS_H
-
+void backgroundCombinatorics(const int run, unsigned int centralTPcount, float spWZratio);
 #endif //COSMICTRIGGER_BGDATACOMBINATORICS_H
