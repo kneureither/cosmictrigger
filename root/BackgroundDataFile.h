@@ -9,7 +9,7 @@
 #include "../Mu3eCosPat/include/TemplateData.h"
 #include "TTree.h"
 
-using temidarr = std::vector<unsigned short>;
+using temidarr = std::array<unsigned short, TID_LEN>;
 //typedef std::vector<unsigned short>  temidarr[TID_LEN];
 
 

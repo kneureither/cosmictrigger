@@ -42,12 +42,13 @@ void backgroundCombinatorics(const int run, unsigned int centralTPcount, float s
     const std::string pathtoplots = "plots/BackgroundCombinatorics/";
     const std::string infile = pathtoBGdata + "mu3e_run_" + get_padded_string(run, 6, '0') + ".root";
     const std::string pathtooutfile = pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/"; //this is where the root file is stored
-    const std::string pathtorunplots = pathtooutfile +"/PDF/"; //this is where the pdf files are stored
+    const std::string pathtorunplots = pathtooutfile +"PDF/"; //this is where the pdf files are stored
 //    const std::string pathtodatasettemplatedata = pathtoTemplateData + "dataset_" + get_padded_string(dataset, 3, '0') + "/";    const std::string pathtodatasettemplatedata = pathtoTemplateData + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
 
     check_create_directory(pathtoBGdata);
     check_create_directory(pathtoTemplateData);
     check_create_directory(pathtoplots);
+    check_create_directory(pathtooutfile);
     check_create_directory(pathtorunplots);
     check_create_directory(pathtoProcessedBGdata);
 
@@ -74,10 +75,10 @@ void backgroundCombinatorics(const int run, unsigned int centralTPcount, float s
     int bg_events = (MAX_ENTRIES == 0 ? Mu3e.my_entries : MAX_ENTRIES);
     int processed_frames = 0;
 
-    const std::string bgdatatoutfile = pathtoProcessedBGdata + "BackgroundCombinatoricsData_run_" + get_padded_string(run, 6, '0') + "mode" + get_string(mode) + "zBins" + get_string(spZbins) + "wBins" + get_string(spWbins) + ".root";
+    const std::string bgdatatoutfile = pathtoProcessedBGdata + "BackgroundCombinatoricsData_run_" + get_padded_string(run, 6, '0') + "_mode" + get_string(mode) + "zBins" + get_string(spZbins) + "wBins" + get_string(spWbins) + ".root";
 
     // FILE FOR WRITING BACKGROUND DATA
-    TFile toutF(bgdatatoutfile.c_str());
+    TFile toutF(bgdatatoutfile.c_str(), "RECREATE");
     if (!toutF.IsOpen()) {
         std::cout << "[ERROR] File " << tinF.GetName() << " is not open!" << std::endl;
         exit(0);

@@ -15,4 +15,4 @@ target_link_libraries(Mu3eCTBg3Plots rootTreeFiles)
 
 set(SRC main_bg_combinatorics.cpp src/bgDataCombinatorics.cpp ../root/BackgroundDataFile.cpp)
 add_executable(Mu3eCTBg1ComputeCmbntcs ${SRC})
-target_link_libraries(Mu3eCTBg1ComputeCmbntcs rootTreeFiles)
+target_link_libraries(Mu3eCTBg1ComputeCmbntcs patterns rootTreeFiles)
