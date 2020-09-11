@@ -90,9 +90,9 @@ public:
     void writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
                        const int &dataset, const int &mode, std::string mode_description);
 
-    bool readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset);
+    bool readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset, float stopping_efficiency);
 
-    std::string getcustomnamestring();
+    std::string getfileidtag(int format);
 
     void resetStats();
     //tests

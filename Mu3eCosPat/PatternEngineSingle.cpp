@@ -27,7 +27,7 @@ PatternEngineSingle::PatternEngineSingle() = default;
 
 //initialize with default path
 PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpartition, const int mode) {
-    printf("----INIT SINGLE PATTERN ENGINE----\n");
+    printf("[ ---- INIT SINGLE PATTERN ENGINE ---- ]\n");
     this->initializeMembers(spXpartition, spZpartition, 0, mode);
     this->initializeSPbins();
     printf("wBins=%d, zBins=%d\n", wBinCount, zBinCount);
@@ -37,19 +37,19 @@ PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpa
 
 //initalize as single PE
 PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpartition, const int mode, std::string plottingpath) {
-    printf("----INIT SINGLE PATTERN ENGINE----\n");
+    printf("[ ---- INIT SINGLE PATTERN ENGINE ---- ]\n");
     this->initializeMembers(spXpartition, spZpartition, 0, mode);
     this->initializeSPbins();
     this->plottingpath = plottingpath;
     this->runspecs = "wbins" + get_string(spXpartition) + "zbins" + get_string(spZpartition);
     printf("wBins=%d, zBins=%d\n", wBinCount, zBinCount);
-    printf("----SUCCESS! PE INITIATED---\n\n");
+    printf("\n");
 }
 
 //initialize as one detector segment of compound PE
 PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpartition, const int mode, const int area, std::string plottingpath) {
-    printf("----INIT SINGLE PATTERN ENGINE AS PARTIAL BY PATTERN ENGINE----\n");
-    printf("Zmin=%f Zmax=%f\n", DetectorZmin[area], DetectorZmax[area]);
+    std::cout << "[ ---- INIT SINGLE PATTERN ENGINE AS AREA " << area << " ---- ]" << std::endl;
+    std::cout << "[ CONFIG :  Z Coord (min, max)=(" << DetectorZmin[area] << " , " <<  DetectorZmax[area] << ")" << " mode=" << mode;
     this->centralDetectorZmin = DetectorZmin[area];
     this->centralDetectorZmax = DetectorZmax[area];
     this->initializeMembers(spXpartition, spZpartition, area, mode);
@@ -57,8 +57,6 @@ PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpa
     this->plottingpath = plottingpath;
     this->plottingfile = "PEplots_" + getAreaTag() + ".pdf";
     this->runspecs = "wbins" + get_string(spXpartition) + "zbins" + get_string(spZpartition);
-    printf("wBins=%d, zBins=%d\n", wBinCount, zBinCount);
-    printf("----SUCCESS! PES INITIATED---\n\n");
 }
 
 //init members (called by constructors)
@@ -76,10 +74,8 @@ void PatternEngineSingle::initializeMembers(const int spXpartition, const int sp
     this->mode = mode;
     this->area = area;
 
-    printf("z SP size=%f phi SP size=%f\n", SPZsize, SPWsize);
-    printf("wBinCount=%d zbinCount=%d totalBinCount=%d\n", wBinCount, zBinCount, totalBinCount);
-    printf("wdithMin=%f widthMax=%f widthDimLength=%f\n", widthMin, widthMax, widthDimLength);
-    printf("area=%d mode=%d\n", this->area, this->mode);
+    std::cout << "[ CONFIG : ZBins=" << zBinCount << " (size=" << SPZsize << ")";
+    std::cout << "WBins=" << zBinCount << " (size=" << SPZsize << ")" << " TOTAL BINS=" << totalBinCount << std::endl;
 
     for(int i=0; i<4; i++) {
 //        this->spWeights[i].reserve(this->totalBinCount);

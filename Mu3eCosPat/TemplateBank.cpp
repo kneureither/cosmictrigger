@@ -14,7 +14,7 @@
 #include <TCanvas.h>
 #include <TTree.h>
 #include "plots.h"
-#include "TemplateDatabase.h"
+#include "TemplateDatabaseFile.h"
 
 
 bool TemplateBank::fillTemplate(unsigned int *SPIDs, const int hitcount, const float p, const float dca, const float phi, const float theta) {
@@ -362,7 +362,12 @@ void TemplateBank::plotFreqTimesTemplatecount(std::string filetag) {
     AssociativeMemory::iterator it;
 
     it = std::max_element(AMem.begin(),AMem.end(),[] (const AssociativePair& a, const AssociativePair& b)->bool{ return (a.second).frequency < (b.second).frequency; } );
-    std::cout << (it->first).HIDS[0]  << (it->first).HIDS[1] << (it->first).HIDS[2] << (it->first).HIDS[3] << " , " << (it->second).frequency << "\n";
+
+    if(PRINTS){
+        std::cout << "INFO   : most frequent checked TID=";
+        std::cout << (it->first).HIDS[0]  << (it->first).HIDS[1] << (it->first).HIDS[2] << (it->first).HIDS[3];
+        std::cout << " , freq=" << (it->second).frequency << std::endl;
+    }
 
     unsigned int max_frequency = (it->second).frequency;
     unsigned int frequency;
@@ -377,11 +382,11 @@ void TemplateBank::plotFreqTimesTemplatecount(std::string filetag) {
 
     for(int i=0; i <= max_frequency; i++) {
         freqtemplcount = (*h_templfreq)[h_templfreq->GetBin(i)];
-        std::cout << "freq: " << i << " bin: " << (*h_templfreq)[h_templfreq->GetBin(i)] << " bin index: " << h_templfreq->GetBin(i) << std::endl;
+        if(this->PRINTS) std::cout << "freq: " << i << " bin: " << (*h_templfreq)[h_templfreq->GetBin(i)] << " bin index: " << h_templfreq->GetBin(i) << std::endl;
         h_templweights->Fill(freqtemplcount*i);
     }
 
-    std::cout << h_templweights->GetMaximum() << std::endl;
+//    if(this->PRINTS) std::cout << h_templweights->GetMaximum() << std::endl;
 
     h_templweights->Draw();
     h_templweights->Write();
@@ -438,9 +443,14 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
         const int &dataset, const int &mode, std::string mode_description) {
     //iterate over the Associative Memory map this->AM and write data to root file
 
+    mydataset = dataset;
+    mywbins = zBins[0];
+    myzbins = wBins[0];
+    mymode = mode;
+
     std::cout << " -- Writing AM Template Database to file..." << std::endl;
 
-    std::string customnametag = "dataset" + get_string(dataset) + "_mode" + get_string(mode) + "zBins" + get_string(zBins[0]) + "wBins" + get_string(wBins[0]);
+    std::string customnametag = getfileidtag(0);
     TFile tF((path + "CosmicPatternDatabase_" + customnametag + ".root").c_str(), "recreate");
     if (!tF.IsOpen()) {
         std::cout << "[ERROR] File " << tF.GetName() << " is not open!" << std::endl;
@@ -468,13 +478,15 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
     std::cout << " -- CHECK: Wrote AM Template Database to file " << filename << std::endl;
 }
 
-bool TemplateBank::readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset) {
+bool
+TemplateBank::readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset, float stopping_efficiency) {
     mydataset = dataset;
     mywbins = wbins;
     myzbins = zbins;
     mymode = mode;
+    this->stopping_efficiency = stopping_efficiency;
 
-    std::string customnametag = getcustomnamestring();
+    std::string customnametag = getfileidtag(0);
     std::string filename = path + "CosmicPatternDatabase_" + customnametag + ".root";
     std::cout << " -- START: Getting AM Template Database from file " << filename << std::endl;
 
@@ -523,8 +535,14 @@ int TemplateBank::getAcceptedCount() {
     return acceptedcount;
 }
 
-std::string TemplateBank::getcustomnamestring() {
-    return "dataset" + get_string(mydataset) + "_mode" + get_string(mymode) + "zBins" + get_string(myzbins) + "wBins" + get_string(mywbins);
+std::string TemplateBank::getfileidtag(int format) {
+    if(format == 1) {
+        //no max eff
+        return "dataset" + get_string(mydataset) + "_mode" + get_string(mymode) + "zBins" + get_string(myzbins) + "wBins" + get_string(mywbins);
+    } else {
+        //default
+        return "dataset" + get_string(mydataset) + "_mode" + get_string(mymode) + "zBins" + get_string(myzbins) + "wBins" + get_string(mywbins) + "_maxeff" + get_string(stopping_efficiency);
+    }
 }
 
 

@@ -9,18 +9,18 @@ include_directories(include)
 #SET_TARGET_PROPERTIES(util PROPERTIES LINKER_LANGUAGE C)
 #target_link_libraries(cospat ${ROOT_LIBRARIES})
 
-add_library(patterns SHARED SuperPixelHit.cpp PatternEngineSingle.cpp TemplateBank.cpp TemplateData.cpp PatternEngine.cpp SPCalculations.cpp ../root/TemplateDatabase.cpp)
+add_library(patterns SHARED SuperPixelHit.cpp PatternEngineSingle.cpp TemplateBank.cpp TemplateData.cpp PatternEngine.cpp SPCalculations.cpp ../root/TemplateDatabaseFile.cpp)
 target_link_libraries(patterns ${ROOT_LIBRARIES})
 
 set(SRC main.cpp cosmicTemplatesBuild.cpp makePlots.cpp)
-add_executable(Mu3eCosPatSerie ${SRC})
-target_link_libraries(Mu3eCosPatSerie patterns rootTreeFiles)
+add_executable(Mu3eCosPatBuildMany ${SRC})
+target_link_libraries(Mu3eCosPatBuildMany patterns rootTreeFiles)
 
-set(SRC2 main_CTbuild.cpp cosmicTemplatesBuild.cpp ../root/TemplateDatabase.cpp)
+set(SRC2 main_CTbuild.cpp cosmicTemplatesBuild.cpp ../root/TemplateDatabaseFile.cpp)
 add_executable(Mu3eCosPatBuild ${SRC2})
 target_link_libraries(Mu3eCosPatBuild patterns rootTreeFiles)
 
-set(SRC3 main_CTeval.cpp cosmicTemplatesEval.cpp ../root/TemplateDatabase.cpp)
+set(SRC3 main_CTeval.cpp cosmicTemplatesEval.cpp ../root/TemplateDatabaseFile.cpp)
 add_executable(Mu3eCosPatEval ${SRC3})
 target_link_libraries(Mu3eCosPatEval patterns rootTreeFiles)
 

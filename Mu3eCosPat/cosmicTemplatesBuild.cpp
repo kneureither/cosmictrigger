@@ -19,14 +19,15 @@
 
 void getReferenceHits(unsigned int *pInt, int nhit, unsigned int ncombinedhits);
 
-void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float spWZratio, int combination_id) {
+void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float spWZratio, int combination_id,
+                          float max_efficiency) {
     const std::string pathtodata = "data/SlimmedData/";
     const std::string pathtoplots = "plots/Mu3eCosPat/";
 
     const bool MAKE_PLOT = true;
     const int MAX_ENTRIES = 0;
     const bool PRINTS = false;
-    const float MAX_EFFICIENCY = 0.7;
+    float MAX_EFFICIENCY = max_efficiency;
     const bool WRITE_DB_FILE = true;
 
     std::string runpadded = get_padded_string(dataset, 6, '0');
@@ -73,6 +74,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     int treecount = 0;
     int cycle = 0;
     std::string tree;
+    std::vector<int> processed_run_ids;
 
     TList *list = tinF.GetListOfKeys();
     TIter iter(list->MakeIterator());
@@ -91,9 +93,17 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
         tinF.GetObject(treename.c_str(), t_slimsegs);
         t_slimsegs->SetBranchAddress("runID", &runID);
         t_slimsegs->GetEntry(0);
-        std::cout << "STATUS : Processing tree " << tree << " cycle " << cycle << " -- run " << runID << std::endl;
+        std::cout << "STATUS : Processing tree " << tree << " cycle " << cycle << " | run " << runID << " | TB eff " << TB.getEfficiency() << std::endl;
 
         SlimSegsTreeRead SlimSegs = SlimSegsTreeRead(t_slimsegs);
+
+        SlimSegs.getEntry(0);
+        if (std::find(processed_run_ids.begin(), processed_run_ids.end(),SlimSegs.runID)!=processed_run_ids.end()) {
+            std::cout << "WARNING: runID " << SlimSegs.runID << " has already been processed -- skipping cycle "<< cycle << std::endl;
+            continue;
+        } else {
+            processed_run_ids.push_back(SlimSegs.runID);
+        }
 
         for (unsigned int entryno = 0; entryno < (MAX_ENTRIES == 0 ? SlimSegs.entries : MAX_ENTRIES); entryno++) {
             SlimSegs.getEntry(entryno);
@@ -188,14 +198,14 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     tF->Close();
 
     //do some template bank stuff, eg. write the TemplateBank to a root database file
-    TB.getMostPopulatedTemplates(50);
+//    TB.getMostPopulatedTemplates(50);
     if(WRITE_DB_FILE) TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
 
     TB.plotFreqTimesTemplatecount(PE.getModeTag());
 
-    std::cout << "\n\n>>>>> GENERAL STATS <<<<<\n\n";
+    std::cout << "\n\n[============ GENERAL STATS ============]\n";
 
     std::cout << " - total entries processed: " << processed_entries << endl;
     std::cout << "   of which " << used_entries << " (" << used_entries / (float) processed_entries *100 << "%) were used" << std::endl;
-    std::cout << " - total trees processed: " << treecount << endl;
+    std::cout << " - total trees processed: " << treecount << endl << endl << endl;
 }

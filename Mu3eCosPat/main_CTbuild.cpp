@@ -24,6 +24,6 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "Building Template Database for dataset " << dataset << "..." << std::endl;
-    cosmicTemplatesBuild(dataset, spcount, spratio, combination_id);
+    cosmicTemplatesBuild(dataset, spcount, spratio, combination_id, 0);
     return 0;
 }

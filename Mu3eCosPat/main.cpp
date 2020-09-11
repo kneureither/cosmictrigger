@@ -22,34 +22,33 @@ const bool TEST_readDB = true;
 
 int main(int argc, char *argv[]) {
 
-    std::vector<float> SPratios;
-
     //this must be set -->
-    SPratios.push_back(0.1);
-    SPratios.push_back(0.25);
-    SPratios.push_back(0.5);
-    SPratios.push_back(1);
-    SPratios.push_back(2);
-    SPratios.push_back(4);
-    SPratios.push_back(10);
-    int combination_id = 1; //will produce a separate file
+//    std::vector<float> sp_ratios = {0.1, 0.25, 0.5, 1, 2, 4, 10};
+    std::vector<float> sp_ratios = {1};
+    std::vector<int> sp_count = {200,400,600,800};
+    std::vector<float> stopping_effs = {0.9};
+    int combination_id = 0; //will produce a separate file
+    int dataset = 9;
     //   <-- up till here.
 
-    int dataset;
-    int spcount;
 
-    if(argc < 2) {
+    if(argc < 0) {
         std::cout << "ERROR: Error in argument! Usage: "
                      "Mu3eCosPat <dataset number> <super pixel count (single station)>" << std::endl;
         exit(0);
     } else {
-        dataset = atoi(argv[1]);
-        spcount = atoi(argv[2]);
+//        dataset = atoi(argv[1]);
+//        spcount = atoi(argv[2]);
     }
 
-    for(int i=0; i<SPratios.size(); i++) {
-        std::cout << "Building Template Database for dataset " << dataset << " SPratio? " << SPratios[i] <<"..." << std::endl;
-        cosmicTemplatesBuild(dataset, spcount, SPratios[i], combination_id);
+    for(int i=0; i < sp_ratios.size(); i++) {
+        for(int j=0; j < sp_count.size(); j++) {
+            for(int n=0; n < stopping_effs.size(); n++) {
+                std::cout << "Building Template Database for dataset " << dataset << " SPratio=" << sp_ratios[i]
+                          << " SPcout=" << sp_count[j] << ".." << std::endl;
+                cosmicTemplatesBuild(dataset, sp_count[j], sp_ratios[i], combination_id, stopping_effs[n]);
+            }
+        }
     }
 
     std::cout << "Producing combined plots for dataset " << dataset << "..." << std::endl;
