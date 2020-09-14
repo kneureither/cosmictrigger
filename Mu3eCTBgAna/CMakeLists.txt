@@ -6,9 +6,13 @@ include_directories(inc)
 include_directories(src)
 
 set(SRC main.cpp src/cosmicTemplatesBgEval.cpp)
-add_executable(Mu3eCTBgAna ${SRC})
-target_link_libraries(Mu3eCTBgAna patterns rootTreeFiles)
+add_executable(Mu3eCTBg2Ana ${SRC})
+target_link_libraries(Mu3eCTBg2Ana patterns rootTreeFiles)
 
 set(SRC main_bgeffplot.cpp src/cosmicTemplatesBgPlots.cpp)
-add_executable(Mu3eCTBgPlots ${SRC})
-target_link_libraries(Mu3eCTBgPlots rootTreeFiles)
+add_executable(Mu3eCTBg3Plots ${SRC})
+target_link_libraries(Mu3eCTBg3Plots rootTreeFiles)
+
+set(SRC main_bg_combinatorics.cpp src/bgDataCombinatorics.cpp ../root/BackgroundDataFile.cpp)
+add_executable(Mu3eCTBg1ComputeCmbntcs ${SRC})
+target_link_libraries(Mu3eCTBg1ComputeCmbntcs patterns rootTreeFiles)
