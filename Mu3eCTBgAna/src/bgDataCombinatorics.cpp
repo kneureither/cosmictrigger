@@ -78,7 +78,7 @@ void backgroundCombinatorics(const int run, unsigned int centralTPcount, float s
     const std::string bgdatatoutfile = pathtoProcessedBGdata + "BackgroundCombinatoricsData_run_" + get_padded_string(run, 6, '0') + "_mode" + get_string(mode) + "zBins" + get_string(spZbins) + "wBins" + get_string(spWbins) + ".root";
 
     // FILE FOR WRITING BACKGROUND DATA
-    TFile toutF(bgdatatoutfile.c_str(), "RECREATE");
+    TFile toutF(bgdatatoutfile.c_str(), "RECREATE  b(TID_LEN, 0)(TID_LEN, 0)(TID_LEN, 0)b b");
     if (!toutF.IsOpen()) {
         std::cout << "[ERROR] File " << tinF.GetName() << " is not open!" << std::endl;
         exit(0);
@@ -191,7 +191,7 @@ void backgroundCombinatorics(const int run, unsigned int centralTPcount, float s
                 }
             }
         }
-        BGFile.fillBGTIDData(TIDS, types, cosmic_track, bgframehits.size(), MAX_COSMIC_HITS);
+//        BGFile.fillBGTIDData(TIDS, types, cosmic_track, bgframehits.size(), MAX_COSMIC_HITS);
     }
 
     std::cout << "STATUS : Background run " << run << " processed." << std::endl;
