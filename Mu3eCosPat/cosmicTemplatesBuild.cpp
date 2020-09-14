@@ -169,7 +169,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     int datast = dataset;
     float eff = TB.getEfficiency();
     int templatecount = TB.getTemplateCount();
-    TTree tT_met("MetadataTree","Metadata associated with these plots (SID config and dataset)");
+    TTree tT_met("MetadataTree","Metadata associated with these plots (PE, TB config and dataset)");
     tT_met.Branch("dataset", &datast, "dataset/I");
     tT_met.Branch("area0Description", &PE.areaDescript[0], "area0Description/C");
     tT_met.Branch("area1Description", &PE.areaDescript[1], "area1Description/C");
