@@ -30,7 +30,7 @@ void slimSegsDataScript(const int dataset, const int run, const bool appendToFil
 
     const int MAX_ENTRIES = 0;
 
-    const std::string pathtoplots = "plots/Mu3eSlimSegs/";
+    const std::string pathtoplots = "output/Mu3eSlimSegs/";
     const std::string pathtodata = "data/SimulationData/";
     const std::string pathtodatasetplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string infile = pathtodata + "mu3e_run_" + get_padded_string(run, 6, '0') + "_trirec_cosmic.root";
