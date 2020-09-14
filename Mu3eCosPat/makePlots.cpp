@@ -16,6 +16,7 @@
 #include "TColor.h"
 #include "TPaveText.h"
 #include "TStyle.h"
+#include "TMultiGraph.h"
 
 //custom
 #include "include/makePlots.h"
@@ -63,25 +64,23 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
     TH1F *h_templfreq;
     TGraph *g_efficiency;
     TGraph *g_tnumber;
+    auto g_efficiencies  = new TMultiGraph();
+    auto g_tnumbers  = new TMultiGraph();
 
-    int colpalette[10] = {433,435,427,420,410,414,601,603,861,854};
+//    int colpalette[10] = {433,435,427,420,410,414,601,603,861,854};
+    gStyle->SetPalette(kBlueGreenYellow);
+
 
     TCanvas *canvas = new TCanvas("canvas", "Template Bank Pattern Result", 900, 600);
-//    canvas->SetLeftMargin(0.15);
-//    canvas->SetRightMargin(0.15);
     canvas->SetGrid(1, 1);
     canvas->SetTicks(1, 1);
     canvas->SetLogx(1);
-
-//    auto *pad0 = new TPad("title", "title", 0, 0.3, 1, 0.99);
-//    pad0->SetLogx(0);
-//    pad0->Draw();
 
     auto *pad1 = new TPad("template efficiency", "template efficiency", 0, 0.3, 1, 0.99);
     pad1->SetLogx(0);
     pad1->Draw();
 
-    auto legend = new TLegend(0.5,0.1,0.9,0.5);
+    auto legend = new TLegend(0.6,0.1,0.9,0.7);
 
     auto *pad2 = new TPad("template count", "template count", 0, 0, 1, 0.3);
     pad2->SetLogx(0);
@@ -140,9 +139,7 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
 
         //make the plots
         pad1->cd();
-        g_efficiency->SetLineColor(colpalette[treecount-1]);
         g_efficiency->SetMarkerStyle(5);
-        g_efficiency->SetMarkerColor(colpalette[treecount-1]);
 
         g_efficiency->GetXaxis()->SetTitle("Number of training events");
         g_efficiency->GetXaxis()->SetLabelFont(43);
@@ -150,7 +147,6 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
         g_efficiency->GetXaxis()->SetTitleFont(63);
         g_efficiency->GetXaxis()->SetTitleSize(14);
         g_efficiency->GetXaxis()->SetTitleOffset(1.4);
-        g_efficiency->GetXaxis()->CenterTitle(true);
 
         g_efficiency->GetYaxis()->SetTitle("efficiency #epsilon = #frac{tmpl_{matched}}{tmpl_{total}}");
         g_efficiency->GetYaxis()->SetLabelFont(43);
@@ -160,21 +156,24 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
         g_efficiency->GetYaxis()->SetTitleOffset(1.6);
         g_efficiency->GetYaxis()->CenterTitle(false);
 
-//        TPaveText *pt = (TPaveText*)(g_efficiency->GetTitle()); pt->SetTextSize(0.1);
+        //add to multi graph
+        g_efficiencies->Add(g_efficiency, "L");
 
+//        std::string ltext="#bf{SPBINS_{wz}} #it{" + get_string(wBins[0]) + "x" + get_string(zBins[0]) +
+//                          "} #bf{SPCNT} #it{" + get_string(SPcount) +
+//                          "} #bf{#epsilon_{train}} #it{" + get_string(efficiency * 100).substr(0, 4) + "%" +
+//                "} #bf{SPRATIO} #it{" + (spWZratio < 1 ? "1:" + get_string(1/spWZratio) : get_string(spWZratio) + ":1") + "}";
 
-        g_efficiency->Draw((treecount == 1 ? "AL" : "SAME"));
-        std::string ltext="bins_{w}=" + get_string(wBins[0]) +
-                "   bins_{z}=" + get_string(zBins[0]) +
-                "   #epsilon =" + get_string(efficiency * 100).substr(0, 4) + "%" +
-                "   cnt=" + get_string(SPcount) +
-                "   ratio W/Z=" + (spWZratio < 1 ? "1:" + get_string(1/spWZratio) : get_string(spWZratio) + ":1");
+        std::string ltext="#it{" + get_string(wBins[0]) + "x" + get_string(zBins[0]) + "}  |  " +
+                          "#it{" + get_string(SPcount) + "}  |  " +
+                          "#it{" + (spWZratio < 1 ? "1:" + get_string(1/spWZratio) : get_string(spWZratio) + ":1") + "}  |  "+
+                          "#bf{#epsilon_{train}} #it{" + get_string(efficiency * 100).substr(0, 4) + "%}";
+
 
         legend->AddEntry(g_efficiency,ltext.c_str(),"l");
 
         pad2->cd();
-        g_tnumber->SetLineColor(colpalette[treecount-1]);
-        g_tnumber->GetYaxis()->SetRangeUser(0, 750000);
+        g_tnumber->GetYaxis()->SetRangeUser(0, g_tnumber->GetMaximum());
 
         g_tnumber->SetTitle("");
 
@@ -184,7 +183,6 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
         g_tnumber->GetXaxis()->SetTitleOffset(3.3);
         g_tnumber->GetXaxis()->SetTitleFont(63);
         g_tnumber->GetXaxis()->SetTitleSize(14);
-        g_tnumber->GetXaxis()->CenterTitle(true);
         g_tnumber->GetXaxis()->SetTickLength(0.05);
 
         g_tnumber->GetYaxis()->SetTitle("number of templates");
@@ -193,17 +191,23 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
         g_tnumber->GetYaxis()->SetTitleFont(63);
         g_tnumber->GetYaxis()->SetTitleSize(11);
         g_tnumber->GetYaxis()->SetTitleOffset(1.6);
-        g_tnumber->GetYaxis()->SetNdivisions(3, 5, 0, false);
+
         g_tnumber->GetYaxis()->CenterTitle(false);
 
-
-        g_tnumber->Draw((treecount == 1 ? "AL" : "SAME"));
+        //add to multi graph
+        g_tnumbers->Add(g_tnumber, "L");
     }
 
+    pad2->cd();
+    g_tnumbers->GetYaxis()->SetNdivisions(3, 5, 0, false);
+    g_tnumbers->Draw("A PLC PMC");
+
     pad1->cd();
-//    legend->SetHeader(("Super Pixel count (central area): " + get_string(SPcount)).c_str(),"C"); // option "C" allows to center the header
-    legend->SetTextFont(43);
-    legend->SetTextSize(10);
+    g_efficiencies->Draw("A PLC PMC");
+
+    std::string lheadtext="#bf{SPBINS} #it{WxZ} | #bf{SPCOUNT} | #bf{SPRATIO} #it{W:Z} | #bf{TRAINING EFF}";
+
+    legend->SetHeader(lheadtext.c_str(),"C"); // option "C" allows to center the header
     legend->Draw();
     saveCanvas(canvas, "CosPatPlots_dataset_" +get_string(dataset) + "_id" + get_padded_string(combination_id, 3, '0'), pathtorunplots);
 
