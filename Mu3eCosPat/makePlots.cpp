@@ -24,8 +24,8 @@
 #include "plots.h"
 
 void makeCosPatPlots(const int dataset, const int combination_id) {
-    const std::string pathtodata = "plots/Mu3eCosPat/";
-    const std::string pathtoplots = "plots/Mu3eCosPatPlots/";
+    const std::string pathtodata = "output/Mu3eCosPat/";
+    const std::string pathtoplots = "output/Mu3eCosPatPlots/";
     std::string pathtorunplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
     std::string pathtorundata = pathtodata + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
 
@@ -223,9 +223,20 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
     g_tnumbers->GetYaxis()->SetNdivisions(3, 5, 0, false);
     g_tnumbers->GetXaxis()->SetLabelSize(0.08);
     g_tnumbers->GetYaxis()->SetLabelSize(0.08);
+    g_tnumbers->GetXaxis()->SetTitle("# training events");
+    g_tnumbers->GetYaxis()->SetTitle("# templates");
+    g_tnumbers->GetXaxis()->SetTitleSize(0.08);
+    g_tnumbers->GetYaxis()->SetTitleSize(0.08);
+    g_tnumbers->GetXaxis()->SetTitleFont(52);
+    g_tnumbers->GetYaxis()->SetTitleFont(52);
+    g_tnumbers->GetYaxis()->SetMaxDigits(1);
+    g_tnumbers->GetYaxis()->SetTitleOffset(0.5);
+
     g_tnumbers->Draw("A PLC PMC");
 
     pad1->cd();
+    g_efficiencies->GetXaxis()->SetTitle("# training events");
+    g_efficiencies->GetYaxis()->SetTitle("training #epsilon");
     g_efficiencies->Draw("A PLC PMC");
 
     std::string lheadtext="#bf{SPBINS} #it{WxZ} | #bf{SPCOUNT} | #bf{SPRATIO} #it{W:Z} | #bf{TRAINING EFF}";

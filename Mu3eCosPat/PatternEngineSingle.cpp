@@ -74,8 +74,9 @@ void PatternEngineSingle::initializeMembers(const int spXpartition, const int sp
     this->mode = mode;
     this->area = area;
 
-    std::cout << "[ CONFIG : ZBins=" << zBinCount << " (size=" << SPZsize << ")";
-    std::cout << "WBins=" << zBinCount << " (size=" << SPZsize << ")" << " TOTAL BINS=" << totalBinCount << std::endl;
+    std::cout << "[ CONFIG : ZBins=" << zBinCount << " (size=" << SPZsize << ") ";
+    std::cout << "WBins=" << wBinCount << " (size=" << SPWsize << ")" << " TOTAL BINS=" << totalBinCount << std::endl;
+    std::cout << std::endl;
 
     for(int i=0; i<4; i++) {
 //        this->spWeights[i].reserve(this->totalBinCount);
