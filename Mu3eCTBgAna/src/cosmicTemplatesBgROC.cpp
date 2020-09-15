@@ -3,29 +3,19 @@
 //
 
 #include "cosmicTemplatesBgROC.h"
-#include "bgeval.h"
 #include "TFile.h"
 #include "TMultiGraph.h"
-#include "plots.h"
-
-
-//
-// Created by Konstantin Neureither on 25.08.20.
-//
-
-#include "TFile.h"
 #include "TH1F.h"
 
-#include <cassert>
 #include <map>
 #include <stdlib.h>
 
-#include "../inc/cosmicTemplatesBgEval.h"
 #include "utilityFunctions.h"
 #include "Mu3eTree.h"
 #include "MetaDataTree.h"
+#include "bgeval.h"
+#include "plots.h"
 #include "../Mu3eCosPat/include/PatternEngine.h"
-#include "../Mu3eCosPat/include/TemplateBank.h"
 #include "../Mu3eCosPat/include/TemplateData.h"
 
 
@@ -45,7 +35,7 @@ void cosmicTemplatesBgROC() {
 
     std::vector<int> SPcounts = {200, 400, 600, 800};
     std::vector<float> SPratios = {1.0};
-    std::vector<float> tb_stopping_effs = {0.7, 0.75, 0.8, 0.85};
+    std::vector<float> tb_stopping_effs = {0.7, 0.75, 0.8, 0.85, 0.9};
 
     const std::string pathtoplots = "output/Mu3eCosPatBgEval/";
     const std::string pathtooutfile =
@@ -67,7 +57,7 @@ void cosmicTemplatesBgROC() {
     pad1->SetLogx(0);
 //    pad1->SetGrid(1,5);
     pad1->Draw();
-    auto legend = new TLegend(0.6, 0.1, 0.9, 0.7);
+    auto legend = new TLegend(0.1, 0.25, 0.35, 0.4);
 
     for (auto &spcount : SPcounts) {
         for (auto &spratio : SPratios) {
@@ -91,28 +81,49 @@ void cosmicTemplatesBgROC() {
             training_effs.clear();
             bg_discr_effs.clear();
 
+            BGAnaResTreeRead *BGAna;
+
             for (auto &stopp_eff : tb_stopping_effs) {
                 std::string pathinfile = "trainingEff" + get_string(stopp_eff) + "/";
                 tinF.GetObject((pathinfile + "BackgroundEfficiency").c_str(), t_eff);
                 tinF.GetObject((pathinfile + "MetadataTree").c_str(), t_meta);
 
-                BGAnaResTreeRead BGAna = BGAnaResTreeRead(t_meta, t_eff);
+                BGAna = new BGAnaResTreeRead(t_meta, t_eff);
 
-                training_effs.push_back(BGAna.tb_training_eff);
-                bg_discr_effs.push_back(BGAna.bg_discr_eff);
+                training_effs.push_back(BGAna->tb_training_eff);
+                bg_discr_effs.push_back(BGAna->bg_discr_eff);
 
-                std::cout << "STATUS : sp count " << spcount << " | tb_eff " << BGAna.tb_training_eff << " | bg_eff " << BGAna.bg_discr_eff << std::endl;
+                std::cout << "STATUS : sp count " << spcount << " | tb_eff " << BGAna->tb_training_eff << " | bg_eff " << BGAna->bg_discr_eff << std::endl;
             }
 
-            ltexts.push_back("some legend text");
+            std::string ltext="#it{" + get_string(BGAna->wBins[0]) + "x" + get_string(BGAna->zBins[0]) + "}  |  " +
+                              "#it{" + get_string(spcount) + "}  |  " +
+                              "#it{" + (spratio < 1 ? "1:" + get_string(1/spratio) : get_string(spratio) + ":1") + "}";
+
             TGraph *g_effroc = new TGraph(training_effs.size(), &training_effs[0], &bg_discr_effs[0]);
+            legend->AddEntry(g_effroc, ltext.c_str());
             g_effroc->SetMarkerColor(5);
-            g_effROCs->Add(g_effroc, "PL");
-            
+            g_effROCs->Add(g_effroc, "PL"); //no markers shown
+
         }
     }
 
+    g_effROCs->GetXaxis()->SetTitle("training #epsilon");
+    g_effROCs->GetXaxis()->SetTitleFont(53);
+    g_effROCs->GetXaxis()->SetTitleSize(14);
+    g_effROCs->GetXaxis()->SetTitleOffset(1.6);
+
+    g_effROCs->GetYaxis()->SetTitle("background discr. #epsilon");
+    g_effROCs->GetYaxis()->SetTitleFont(53);
+    g_effROCs->GetYaxis()->SetTitleSize(14);
+    g_effROCs->GetYaxis()->SetTitleOffset(1.6);
     g_effROCs->Draw("A PLC PMC");
+
+    std::string lheadtext="#bf{SPBINS} #it{WxZ} | #bf{SPCOUNT} | #bf{SPRATIO} #it{W:Z}";
+    legend->SetTextSize(0.02);
+    legend->SetHeader(lheadtext.c_str(),"C"); // option "C" allows to center the header
+    legend->Draw("C");
+
 
     saveCanvas(canvas, "BgEvalROC_" + get_string(dataset), pathtorunplots);
 }
