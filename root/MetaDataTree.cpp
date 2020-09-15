@@ -10,15 +10,13 @@ void MetaDataTreeFile::reinitializeData() {
 
 }
 
-MetaDataTreeWrite::MetaDataTreeWrite(TTree *tT_meta, const int dataset, const int *zBins, const int *wBins, char areaDescript[3][8],
-                                             const int mode, const float efficiency, const int eventcount, std::string mode_description,
-                                             int bg_run,
-                                             int max_muon_hits,
-                                             int max_frame_nhits,
-                                             int processed_frames,
-                                             float tb_stopping_eff,
-                                             unsigned int sp_count,
-                                             float sp_target_ratio) {
+MetaDataTreeWrite::MetaDataTreeWrite(TTree *tT_meta, const int dataset, const int *zBins, const int *wBins,
+                                     char areaDescript[3][8],
+                                     const int mode, const float efficiency, const int eventcount,
+                                     std::string mode_description,
+                                     int bg_run, int max_muon_hits, int max_frame_nhits, int processed_frames,
+                                     float tb_stopping_eff,
+                                     unsigned int sp_count, float sp_target_ratio, int tb_training_eventcount) {
 
     this->tT_meta = tT_meta;
     this->dataset = dataset;
@@ -31,6 +29,7 @@ MetaDataTreeWrite::MetaDataTreeWrite(TTree *tT_meta, const int dataset, const in
     this->mode = mode;
     this->efficiency = efficiency;
     this->eventcount = eventcount;
+    this->tb_training_eventcount = tb_training_eventcount;
     this->mode_description = mode_description;
 
     this->bg_run = bg_run;
@@ -55,6 +54,7 @@ MetaDataTreeWrite::MetaDataTreeWrite(TTree *tT_meta, const int dataset, const in
     this->tT_meta->Branch("mode_description", &this->mode_description);
     this->tT_meta->Branch("efficiency", &this->efficiency, "efficiency/F");
     this->tT_meta->Branch("eventcount", &this->eventcount, "eventcount/I");
+    this->tT_meta->Branch("tb_training_eventcount", &this->tb_training_eventcount, "tb_training_eventcount/I");
 
     this->tT_meta->Branch("bg_run", &this->bg_run, "bg_run/I");
     this->tT_meta->Branch("max_muon_hits", &this->max_muon_hits, "max_muon_hits/I");
@@ -94,6 +94,7 @@ void MetaDataTreeRead::setBranches() {
     tT_meta->SetBranchAddress("max_muon_hits", &max_muon_hits);
     tT_meta->SetBranchAddress("max_frame_nhits", &max_frame_nhits);
     tT_meta->SetBranchAddress("processed_frames", &processed_frames);
+    tT_meta->SetBranchAddress("tb_training_eventcount", &tb_training_eventcount);
     tT_meta->SetBranchAddress("tb_stopping_eff", &tb_stopping_eff);
     tT_meta->SetBranchAddress("sp_count", &sp_count);
 //    tT_meta->SetBranchAddress("sp_target_ratio", &sp_target_ratio);

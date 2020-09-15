@@ -20,6 +20,7 @@ public:
     int mode;
     float efficiency;
     int eventcount;
+    int tb_training_eventcount;
     std::string mode_description;
     std::string *mode_description_ptr = nullptr;
 
@@ -52,15 +53,10 @@ public:
 
 class MetaDataTreeWrite : public MetaDataTreeFile {
 public:
-    MetaDataTreeWrite(TTree *tT_meta, const int dataset, const int* zBins,const int* wBins,
-                          char areaDescript[3][8], const int mode, const float efficiency, const int eventcount, std::string mode_description,
-                          int bg_run,
-                          int max_muon_hits,
-                          int max_frame_nhits,
-                          int processed_frames,
-                          float tb_stopping_eff,
-                          unsigned int sp_count,
-                          float sp_target_ratio);
+    MetaDataTreeWrite(TTree *tT_meta, const int dataset, const int *zBins, const int *wBins, char areaDescript[3][8],
+                      const int mode, const float efficiency, const int eventcount, std::string mode_description,
+                      int bg_run, int max_muon_hits, int max_frame_nhits, int processed_frames, float tb_stopping_eff,
+                      unsigned int sp_count, float sp_target_ratio, int tb_training_eventcount);
 };
 
 
@@ -89,6 +85,7 @@ class BGAnaResTreeWrite : public MetaDataTreeWrite {
 //                unsigned int sp_count,
 //                float sp_target_ratio);
 //    }
+    BGAnaResTreeWrite() : MetaDataTreeWrite(nullptr, 0, nullptr, nullptr, nullptr, 0, 0, 0, std::string(), 0, 0, 0, 0, 0, 0, 0, 0) {}
 };
 
 class BGAnaResTreeRead : public MetaDataTreeRead {
