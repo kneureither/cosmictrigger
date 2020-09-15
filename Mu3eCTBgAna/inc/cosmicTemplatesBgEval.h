@@ -7,8 +7,8 @@
 
 #include <vector>
 
-void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spWZratio, int max_muon_hits,
-                           const float tb_stopping_efficiency);
+void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcount, float spWZratio,
+                           const float tb_stopping_efficiency, const bool append_outfile);
 
 struct BGhit{
     double x;

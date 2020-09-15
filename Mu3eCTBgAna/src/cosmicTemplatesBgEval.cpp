@@ -15,10 +15,11 @@
 #include "../Mu3eCosPat/include/PatternEngine.h"
 #include "../Mu3eCosPat/include/TemplateBank.h"
 #include "../Mu3eCosPat/include/TemplateData.h"
+#include "MetaDataTree.h"
 
 
-void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spWZratio, int max_muon_hits,
-                           const float tb_stopping_efficiency) {
+void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcount, float spWZratio,
+                           const float tb_stopping_efficiency, const bool append_outfile) {
     /*
      * Read and analyse the mu3e mc hits
      * get the hits in xyz
@@ -27,20 +28,18 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
      * check the frequency
      */
 
-    int MAX_ENTRIES = 0;
-    int MAX_MUON_HITS = max_muon_hits;
+    int MAX_ENTRIES = 40000;
+    int MAX_MUON_HITS = 0;
     int MAX_NHITS = 100;
     float TB_STOPPING_EFF = tb_stopping_efficiency;
-    const bool RECREATE_FILE = false;
+    const bool RECREATE_FILE = !append_outfile;
     const int MUONTYPE = 1;
     const int PRINTS = false;
-    const int dataset = 9; //determines which pretrained database will be used
     const int mode = 0;
 
     const std::string pathtoBGdata = "data/SimulationData/";
     const std::string pathtoTemplateData = "data/TemplateData/";
     const std::string pathtoplots = "output/Mu3eCosPatBgEval/";
-    const std::string infile = pathtoBGdata + "mu3e_run_" + get_padded_string(run, 6, '0') + ".root";
     const std::string pathtooutfile = pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/"; //this is where the root file is stored
     const std::string pathtorunplots = pathtooutfile +"/PDF/"; //this is where the pdf files are stored
     const std::string pathtodatasettemplatedata = pathtoTemplateData + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
@@ -48,9 +47,11 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     check_create_directory(pathtoBGdata);
     check_create_directory(pathtoTemplateData);
     check_create_directory(pathtoplots);
+    check_create_directory(pathtooutfile);
     check_create_directory(pathtorunplots);
 
-    // FILE FOR READING
+    // FILE FOR READING BACKGROUND DATA
+    const std::string infile = pathtoBGdata + "mu3e_run_" + get_padded_string(run, 6, '0') + ".root";
     TFile tinF(infile.c_str());
     if (!tinF.IsOpen()) {
         std::cout << "[ERROR] File " << tinF.GetName() << " is not open!" << std::endl;
@@ -65,7 +66,6 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     //Get the Pattern Engine and Template Manager
     const int spWbins = (int) sqrt((float) spWZratio * (float) centralTPcount);
     const int spZbins = (int) sqrt((float) centralTPcount / (float) spWZratio);
-//    std::cout << "\n -- PE config data:" << std::endl << "  wbins=" << spWbins << std::endl << "  zbins=" << spZbins << std::endl << std::endl;
 
     Mu3eTree Mu3e = Mu3eTree(t_mu3e);
     Mu3eMChitsTree Mu3eMChits = Mu3eMChitsTree(t_mu3e_mchits);
@@ -105,6 +105,8 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
             continue;
         }
         processed_frames++;
+
+
 
         std::vector<BGhit> bgframehits;
         BGSortedHits hits;
@@ -259,6 +261,9 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
             rejected_frames++;
         }
 
+        float bg_discr_eff = (float) rejected_frames / (float) processed_frames;
+        if(frame % 1000 == 0) std::cout << "STATUS : processed background frame " << frame << " of " << bg_events << " | bg discr eff: " << bg_discr_eff*100 << " %" << std::endl;
+
         //calculate rations:
             /*
              * - accepted templates / tested templates
@@ -270,8 +275,8 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
 
     float background_efficiency = (float) rejected_frames / (float) processed_frames;
 
-    std::cout << "rejected frames: " << rejected_frames << " processed frames: " << processed_frames << std::endl;
-    std::cout << " --  BG efficiency: " << background_efficiency << std::endl;
+    std::cout << "INFO    : rejected frames: " << rejected_frames << " processed frames: " << processed_frames << std::endl;
+    std::cout << "INFO    : --  BG efficiency: " << background_efficiency << std::endl;
 
     //open new TFile for plots
     TFile * tF = new TFile((pathtooutfile + "CosmicBackgroundEval_bgevents_" + get_padded_string(bg_events, 6, '0') +
@@ -289,27 +294,36 @@ void cosmicTemplatesBgEval(const int run, unsigned int centralTPcount, float spW
     int bg_run = run;
     float tb_max_efficiency = TB.getEfficiency();
 
+
     TTree tT_met("MetadataTree","Metadata associated with these plots (SID config and dataset)");
-    tT_met.Branch("bg_run", &bg_run, "bg_run/I");
-    tT_met.Branch("bg_events", &bg_events, "bg_events/I");
-    tT_met.Branch("max_muon_hits", &MAX_MUON_HITS, "max_muon_hits/I");
-    tT_met.Branch("max_frame_nhits", &MAX_NHITS, "max_frame_nhits/I");
-    tT_met.Branch("processed_frames", &processed_frames, "processed_frames/I");
-    tT_met.Branch("tb_stopping_eff", &TB_STOPPING_EFF, "tb_stopping_eff/F");
-
-
-    tT_met.Branch("area0Description", &PE.areaDescript[0], "area0Description/C");
-    tT_met.Branch("area1Description", &PE.areaDescript[1], "area1Description/C");
-    tT_met.Branch("area2Description", &PE.areaDescript[2], "area2Description/C");
-    tT_met.Branch("wBins0", &PE.WBins[0], "wBins0/I");
-    tT_met.Branch("wBins1", &PE.WBins[1], "wBins1/I");
-    tT_met.Branch("wBins2", &PE.WBins[2], "wBins2/I");
-    tT_met.Branch("zBins0", &PE.ZBins[0], "zBins0/I");
-    tT_met.Branch("zBins1", &PE.ZBins[1], "zBins1/I");
-    tT_met.Branch("zBins2", &PE.ZBins[2], "zBins2/I");
-    tT_met.Branch("mode", &PE.mode, "mode/I");
-    tT_met.Fill();
+    MetaDataTreeWrite Meta = MetaDataTreeWrite(&tT_met, dataset, PE.ZBins, PE.WBins, PE.areaDescript,
+            mode, tb_max_efficiency, bg_events, "default",bg_run, MAX_MUON_HITS, MAX_NHITS, processed_frames, tb_stopping_efficiency,
+                                               (unsigned int) centralTPcount, spWZratio);
     tT_met.Write();
+
+
+//    tT_met.Branch("bg_run", &bg_run, "bg_run/I");
+//    tT_met.Branch("bg_events", &bg_events, "bg_events/I");
+//    tT_met.Branch("max_muon_hits", &MAX_MUON_HITS, "max_muon_hits/I");
+//    tT_met.Branch("max_frame_nhits", &MAX_NHITS, "max_frame_nhits/I");
+//    tT_met.Branch("processed_frames", &processed_frames, "processed_frames/I");
+//    tT_met.Branch("tb_stopping_eff", &TB_STOPPING_EFF, "tb_stopping_eff/F");
+//    tT_met.Branch("sp_count", &centralTPcount, "spcount/i");
+//    tT_met.Branch("sp_target_ratio", &spWZratio, "sp_target_ratio/i");
+//
+//
+//    tT_met.Branch("area0Description", &PE.areaDescript[0], "area0Description/C");
+//    tT_met.Branch("area1Description", &PE.areaDescript[1], "area1Description/C");
+//    tT_met.Branch("area2Description", &PE.areaDescript[2], "area2Description/C");
+//    tT_met.Branch("wBins0", &PE.WBins[0], "wBins0/I");
+//    tT_met.Branch("wBins1", &PE.WBins[1], "wBins1/I");
+//    tT_met.Branch("wBins2", &PE.WBins[2], "wBins2/I");
+//    tT_met.Branch("zBins0", &PE.ZBins[0], "zBins0/I");
+//    tT_met.Branch("zBins1", &PE.ZBins[1], "zBins1/I");
+//    tT_met.Branch("zBins2", &PE.ZBins[2], "zBins2/I");
+//    tT_met.Branch("mode", &PE.mode, "mode/I");
+//    tT_met.Fill();
+//    tT_met.Write();
 
 
     TTree tT_efficiencies("BackgroundEfficiency", "Contains the Bg efficiencies per Frame");
