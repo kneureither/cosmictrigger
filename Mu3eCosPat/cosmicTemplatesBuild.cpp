@@ -16,13 +16,14 @@
 #include "PatternEngine.h"
 #include "TemplateBank.h"
 #include "utilityFunctions.h"
+#include "MetaDataTree.h"
 
 void getReferenceHits(unsigned int *pInt, int nhit, unsigned int ncombinedhits);
 
 void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float spWZratio, int combination_id,
                           float max_efficiency) {
     const std::string pathtodata = "data/SlimmedData/";
-    const std::string pathtoplots = "plots/Mu3eCosPat/";
+    const std::string pathtoplots = "output/Mu3eCosPat/";
 
     const bool MAKE_PLOT = true;
     const int MAX_ENTRIES = 0;
@@ -93,21 +94,32 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
         tinF.GetObject(treename.c_str(), t_slimsegs);
         t_slimsegs->SetBranchAddress("runID", &runID);
         t_slimsegs->GetEntry(0);
-        std::cout << "STATUS : Processing tree " << tree << " cycle " << cycle << " | run " << runID << " | TB eff " << TB.getEfficiency() << std::endl;
+        std::cout << "(INFO)   : Processing tree " << tree << " cycle " << cycle << " | run " << runID << " | TB eff " << TB.getEfficiency() << std::endl;
+        std::cout << "(INFO)   : sp count " << centralTPcount << " | wbins " << spWbins << " | zbins " << spZbins << " | target eff " << max_efficiency << std::endl;
 
         SlimSegsTreeRead SlimSegs = SlimSegsTreeRead(t_slimsegs);
 
         SlimSegs.getEntry(0);
         if (std::find(processed_run_ids.begin(), processed_run_ids.end(),SlimSegs.runID)!=processed_run_ids.end()) {
-            std::cout << "WARNING: runID " << SlimSegs.runID << " has already been processed -- skipping cycle "<< cycle << std::endl;
+            std::cout << "(WARNING): runID " << SlimSegs.runID << " has already been processed -- skipping cycle "<< cycle << std::endl;
             continue;
         } else {
             processed_run_ids.push_back(SlimSegs.runID);
         }
+        int max_entry = (MAX_ENTRIES == 0 ? SlimSegs.entries : MAX_ENTRIES);
 
-        for (unsigned int entryno = 0; entryno < (MAX_ENTRIES == 0 ? SlimSegs.entries : MAX_ENTRIES); entryno++) {
+        for (unsigned int entryno = 0; entryno < max_entry; entryno++) {
             SlimSegs.getEntry(entryno);
             processed_entries++;
+
+            if(entryno % 1000 == 0){
+                int MAX_LEN = 50;
+                float prog_perc = entryno /  (float) max_entry;
+                std::string prog_bar_fill((int) (MAX_LEN * prog_perc), '=');
+                std::string prog_bar_empty((int) (MAX_LEN * (1-prog_perc)), ' ');
+                std::cout << "\r(STATUS) : " << "[" << prog_bar_fill << ">" << prog_bar_empty << "] ";
+                std::cout << entryno /  (float) max_entry * 100 << "% | TB eff " << TB.getEfficiency() * 100 << "%" << std::flush;
+            }
 
             std::vector<unsigned int> SPIDs;
             std::vector<float> xpr;
@@ -185,7 +197,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     tT_met.Branch("templ_count", &templatecount, "templ_count/I");
     tT_met.Branch("processed_events", &processed_entries, "processed_events/I");
     tT_met.Branch("sp_count", &centralTPcount, "spcount/i");
-    tT_met.Branch("sp_target_ratio", &spWZratio, "sp_target_ratio/i");
+    tT_met.Branch("sp_target_ratio", &spWZratio, "sp_target_ratio/F");
     tT_met.Fill();
     tT_met.Write();
 
