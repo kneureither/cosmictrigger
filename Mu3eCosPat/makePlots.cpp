@@ -237,6 +237,8 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
     pad1->cd();
     g_efficiencies->GetXaxis()->SetTitle("# training events");
     g_efficiencies->GetYaxis()->SetTitle("training #epsilon");
+    g_efficiencies->GetXaxis()->SetTitleFont(52);
+    g_efficiencies->GetYaxis()->SetTitleFont(52);
     g_efficiencies->Draw("A PLC PMC");
 
     std::string lheadtext="#bf{SPBINS} #it{WxZ} | #bf{SPCOUNT} | #bf{SPRATIO} #it{W:Z} | #bf{TRAINING EFF}";

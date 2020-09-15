@@ -24,11 +24,11 @@ int main(int argc, char *argv[]) {
 
     //this must be set -->
 //    std::vector<float> sp_ratios = {0.1, 0.25, 0.5, 1, 2, 4, 10};
-    std::vector<float> sp_ratios = {1};
-    std::vector<int> sp_count = {200,400,600,800};
+    std::vector<float> sp_ratios = {0.25, 1, 4};
+    std::vector<int> sp_count = {200,400,600,800, 1024};
     std::vector<float> stopping_effs = {0.9};
     int combination_id = 0; //will produce a separate file
-    int dataset = 9;
+    int dataset = 10;
     //   <-- up till here.
 
 
