@@ -142,7 +142,7 @@ void slimSegsDataScript(const int dataset, const int run, const bool appendToFil
 //        }
 
         if(i % 1000 == 0) {
-            std::cout << " -- processing entry " << i << " of " << Segs.my_entries << std::endl;
+            std::cout << "\r(STATUS) : processing entry " << i << " of " << Segs.my_entries << std::flush;
         }
 
         //update data in Segs class
