@@ -34,7 +34,8 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
     const bool PRINTS = false;
     const int delete_cycle=0;
 
-    std::vector<int> cycle_plotting_order = {20, 16, 15, 14, 13, 19, 12, 11, 10, 9, 18, 8, 7, 6, 5, 17, 4, 3, 2 ,1}; //order dataset=9, id=001
+//    std::vector<int> cycle_plotting_order = {20, 16, 15, 14, 13, 19, 12, 11, 10, 9, 18, 8, 7, 6, 5, 17, 4, 3, 2 ,1}; //order dataset=9, id=001
+    std::vector<int> cycle_plotting_order {11, 9, 7, 6, 5, 4, 3, 2, 1, 8, 12}; //dataset 6, id=1
 //    std::vector<int> cycle_plotting_order = {20, 19, 18, 17, 16, 12, 8, 4, 11, 7, 3, 10, 6, 2, 9, 5, 1}; //order dataset=9, id=001, eff sorted
 //    std::vector<int> cycle_plotting_order = {16,15,14,13}; //order dataset=9, id=001
 
@@ -85,7 +86,7 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
     pad1->SetGrid(1,5);
     pad1->Draw();
 
-    auto legend = new TLegend(0.6,0.1,0.9,0.7);
+    auto legend = new TLegend(0.6,0.1,0.9,0.55);
 
     auto *pad2 = new TPad("template count", "template count", 0, 0, 1, 0.3);
     pad2->SetLogx(0);
@@ -109,7 +110,7 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
             TKey *theKey = (TKey *) obj;
             tree = theKey->GetName();
             int cycle = theKey->GetCycle();
-            cycle_plotting_order.push_back(cycle);
+            if(tree == "MetadataTree") cycle_plotting_order.push_back(cycle);
 
         }
     } else {

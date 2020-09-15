@@ -101,6 +101,8 @@ public:
     void testCheck();
 
     void testGetMostPopTemplates();
+
+    int getTrainingEventCount();
 };
 
 

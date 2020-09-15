@@ -108,6 +108,10 @@ float TemplateBank::getEfficiency() {
     return this->efficiency[this->efficiency.size() - 1];
 }
 
+int TemplateBank::getTrainingEventCount() {
+    return this->Nevents[this->Nevents.size() - 1];
+}
+
 int TemplateBank::getTemplateCount() {
     return this->newtemplatecount;
 }
