@@ -49,7 +49,7 @@ PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpa
 //initialize as one detector segment of compound PE
 PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpartition, const int mode, const int area, std::string plottingpath) {
     std::cout << "[ ---- INIT SINGLE PATTERN ENGINE AS AREA " << area << " ---- ]" << std::endl;
-    std::cout << "[ CONFIG :  Z Coord (min, max)=(" << DetectorZmin[area] << " , " <<  DetectorZmax[area] << ")" << " mode=" << mode;
+    std::cout << "[ CONFIG :  Z Coord (min, max)=(" << DetectorZmin[area] << " , " <<  DetectorZmax[area] << ")" << " mode=" << mode << std::endl;
     this->centralDetectorZmin = DetectorZmin[area];
     this->centralDetectorZmax = DetectorZmax[area];
     this->initializeMembers(spXpartition, spZpartition, area, mode);

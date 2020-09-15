@@ -184,6 +184,8 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     tT_met.Branch("efficiency", &eff, "efficiency/F");
     tT_met.Branch("templ_count", &templatecount, "templ_count/I");
     tT_met.Branch("processed_events", &processed_entries, "processed_events/I");
+    tT_met.Branch("sp_count", &centralTPcount, "spcount/i");
+    tT_met.Branch("sp_target_ratio", &spWZratio, "sp_target_ratio/i");
     tT_met.Fill();
     tT_met.Write();
 
