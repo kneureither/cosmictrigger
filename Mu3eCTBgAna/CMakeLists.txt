@@ -21,3 +21,7 @@ target_link_libraries(Mu3eCTBg1ComputeCmbntcs patterns rootTreeFiles)
 set(SRC2 main_bgroc.cpp src/cosmicTemplatesBgROC.cpp)
 add_executable(Mu3eCTBg4ROC ${SRC2})
 target_link_libraries(Mu3eCTBg4ROC rootTreeFiles)
+
+set(SRC2 main_bgeffcount.cpp src/BgEvalEff.cpp)
+add_executable(Mu3eCTBg5Eff ${SRC2})
+target_link_libraries(Mu3eCTBg5Eff rootTreeFiles)

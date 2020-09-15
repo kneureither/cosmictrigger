@@ -1,6 +1,8 @@
 //
-// Created by Konstantin Neureither on 14.09.20.
+// Created by Konstantin Neureither on 15.09.20.
 //
+
+#include "BgEvalEff.h"
 
 #include "cosmicTemplatesBgROC.h"
 #include "TFile.h"
@@ -19,7 +21,7 @@
 #include "../Mu3eCosPat/include/TemplateData.h"
 
 
-void cosmicTemplatesBgROC() {
+void BgEvalEff() {
     /*
      * Read the BGEval output files from multiple root files
      * put the data into  two vectors (bg eff and train eff)
@@ -35,7 +37,8 @@ void cosmicTemplatesBgROC() {
 
     std::vector<int> SPcounts = {200, 400, 600, 800};
     std::vector<float> SPratios = {1.0};
-    std::vector<float> tb_stopping_effs = {0.7, 0.75, 0.8, 0.85, 0.9};
+    std::vector<float> tb_stopping_effs = {0.8};
+    float tb_stopping_eff = tb_stopping_effs[0];
 
     const std::string pathtoplots = "output/Mu3eCosPatBgEval/";
     const std::string pathtooutfile =
@@ -48,19 +51,24 @@ void cosmicTemplatesBgROC() {
 
     std::vector<float> training_effs;
     std::vector<float> bg_discr_effs;
+    std::vector<float> spcounts;
     std::vector<std::string> ltexts;
     auto g_effROCs = new TMultiGraph();
 
-    TCanvas *canvas = new TCanvas("canvas", "Background Evaluation ROC curve", 900, 600);
+    TCanvas *canvas = new TCanvas("canvas", "Background Evaluation Eff", 900, 600);
     canvas->SetTicks(1, 1);
-    auto *pad1 = new TPad("bg eff vs training eff", "bg eff vs training eff", 0, 0, 1, 0.99);
+    auto *pad1 = new TPad("bg eff vs sp count", "bg eff vs sp count", 0, 0, 1, 0.99);
     pad1->SetLogx(0);
 //    pad1->SetGrid(1,5);
     pad1->Draw();
     auto legend = new TLegend(0.1, 0.1, 0.35, 0.25);
 
-    for (auto &spcount : SPcounts) {
-        for (auto &spratio : SPratios) {
+
+    for (auto &spratio : SPratios) {
+        training_effs.clear();
+
+        bg_discr_effs.clear();
+        for (auto &spcount : SPcounts) {
 
             // get the filename
             // Get the Pattern Engine and Template Manager
@@ -78,37 +86,33 @@ void cosmicTemplatesBgROC() {
             TTree *t_meta;
             TTree *t_eff;
 
-            training_effs.clear();
-            bg_discr_effs.clear();
-
             BGAnaResTreeRead *BGAna;
 
-            for (auto &stopp_eff : tb_stopping_effs) {
-                std::string pathinfile = "trainingEff" + get_string(stopp_eff) + "/";
-                tinF.GetObject((pathinfile + "BackgroundEfficiency").c_str(), t_eff);
-                tinF.GetObject((pathinfile + "MetadataTree").c_str(), t_meta);
+            std::string pathinfile = "trainingEff" + get_string(tb_stopping_eff) + "/";
+            tinF.GetObject((pathinfile + "BackgroundEfficiency").c_str(), t_eff);
+            tinF.GetObject((pathinfile + "MetadataTree").c_str(), t_meta);
 
-                BGAna = new BGAnaResTreeRead(t_meta, t_eff);
+            BGAna = new BGAnaResTreeRead(t_meta, t_eff);
 
-                training_effs.push_back(BGAna->tb_training_eff);
-                bg_discr_effs.push_back(BGAna->bg_discr_eff);
+            training_effs.push_back(BGAna->tb_training_eff);
+            bg_discr_effs.push_back(BGAna->bg_discr_eff);
+            spcounts.push_back((float) spcount);
 
-                std::cout << "STATUS : sp count " << spcount << " | tb_eff " << BGAna->tb_training_eff << " | bg_eff " << BGAna->bg_discr_eff << std::endl;
-            }
-
-            std::string ltext="#it{" + get_string(BGAna->wBins[0]) + "x" + get_string(BGAna->zBins[0]) + "}  |  " +
-                              "#it{" + get_string(BGAna->wBins[0] * BGAna->zBins[0]) + "}  |  " +
-                              "#it{" + (spratio < 1 ? "1:" + get_string(1/spratio) : get_string(spratio) + ":1") + "}";
-
-            TGraph *g_effroc = new TGraph(training_effs.size(), &training_effs[0], &bg_discr_effs[0]);
-            legend->AddEntry(g_effroc, ltext.c_str());
-            g_effroc->SetMarkerColor(5);
-            g_effROCs->Add(g_effroc, "PL"); //no markers shown
-
+            std::cout << "STATUS : sp count " << spcount << " | train events " << BGAna->eventcount << " | tb_eff " << BGAna->tb_training_eff << " | bg_eff " << BGAna->bg_discr_eff << std::endl;
         }
-    }
 
-    g_effROCs->GetXaxis()->SetTitle("training #epsilon");
+
+//        std::string ltext="#it{" + get_string(BGAna->wBins[0]) + "x" + get_string(BGAna->zBins[0]) + "}  |  " +
+//                          "#it{" + get_string(BGAna->wBins[0] * BGAna->zBins[0]) + "}  |  " +
+//                          "#it{" + (spratio < 1 ? "1:" + get_string(1/spratio) : get_string(spratio) + ":1") + "}";
+        std::string ltext = "#bf{TB EFF} " + get_string(tb_stopping_eff) + + " | #bf{SP RATIO} #it{" "#it{" + (spratio < 1 ? "1:" + get_string(1/spratio) : get_string(spratio) + ":1") + "}}";
+
+        TGraph *g_effroc = new TGraph(spcounts.size(), &spcounts[0], &bg_discr_effs[0]);
+        legend->AddEntry(g_effroc, ltext.c_str());
+        g_effroc->SetMarkerColor(5);
+        g_effROCs->Add(g_effroc, "PL"); //no markers shown
+    }
+    g_effROCs->GetXaxis()->SetTitle("# sp central area");
     g_effROCs->GetXaxis()->SetTitleFont(53);
     g_effROCs->GetXaxis()->SetTitleSize(14);
     g_effROCs->GetXaxis()->SetTitleOffset(1.6);
@@ -119,11 +123,11 @@ void cosmicTemplatesBgROC() {
     g_effROCs->GetYaxis()->SetTitleOffset(1.6);
     g_effROCs->Draw("A PLC PMC");
 
-    std::string lheadtext="#bf{SPBINS} #it{WxZ} | #bf{SPCOUNT} | #bf{SPRATIO} #it{W:Z}";
+    std::string lheadtext="#bf{SP CONFIGURATION} #it{DATASET " + get_string(dataset) + "}";
     legend->SetTextSize(0.02);
     legend->SetHeader(lheadtext.c_str(),"C"); // option "C" allows to center the header
     legend->Draw("C");
 
 
-    saveCanvas(canvas, "BgEvalROC_" + get_string(dataset), pathtorunplots);
+    saveCanvas(canvas, "BgEvalEffSPC_" + get_string(dataset), pathtorunplots);
 }
