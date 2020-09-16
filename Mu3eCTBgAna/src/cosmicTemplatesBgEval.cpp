@@ -313,7 +313,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     MetaDataTreeWrite Meta = MetaDataTreeWrite(&tT_met, dataset, PE.ZBins, PE.WBins, PE.areaDescript,
                                                mode, tb_max_efficiency, bg_events, "default", bg_run, MAX_MUON_HITS,
                                                MAX_NHITS, processed_frames, tb_stopping_efficiency,
-                                               (unsigned int) centralTPcount, spWZratio, 0);
+                                               (unsigned int) centralTPcount, spWZratio, 0, 0);
     tT_met.Write();
 
 

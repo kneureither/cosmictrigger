@@ -163,7 +163,7 @@ void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
 
     hs->Draw("nostack PLC PMC");
 
-    hs->GetXaxis()->SetTitle("efficiency #epsilon = #frac{#tau_{matched}}{#tau_{combinatorics}}");
+    hs->GetXaxis()->SetTitle("training_efficiency #epsilon = #frac{#tau_{matched}}{#tau_{combinatorics}}");
     hs->GetXaxis()->SetLabelFont(43);
     hs->GetXaxis()->SetLabelSize(14);
     hs->GetXaxis()->SetTitleFont(53);

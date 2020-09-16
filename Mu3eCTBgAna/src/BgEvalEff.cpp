@@ -98,7 +98,7 @@ void BgEvalEff() {
             bg_discr_effs.push_back(BGAna->bg_discr_eff);
             spcounts.push_back((float) spcount);
 
-            std::cout << "STATUS : sp count " << spcount << " | train events " << BGAna->eventcount << " | tb_eff " << BGAna->tb_training_eff << " | bg_eff " << BGAna->bg_discr_eff << std::endl;
+            std::cout << "STATUS : sp count " << spcount << " | train events " << BGAna->training_eventcount << " | tb_eff " << BGAna->tb_training_eff << " | bg_eff " << BGAna->bg_discr_eff << std::endl;
         }
 
 
