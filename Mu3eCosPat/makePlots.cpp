@@ -60,7 +60,6 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     int zBins[3];
     int SPcount;
     float spWZratio;
-    float training_efficiency;
 
     TH1F *h_templfreq;
     TGraph *g_efficiency;
@@ -227,7 +226,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     g_tnumbers->GetXaxis()->SetTitleFont(52);
     g_tnumbers->GetYaxis()->SetTitleFont(52);
     g_tnumbers->GetYaxis()->SetMaxDigits(1);
-    g_tnumbers->GetYaxis()->SetTitleOffset(0.5);
+    g_tnumbers->GetYaxis()->SetTitleOffset(0.4);
 
     g_tnumbers->Draw("A PLC PMC");
 
@@ -238,11 +237,11 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     g_efficiencies->GetYaxis()->SetTitleFont(52);
     g_efficiencies->Draw("A PLC PMC");
 
-    std::string lheadtext="#bf{SPBINS} #it{WxZ} | #bf{SPCOUNT} | #bf{SPRATIO} #it{W:Z} | #bf{TRAINING EFF}";
+    std::string lheadtext="#bf{SP BINS} #it{WxZ} | #bf{SP RES} | #bf{SP RATIO} #it{W:Z} | #bf{TRAINING EFF}";
 
     legend->SetHeader(lheadtext.c_str(),"C"); // option "C" allows to center the header
     legend->Draw("C");
-    saveCanvas(canvas, "CosPatPlots_dataset_" +get_string(dataset) + "_id" + get_padded_string(combination_id, 3, '0'), pathtorunplots);
+    saveCanvas(canvas, "CosPatPlots_dataset_" + get_string(dataset) + "_id" + get_padded_string(combination_id, 3, '0'), pathtorunplots);
 
     tinF.Close();
 
