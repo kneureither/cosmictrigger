@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     std::vector<float> sp_ratios = {2};
 //    std::vector<int> sp_count = {200,400,600,800, 1024};
     std::vector<int> sp_count = {512};
-    std::vector<float> stopping_effs = {0.7};
+    std::vector<float> stopping_effs = {0.6};
     int combination_id = 0; //will produce a separate file
     int dataset = 9;
     //   <-- up till here.

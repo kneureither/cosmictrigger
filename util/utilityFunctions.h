@@ -79,4 +79,17 @@ static void print_status_bar(int entry, int max_entries, std::string label, std:
     }
 }
 
+static std::string getfileidtag(int mydataset, int mode, int wbins, int zbins) {
+    return "dataset" + get_string(mydataset) + "_mode" + get_string(mode) + "wBins" + get_string(wbins) + "zBins" + get_string(zbins);
+}
+
+static std::string getfileidtag(int mydataset, int mode, int wbins, int zbins, float stopping_efficiency) {
+    return "dataset" + get_string(mydataset) + "_mode" + get_string(mode) + "wBins" + get_string(wbins) + "zBins" + get_string(zbins) + "_maxeff" + get_string(stopping_efficiency);
+}
+
+static std::string getfileidtag(int mode, int wbins, int zbins) {
+    return "mode" + get_string(mode) + "wBins" + get_string(wbins) + "zBins" + get_string(zbins);
+}
+
+
 #endif //COSMICTRIGGER_UTILITY_FUNCTIONS_H
