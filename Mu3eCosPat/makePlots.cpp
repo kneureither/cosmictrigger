@@ -138,7 +138,7 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
         std::string treename = "MetadataTree;" + get_string(cycle);
         tinF.GetObject(treename.c_str(), tree_meta);
         tree_meta->SetBranchAddress("dataset", &data_ds);
-        tree_meta->SetBranchAddress("efficiency", &efficiency);
+        tree_meta->SetBranchAddress("training_efficiency", &efficiency);
         tree_meta->SetBranchAddress("templ_count", &templ_count);
         tree_meta->SetBranchAddress("processed_events", &processed_events);
         tree_meta->SetBranchAddress("mode", &mode);
@@ -180,7 +180,7 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
 
 //        std::string ltext="#bf{SPBINS_{wz}} #it{" + get_string(wBins[0]) + "x" + get_string(zBins[0]) +
 //                          "} #bf{SPCNT} #it{" + get_string(SPcount) +
-//                          "} #bf{#epsilon_{train}} #it{" + get_string(efficiency * 100).substr(0, 4) + "%" +
+//                          "} #bf{#epsilon_{train}} #it{" + get_string(training_efficiency * 100).substr(0, 4) + "%" +
 //                "} #bf{SPRATIO} #it{" + (spWZratio < 1 ? "1:" + get_string(1/spWZratio) : get_string(spWZratio) + ":1") + "}";
 
         std::string ltext="#it{" + get_string(wBins[0]) + "x" + get_string(zBins[0]) + "}  |  " +

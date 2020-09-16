@@ -160,13 +160,14 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
             stopping_point_reached = TB.fillTemplate(&SPIDs[0], SPIDs.size(), SlimSegs.kari_p, SlimSegs.kari_dca, SlimSegs.kari_phi, SlimSegs.kari_theta);
 
             if(stopping_point_reached){
-                std::cout << "STATUS : Reached efficiency stopping point! MAX_EFF=" << MAX_EFFICIENCY <<  " TB EFF=" << TB.getEfficiency() << std::endl;
+                std::cout << std::endl << "(STATUS) : Reached efficiency stopping point! MAX_EFF=" << MAX_EFFICIENCY <<  " TB EFF=" << TB.getEfficiency() << std::endl;
                 break;
             }
         }
+        std::cout << std::endl;
         if(stopping_point_reached) break;
     }
-    std::cout << std::endl;
+
 
     tinF.Close();
 
@@ -194,8 +195,8 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     tT_met.Branch("zBins1", &PE.ZBins[1], "zBins1/I");
     tT_met.Branch("zBins2", &PE.ZBins[2], "zBins2/I");
     tT_met.Branch("mode", &PE.mode, "mode/I");
-    tT_met.Branch("efficiency", &eff, "efficiency/F");
-    tT_met.Branch("templ_count", &templatecount, "templ_count/I");
+    tT_met.Branch("training_efficiency", &eff, "training_efficiency/F");
+    tT_met.Branch("template_count", &templatecount, "template_count/I");
     tT_met.Branch("processed_events", &processed_entries, "processed_events/I");
     tT_met.Branch("sp_count", &centralTPcount, "spcount/i");
     tT_met.Branch("sp_target_ratio", &spWZratio, "sp_target_ratio/F");
