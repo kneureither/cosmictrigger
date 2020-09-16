@@ -203,6 +203,10 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     tT_met.Fill();
     tT_met.Write();
 
+//    std::string mydirectory = "TrainingPlots";
+//    tF->mkdir(mydirectory.c_str());
+//    tF->cd(mydirectory.c_str());
+
     //Make plots and add them to the root file
     PE.displayBinBoundaries(); //check if PE worked and was initialized correctly.
     PE.displayBinWeightDistribution();

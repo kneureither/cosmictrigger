@@ -23,7 +23,7 @@
 #include "utilityFunctions.h"
 #include "plots.h"
 
-void makeCosPatPlots(const int dataset, const int combination_id) {
+void makeCosPatPlots(const int dataset, const int combination_id, std::vector<int> cycle_plotting_order) {
     const std::string pathtodata = "output/Mu3eCosPat/";
     const std::string pathtoplots = "output/Mu3eCosPatPlots/";
     std::string pathtorunplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
@@ -33,11 +33,6 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
     const int MAX_ENTRIES = 0;
     const bool PRINTS = false;
     const int delete_cycle=0;
-
-//    std::vector<int> cycle_plotting_order = {20, 16, 15, 14, 13, 19, 12, 11, 10, 9, 18, 8, 7, 6, 5, 17, 4, 3, 2 ,1}; //order dataset=9, id=001
-    std::vector<int> cycle_plotting_order {11, 9, 7, 6, 5, 4, 3, 2, 1, 8, 12}; //dataset 6, id=1
-//    std::vector<int> cycle_plotting_order = {20, 19, 18, 17, 16, 12, 8, 4, 11, 7, 3, 10, 6, 2, 9, 5, 1}; //order dataset=9, id=001, eff sorted
-//    std::vector<int> cycle_plotting_order = {16,15,14,13}; //order dataset=9, id=001
 
     gStyle->SetTitleFontSize(0.06);
 
@@ -65,6 +60,7 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
     int zBins[3];
     int SPcount;
     float spWZratio;
+    float training_efficiency;
 
     TH1F *h_templfreq;
     TGraph *g_efficiency;
@@ -139,7 +135,7 @@ void makeCosPatPlots(const int dataset, const int combination_id) {
         tinF.GetObject(treename.c_str(), tree_meta);
         tree_meta->SetBranchAddress("dataset", &data_ds);
         tree_meta->SetBranchAddress("training_efficiency", &efficiency);
-        tree_meta->SetBranchAddress("templ_count", &templ_count);
+        tree_meta->SetBranchAddress("template_count", &templ_count);
         tree_meta->SetBranchAddress("processed_events", &processed_events);
         tree_meta->SetBranchAddress("mode", &mode);
         tree_meta->SetBranchAddress("wBins0", &wBins[0]);
