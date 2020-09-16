@@ -30,11 +30,11 @@ void cosmicTemplatesBgROC() {
     const int PRINTS = false;
     const int mode = 0;
     const int run = 107;
-    const int dataset = 9;
-    const int bgevents = 40000;
+    const int dataset = 10;
+    const int bgevents = 99900;
 
-    std::vector<int> SPcounts = {200, 400, 600, 800};
-    std::vector<float> SPratios = {1.0};
+    std::vector<int> SPcounts = {1024};
+    std::vector<float> SPratios = {0.25,1,4};
     std::vector<float> tb_stopping_effs = {0.7, 0.75, 0.8, 0.85, 0.9};
 
     const std::string pathtoplots = "output/Mu3eCosPatBgEval/";
@@ -57,7 +57,7 @@ void cosmicTemplatesBgROC() {
     pad1->SetLogx(0);
 //    pad1->SetGrid(1,5);
     pad1->Draw();
-    auto legend = new TLegend(0.1, 0.1, 0.35, 0.25);
+    auto legend = new TLegend(0.55, 0.3, 0.9, 0.55);
 
     for (auto &spcount : SPcounts) {
         for (auto &spratio : SPratios) {
@@ -125,5 +125,5 @@ void cosmicTemplatesBgROC() {
     legend->Draw("C");
 
 
-    saveCanvas(canvas, "BgEvalROC_" + get_string(dataset), pathtorunplots);
+    saveCanvas(canvas, "BgEvalROC_spc_" + get_string(SPcounts[0]) + "_dataset_" + get_string(dataset), pathtorunplots);
 }
