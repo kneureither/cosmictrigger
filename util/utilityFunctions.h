@@ -14,8 +14,6 @@ namespace fs = std::experimental::filesystem;
 
 // Configuration variables
 
-int STATUS_BAR_LEN = 50;
-
 
 // pad an int number
 static std::string get_padded_string(int number, int n, char c) {
@@ -68,6 +66,7 @@ static void check_create_directory(std::string path) {
 }
 
 static void print_status_bar(int entry, int max_entries, std::string label, std::string info) {
+    const int STATUS_BAR_LEN = 50;
     float prog_perc = entry /  (float) max_entries;
     std::string prog_bar_fill((int) (STATUS_BAR_LEN * prog_perc), '=');
     std::string prog_bar_empty((int) (STATUS_BAR_LEN * (1-prog_perc)), ' ');
@@ -77,7 +76,6 @@ static void print_status_bar(int entry, int max_entries, std::string label, std:
         std::cout << entry /  (float) max_entries * 100 << "% | " << info << std::flush;
     } else {
         std::cout << 100 << "% | " << info << std::flush;
-        std::cout << std::endl;
     }
 }
 
