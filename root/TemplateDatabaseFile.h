@@ -20,8 +20,10 @@ public:
     int wBins[3];
     char areaDescript[3][8];
     int mode;
-    float efficiency;
-    int eventcount;
+    float training_efficiency;
+    float stopping_efficiency;
+    int training_events;
+    unsigned int template_count;
     std::string mode_description;
     std::string *mode_description_ptr = nullptr;
 
