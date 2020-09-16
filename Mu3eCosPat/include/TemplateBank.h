@@ -51,15 +51,17 @@ private:
     void fillTemplateFromDB(temid TID, int frequency);
     void initializeMembers();
 
+    float stopping_efficiency;
+
+public:
+
+    //FIXME MAke private again
     //for some meta information
     int mywbins;
     int myzbins;
     int mydataset;
     int mymode;
 
-    float stopping_efficiency;
-
-public:
     TemplateBank(std::string plottingpath);
     TemplateBank(std::string plottingpath, float stopping_efficiency);
     ~TemplateBank();

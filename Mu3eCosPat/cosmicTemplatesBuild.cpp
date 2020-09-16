@@ -215,7 +215,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     //do some template bank stuff, eg. write the TemplateBank to a root database file
 //    TB.getMostPopulatedTemplates(50);
 
-    //FIXME: ZBins and wbins are in wrong order!! TDB filenames are wrong
+    //FIXME: ZBins and wbins are in wrong order!! TDB filenames are wrong --> now corrected, but problem in db
     if(WRITE_DB_FILE) TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
 
     TB.plotFreqTimesTemplatecount(PE.getModeTag());

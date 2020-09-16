@@ -448,8 +448,8 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
     //iterate over the Associative Memory map this->AM and write data to root file
 
     mydataset = dataset;
-    mywbins = zBins[0];
-    myzbins = wBins[0];
+    myzbins = zBins[0];
+    mywbins = wBins[0];
     mymode = mode;
 
     std::cout << " -- Writing AM Template Database to file..." << std::endl;
@@ -485,8 +485,14 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
 bool
 TemplateBank::readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset, float stopping_efficiency) {
     mydataset = dataset;
-    mywbins = wbins;
-    myzbins = zbins;
+
+    // tODO this is correct
+//    mywbins = wbins;
+//    myzbins = zbins;
+
+    mywbins = zbins;
+    myzbins = wbins;
+
     mymode = mode;
     this->stopping_efficiency = stopping_efficiency;
 
