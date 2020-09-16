@@ -12,6 +12,11 @@ using std::cout;
 namespace fs = std::experimental::filesystem;
 
 
+// Configuration variables
+
+int STATUS_BAR_LEN = 50;
+
+
 // pad an int number
 static std::string get_padded_string(int number, int n, char c) {
     std::stringstream ss;
@@ -59,6 +64,20 @@ static void check_create_directory(std::string path) {
     } else {
         fs::create_directory(path);
         cout << "STATUS : no such path - created: " << path << endl;
+    }
+}
+
+static void print_status_bar(int entry, int max_entries, std::string label, std::string info) {
+    float prog_perc = entry /  (float) max_entries;
+    std::string prog_bar_fill((int) (STATUS_BAR_LEN * prog_perc), '=');
+    std::string prog_bar_empty((int) (STATUS_BAR_LEN * (1-prog_perc)), ' ');
+    std::cout << "\r(STATUS) : " << label <<  " [" << prog_bar_fill << ">" << prog_bar_empty << "] ";
+
+    if(prog_bar_empty != ""){
+        std::cout << entry /  (float) max_entries * 100 << "% | " << info << std::flush;
+    } else {
+        std::cout << 100 << "% | " << info << std::flush;
+        std::cout << std::endl;
     }
 }
 
