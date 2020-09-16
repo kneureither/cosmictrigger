@@ -71,10 +71,10 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     Mu3eMChitsTree Mu3eMChits = Mu3eMChitsTree(t_mu3e_mchits);
 
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
-    TemplateBank TB(pathtorunplots);
+    TemplateBank TB(pathtorunplots, 0, 0, 0, 0);
     TB.PRINTS = PRINTS;
     //FIXME --> zbins and wbins swapped to get correct file! undo in TDB
-    TB.readAMfromFile(pathtodatasettemplatedata, spWbins, spZbins, mode, dataset, TB_STOPPING_EFF);
+    TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF);
 
 
     //make some analysis plots
@@ -355,7 +355,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
 
 //    TB.getMostPopulatedTemplates(50);
 //    TB.getMostMatchedTemplates(50);
-    TB.displayTemplatePopulationHistogram(TB.getfileidtag(0));
+    TB.displayTemplatePopulationHistogram();
     TB.displayTemplateMatchedFreqHistogram(TB.getfileidtag(0));
 //    TB.displayTemplatePopHistSortedbyFreq(TB.getfileidtag());
 

@@ -70,7 +70,7 @@ public:
 
     void displayTemplatePopulationHistogram(); //how many with one, two, three, ..., n roads stored
     void displayTemplateMatchedFreqHistogram(std::string filetag);
-    void displayTemplatePopHistSortedbyFreq(std::string filetag);
+    void displayTemplatePopHistSortedbyFreq();
     void displayEfficiency();
     void plotFreqTimesTemplatecount();
 

@@ -562,7 +562,7 @@ std::string TemplateBank::getfileidtag(int format) {
 }
 
 
-void TemplateBank::displayTemplatePopHistSortedbyFreq(std::string filetag) {
+void TemplateBank::displayTemplatePopHistSortedbyFreq() {
     std::vector<temid> priorityTemplates = getMostPopulatedTemplates(10000);
     std::vector<int> templateIndex(priorityTemplates.size());
     std::iota (std::begin(templateIndex), std::end(templateIndex), 0);
