@@ -49,7 +49,7 @@ private:
     std::string plottingpath;
 
     void fillTemplateFromDB(temid TID, int frequency);
-    void initializeMembers();
+    void initializeMembers(int dataset, int mode, int wBins, int zBins);
 
     float stopping_efficiency;
 
@@ -62,16 +62,17 @@ public:
     int mydataset;
     int mymode;
 
-    TemplateBank(std::string plottingpath);
-    TemplateBank(std::string plottingpath, float stopping_efficiency);
+    TemplateBank(std::string plottingpath, int dataset, int mode, int wBins, int zBins);
+    TemplateBank(std::string plottingpath, float stopping_efficiency, int dataset, int mode, int wBins,
+                 int zBins);
     ~TemplateBank();
     bool PRINTS = false;
 
-    void displayTemplatePopulationHistogram(std::string filetag); //how many with one, two, three, ..., n roads stored
+    void displayTemplatePopulationHistogram(); //how many with one, two, three, ..., n roads stored
     void displayTemplateMatchedFreqHistogram(std::string filetag);
     void displayTemplatePopHistSortedbyFreq(std::string filetag);
-    void displayEfficiency(std::string filetag);
-    void plotFreqTimesTemplatecount(std::string filetag);
+    void displayEfficiency();
+    void plotFreqTimesTemplatecount();
 
     bool fillTemplate(unsigned int * SPIDs, int hitcount, float p, float dca, float phi, float theta);
     bool checkTemplate(temid &TID);
@@ -90,9 +91,9 @@ public:
 
     int getTemplateCount();
     void writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
-                       const int &dataset, const int &mode, std::string mode_description);
+                       std::string mode_description);
 
-    bool readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset, float stopping_efficiency);
+    bool readAMfromFile(std::string path, float stopping_efficiency);
 
     std::string getfileidtag(int format);
 

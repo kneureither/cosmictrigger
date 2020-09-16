@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
     }
 
     if(TEST_TB) {
-        TemplateBank TB("plots/Mu3eCosPat");
+        TemplateBank TB("plots/Mu3eCosPat", 0, 0, 0, 0);
     TB.testTemplateID();
 //    TB.testFill();
 //        TB.testGetMostPopTemplates();

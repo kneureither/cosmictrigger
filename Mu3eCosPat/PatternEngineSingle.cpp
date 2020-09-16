@@ -41,7 +41,7 @@ PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpa
     this->initializeMembers(spXpartition, spZpartition, 0, mode);
     this->initializeSPbins();
     this->plottingpath = plottingpath;
-    this->runspecs = "wbins" + get_string(spXpartition) + "zbins" + get_string(spZpartition);
+    this->runspecs = ::getfileidtag(this->mode, this->wBinCount, this->zBinCount);
     printf("wBins=%d, zBins=%d\n", wBinCount, zBinCount);
     printf("\n");
 }
@@ -56,7 +56,7 @@ PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpa
     this->initializeSPbins();
     this->plottingpath = plottingpath;
     this->plottingfile = "PEplots_" + getAreaTag() + ".pdf";
-    this->runspecs = "wbins" + get_string(spXpartition) + "zbins" + get_string(spZpartition);
+    this->runspecs = ::getfileidtag(this->mode, this->wBinCount, this->zBinCount);
 }
 
 //init members (called by constructors)

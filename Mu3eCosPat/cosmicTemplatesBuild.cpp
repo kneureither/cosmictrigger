@@ -50,7 +50,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
     PE.PRINTS = PRINTS;
-    TemplateBank TB(pathtorunplots, MAX_EFFICIENCY);
+    TemplateBank TB(pathtorunplots, MAX_EFFICIENCY, 0, 0, 0, 0);
     TB.PRINTS = PRINTS;
 
     // FILE FOR READING
@@ -207,8 +207,8 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     PE.displayBinBoundaries(); //check if PE worked and was initialized correctly.
     PE.displayBinWeightDistribution();
     PE.closePlot();
-    TB.displayTemplatePopulationHistogram(PE.getModeTag());
-    TB.displayEfficiency(PE.getModeTag());
+    TB.displayTemplatePopulationHistogram();
+    TB.displayEfficiency();
 
     //close plot root file
     tF->Close();
@@ -217,9 +217,9 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 //    TB.getMostPopulatedTemplates(50);
 
     //FIXME: ZBins and wbins are in wrong order!! TDB filenames are wrong --> now corrected, but problem in db
-    if(WRITE_DB_FILE) TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
+    if(WRITE_DB_FILE) TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, "testing_mode_descr");
 
-    TB.plotFreqTimesTemplatecount(PE.getModeTag());
+    TB.plotFreqTimesTemplatecount();
 
     std::cout << "\n\n[============ GENERAL STATS ============]\n";
 

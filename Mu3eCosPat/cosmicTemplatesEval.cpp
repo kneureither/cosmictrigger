@@ -41,11 +41,11 @@ void cosmicTemplatesEval(const int dataset, unsigned int centralTPcount, float s
     const int spZbins = (int) sqrt((float) centralTPcount / (float) spWZratio);
     std::cout << "\n -- PE config data:" << std::endl << "  wbins=" << spWbins << std::endl << "  zbins=" << spZbins << std::endl << std::endl;
 
-    TemplateBank TB(pathtorunplots);
+    TemplateBank TB(pathtorunplots, 0, 0, 0, 0);
     TB.PRINTS = PRINTS;
 
-    TB.readAMfromFile(pathtorundata, spWbins, spZbins, mode, dataset, 0);
+    TB.readAMfromFile(pathtorundata, 0);
     TB.getMostPopulatedTemplates(50);
 
-    TB.displayTemplatePopulationHistogram("testing");
+    TB.displayTemplatePopulationHistogram();
 }

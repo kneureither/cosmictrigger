@@ -116,10 +116,15 @@ int TemplateBank::getTemplateCount() {
     return this->newtemplatecount;
 }
 
-void TemplateBank::initializeMembers() {
+void TemplateBank::initializeMembers(int dataset, int mode, int wBins, int zBins) {
     this->Nevents.push_back(0);
     this->Ntemplates.push_back(0);
     this->efficiency.push_back(0.0);
+
+    mywbins = wBins;
+    myzbins = zBins;
+    mymode = mode;
+    mydataset = dataset;
 
     assert(TID_LEN % 2 == 0);
     hitorder.push_back(3);
@@ -139,13 +144,14 @@ void TemplateBank::initializeMembers() {
     assert(hitorder.size() == TID_LEN);
 }
 
-TemplateBank::TemplateBank(std::string plottingpath) {
-    initializeMembers();
+TemplateBank::TemplateBank(std::string plottingpath, int dataset, int mode, int wBins, int zBins) {
+    initializeMembers(dataset, mode, wBins, zBins);
     this->plottingpath = plottingpath;
 }
 
-TemplateBank::TemplateBank(std::string plottingpath, float stopping_efficiency) {
-    initializeMembers();
+TemplateBank::TemplateBank(std::string plottingpath, float stopping_efficiency, int dataset, int mode, int wBins,
+                           int zBins) {
+    initializeMembers(dataset, mode, wBins, zBins);
     this->plottingpath = plottingpath;
     this->stopping_efficiency = stopping_efficiency;
 }
@@ -318,7 +324,7 @@ void TemplateBank::displayTemplateMatchedFreqHistogram(std::string filetag) {
 
 
 
-void TemplateBank::displayTemplatePopulationHistogram(std::string filetag) {
+void TemplateBank::displayTemplatePopulationHistogram() {
     auto *canvas = new TCanvas("template frequency", "template frequency", 1200, 900);
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
@@ -341,10 +347,10 @@ void TemplateBank::displayTemplatePopulationHistogram(std::string filetag) {
     }
     h_templfreq->Draw();
     h_templfreq->Write();
-    saveCanvas(canvas, ("templateFrequency_" + filetag).c_str(), plottingpath);
+    saveCanvas(canvas, ("templateFrequency_" + getfileidtag(0)).c_str(), plottingpath);
 }
 
-void TemplateBank::plotFreqTimesTemplatecount(std::string filetag) {
+void TemplateBank::plotFreqTimesTemplatecount() {
     auto *canvas = new TCanvas("template weights", "template weights", 1200, 900);
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
@@ -394,10 +400,10 @@ void TemplateBank::plotFreqTimesTemplatecount(std::string filetag) {
 
     h_templweights->Draw();
     h_templweights->Write();
-    saveCanvas(canvas, ("templateFrequencyTimesCount_" + filetag).c_str(), plottingpath);
+    saveCanvas(canvas, ("templateFrequencyTimesCount_" + getfileidtag(0)).c_str(), plottingpath);
 }
 
-void TemplateBank::displayEfficiency(std::string filetag) {
+void TemplateBank::displayEfficiency() {
     auto *canvas = new TCanvas("template bank stats", "cosmic template bank stats", 1200, 900);
 
     canvas->SetLeftMargin(0.15);
@@ -440,17 +446,15 @@ void TemplateBank::displayEfficiency(std::string filetag) {
     g_tnumber->Write();
 
     canvas->Update();
-    saveCanvas(canvas, ("templateBankStats" + filetag).c_str(), plottingpath);
+    saveCanvas(canvas, ("templateBankStats" + getfileidtag(0)).c_str(), plottingpath);
 }
 
 void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
-        const int &dataset, const int &mode, std::string mode_description) {
+                                 std::string mode_description) {
     //iterate over the Associative Memory map this->AM and write data to root file
 
-    mydataset = dataset;
-    myzbins = zBins[0];
-    mywbins = wBins[0];
-    mymode = mode;
+    assert(myzbins == zBins[0]);
+    assert(mywbins == wBins[0]);
 
     std::cout << "(INFO)   : Writing AM Template Database to file..." << std::endl;
 
@@ -463,8 +467,8 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
     TTree tT_spconfig("ConfigTree","Tree with Superpixel configuration information");
     TTree tT_tids("TIDTree","Tree with Template IDentification (TID) number");
 
-    TemplateDatabaseWrite TDB = TemplateDatabaseWrite(&tT_spconfig, &tT_tids, dataset, zBins, wBins, areaDescript,
-                                                      mode, this->efficiency[this->efficiency.size() - 1], eventcount,
+    TemplateDatabaseWrite TDB = TemplateDatabaseWrite(&tT_spconfig, &tT_tids, mydataset, zBins, wBins, areaDescript,
+                                                      mymode, this->efficiency[this->efficiency.size() - 1], eventcount,
                                                       mode_description, this->newtemplatecount, this->stopping_efficiency);
 
     int tid_len = TID_LEN;
@@ -490,13 +494,7 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
 }
 
 bool
-TemplateBank::readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset, float stopping_efficiency) {
-    mydataset = dataset;
-
-    mywbins = wbins;
-    myzbins = zbins;
-
-    mymode = mode;
+TemplateBank::readAMfromFile(std::string path, float stopping_efficiency) {
     this->stopping_efficiency = stopping_efficiency;
 
     std::string customnametag = getfileidtag(0);
@@ -519,10 +517,10 @@ TemplateBank::readAMfromFile(std::string path, int wbins, int zbins, int mode, i
 
     //check if the meta data is okay
     assert(TDB.tid_len == TID_LEN);
-    assert(TDB.wBins[0] == wbins);
-    assert(TDB.zBins[0] == zbins);
-    assert(TDB.mode == mode);
-    assert(TDB.dataset == dataset);
+    assert(TDB.wBins[0] == mywbins);
+    assert(TDB.zBins[0] == myzbins);
+    assert(TDB.mode == mymode);
+    assert(TDB.dataset == mydataset);
 
     unsigned int entries = TDB.tT_tid->GetEntries();
     this->efficiency.push_back(TDB.training_efficiency); //not exactly correct, as the efficiency is calculated upt to the last 10e6 value.
@@ -556,10 +554,10 @@ int TemplateBank::getAcceptedCount() {
 std::string TemplateBank::getfileidtag(int format) {
     if(format == 1) {
         //no max eff
-        return "dataset" + get_string(mydataset) + "_mode" + get_string(mymode) + "wBins" + get_string(mywbins) + "zBins" + get_string(myzbins);
+        return ::getfileidtag(mydataset, mymode, mywbins, myzbins);
     } else {
         //default
-        return "dataset" + get_string(mydataset) + "_mode" + get_string(mymode) + "wBins" + get_string(mywbins) + "zBins" + get_string(myzbins) + "_maxeff" + get_string(stopping_efficiency);
+        return ::getfileidtag(mydataset, mymode, mywbins, myzbins, stopping_efficiency);
     }
 }
 
