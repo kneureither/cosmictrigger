@@ -28,7 +28,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
      * check the frequency
      */
 
-    int MAX_ENTRIES = 40000;
+    int MAX_ENTRIES = 0;
     int MAX_MUON_HITS = 0;
     int MAX_NHITS = 100;
     float TB_STOPPING_EFF = tb_stopping_efficiency;
@@ -73,6 +73,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
     TemplateBank TB(pathtorunplots);
     TB.PRINTS = PRINTS;
+    //FIXME --> zbins and wbins swapped to get correct file! undo in TDB
     TB.readAMfromFile(pathtodatasettemplatedata, spWbins, spZbins, mode, dataset, TB_STOPPING_EFF);
 
 
@@ -86,7 +87,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     //get some cosmic hits to play with
     srand((unsigned) time(0));
     int cosmicpool = 50;
-    std::vector<temid> COSMICTIDs = TB.getMostPopulatedTemplates(cosmicpool);
+//    std::vector<temid> COSMICTIDs = TB.getMostPopulatedTemplates(cosmicpool);
 
 
     int bg_events = (MAX_ENTRIES == 0 ? Mu3e.my_entries : MAX_ENTRIES);
@@ -97,6 +98,8 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     std::vector<float> frame_eff;
     std::vector<int> frame_bghits;
 
+    std::cout << "(STATUS): TDB: mywbins " << TB.mywbins << " | myzbins" << TB.myzbins << " | PE: wbins " << PE.WBins[0] << " zbins "<< PE.ZBins[0] << std::endl;
+
     for(int frame=0; frame <= bg_events; frame++) {
         Mu3e.getEntry(frame);
         if(PRINTS) Mu3e.Print(frame);
@@ -105,6 +108,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
             continue;
         }
         processed_frames++;
+
 
 
 
@@ -154,20 +158,20 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
         int toomanycosmicscount = 0;
         outerhits = bgframehits.size() - innerhits;
 
-        int randindex = (rand() % cosmicpool);
-        temid COSMICTID = COSMICTIDs[randindex];
+//        int randindex = (rand() % cosmicpool);
+//        temid COSMICTID = COSMICTIDs[randindex];
 
-        if(PRINTS) std::cout << "   -> got cosmic at index " << randindex << " TID=" << COSMICTID.toString() << std::endl;
+//        if(PRINTS) std::cout << "   -> got cosmic at index " << randindex << " TID=" << COSMICTID.toString() << std::endl;
 
 //        if(SIDMem.count(COSMICTID.HIDS[0]) == 0) hits.h0.push_back(SIDtype(COSMICTID.HIDS[0], MUONTYPE));
 //        if(SIDMem.count(COSMICTID.HIDS[1]) == 0) hits.h1.push_back(SIDtype(COSMICTID.HIDS[1], MUONTYPE));
 //        if(SIDMem.count(COSMICTID.HIDS[2]) == 0) hits.h2.push_back(SIDtype(COSMICTID.HIDS[2], MUONTYPE));
 //        if(SIDMem.count(COSMICTID.HIDS[3]) == 0) hits.h3.push_back(SIDtype(COSMICTID.HIDS[3], MUONTYPE));
 
-        hits.h0.push_back(SIDtype(COSMICTID.HIDS[0], MUONTYPE));
-        hits.h1.push_back(SIDtype(COSMICTID.HIDS[1], MUONTYPE));
-        hits.h2.push_back(SIDtype(COSMICTID.HIDS[2], MUONTYPE));
-        hits.h3.push_back(SIDtype(COSMICTID.HIDS[3], MUONTYPE));
+//        hits.h0.push_back(SIDtype(COSMICTID.HIDS[0], MUONTYPE));
+//        hits.h1.push_back(SIDtype(COSMICTID.HIDS[1], MUONTYPE));
+//        hits.h2.push_back(SIDtype(COSMICTID.HIDS[2], MUONTYPE));
+//        hits.h3.push_back(SIDtype(COSMICTID.HIDS[3], MUONTYPE));
 
         //Go through all possible combinations of hits and create corresponding Template IDs
         //for all hits in upper layer 3
@@ -262,7 +266,16 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
         }
 
         float bg_discr_eff = (float) rejected_frames / (float) processed_frames;
-        if(frame % 1000 == 0) std::cout << "STATUS : processed background frame " << frame << " of " << bg_events << " | bg discr eff: " << bg_discr_eff*100 << " %" << std::endl;
+//        if(frame % 1000 == 0) std::cout << "STATUS : processed background frame " << frame << " of " << bg_events << " | bg discr eff: " << bg_discr_eff*100 << " %" << std::endl;
+
+        if(frame % 1000 == 0){
+            int MAX_LEN = 50;
+            float prog_perc = frame /  (float) bg_events;
+            std::string prog_bar_fill((int) (MAX_LEN * prog_perc), '=');
+            std::string prog_bar_empty((int) (MAX_LEN * (1-prog_perc)), ' ');
+            std::cout << "\r(STATUS) : " << "[" << prog_bar_fill << ">" << prog_bar_empty << "] ";
+            std::cout << frame /  (float) bg_events * 100 << "% | BG discr eff " << bg_discr_eff * 100 << "%" << std::flush;
+        }
 
         //calculate rations:
             /*
@@ -272,6 +285,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
              * Also do this for a cosmic in the frame (with adding 1,2,3 and 4 hits of it to the combinatorics
              */
     }
+    std::cout << std::endl;
 
     float background_efficiency = (float) rejected_frames / (float) processed_frames;
 
