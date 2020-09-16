@@ -88,7 +88,7 @@ void MetaDataTreeRead::setBranches() {
     tT_meta->SetBranchAddress("mode", &this->mode);
 //    tT_meta->SetBranchAddress("mode_description", &this->mode_description_ptr);
 //    tT_meta->SetBranchAddress("efficiency", &this->efficiency);
-    tT_meta->SetBranchAddress("bg_events", &this->eventcount);
+    tT_meta->SetBranchAddress("eventcount", &this->eventcount);
 
     tT_meta->SetBranchAddress("bg_run", &bg_run);
     tT_meta->SetBranchAddress("max_muon_hits", &max_muon_hits);
