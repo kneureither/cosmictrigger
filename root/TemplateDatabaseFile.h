@@ -56,8 +56,9 @@ public:
 
 class TemplateDatabaseWrite : private TemplateDatabaseFile {
 public:
-    TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int* zBins,const int* wBins,
-             char areaDescript[3][8], const int mode, const float efficiency, const int eventcount, std::string mode_description);
+    TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int *zBins, const int *wBins,
+                          char areaDescript[3][8], const int mode, const float efficiency, const int eventcount,
+                          std::string mode_description, unsigned int template_count, const float stopping_efficiency);
 
     void fillTIDData(unsigned short *tid, const int tid_len, std::string tid_repr, const int &freq, std::vector<int> &nhit,
             std::vector<float> &p, std::vector<float> &phi, std::vector<float> &theta, std::vector<float> dca, std::vector<unsigned int> &uEventIDs);

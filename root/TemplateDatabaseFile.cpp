@@ -20,8 +20,12 @@ void TemplateDatabaseFile::reinitializeData() {
     dca.clear();
 }
 
-TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int *zBins, const int *wBins, char areaDescript[3][8],
-                                             const int mode, const float efficiency, const int eventcount, std::string mode_description) {
+TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int *zBins,
+                                             const int *wBins,
+                                             char areaDescript[3][8], const int mode, const float efficiency,
+                                             const int eventcount,
+                                             std::string mode_description, unsigned int template_count,
+                                             const float stopping_efficiency) {
 
     this->tT_meta = tT_meta;
     this->tT_tid = tT_tid;
@@ -36,6 +40,8 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
     this->mode = mode;
     this->training_efficiency = efficiency;
     this->training_events = eventcount;
+    this->stopping_efficiency = stopping_efficiency;
+    this->template_count = template_count;
     this->mode_description = mode_description;
 
     this->tT_meta->Branch("dataset", &this->dataset, "dataset/I");
