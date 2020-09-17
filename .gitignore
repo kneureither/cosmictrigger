@@ -4,7 +4,7 @@
 /plots/
 /playground/
 /3rdparty/
-
+/output/
 
 # data
 *.root
