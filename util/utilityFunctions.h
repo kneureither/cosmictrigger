@@ -73,9 +73,9 @@ static void print_status_bar(int entry, int max_entries, std::string label, std:
     std::cout << "\r(STATUS) : " << label <<  " [" << prog_bar_fill << ">" << prog_bar_empty << "] ";
 
     if(prog_bar_empty != ""){
-        std::cout << entry /  (float) max_entries * 100 << "% | " << info << std::flush;
+        std::cout << entry /  (float) max_entries * 100 << "% | " << info << "\r" << std::flush;
     } else {
-        std::cout << 100 << "% | " << info << std::flush;
+        std::cout << 100 << "% |" << info << "\r" << std::flush;
     }
 }
 
