@@ -33,11 +33,11 @@ void BgEvalEff() {
     const int mode = 0;
     const int run = 107;
     const int dataset = 9;
-    const int bgevents = 40000;
+    const int bgevents = 99900;
 
-    std::vector<int> SPcounts = {200, 400, 600, 800};
-    std::vector<float> SPratios = {1.0};
-    std::vector<float> tb_stopping_effs = {0.8};
+    std::vector<int> SPcounts = {300, 512};
+    std::vector<float> SPratios = {1,2,4,8};
+    std::vector<float> tb_stopping_effs = {0.6};
     float tb_stopping_eff = tb_stopping_effs[0];
 
     const std::string pathtoplots = "output/Mu3eCosPatBgEval/";
@@ -51,7 +51,9 @@ void BgEvalEff() {
 
     std::vector<float> training_effs;
     std::vector<float> bg_discr_effs;
-    std::vector<float> spcounts;
+    std::vector<float> spcounts; //must be float for graph
+    std::vector<float> templ_count;
+    std::vector<float> training_eventcount;
     std::vector<std::string> ltexts;
     auto g_effROCs = new TMultiGraph();
 
@@ -66,8 +68,11 @@ void BgEvalEff() {
 
     for (auto &spratio : SPratios) {
         training_effs.clear();
-
         bg_discr_effs.clear();
+        spcounts.clear();
+        templ_count.clear();
+        training_eventcount.clear();
+
         for (auto &spcount : SPcounts) {
 
             // get the filename
@@ -96,9 +101,12 @@ void BgEvalEff() {
 
             training_effs.push_back(BGAna->tb_training_eff);
             bg_discr_effs.push_back(BGAna->bg_discr_eff);
-            spcounts.push_back((float) spcount);
+            spcounts.push_back((float) BGAna->sp_count);
+            templ_count.push_back((float) BGAna->template_count);
+            training_eventcount.push_back((float) BGAna->tb_training_eventcount);
 
-            std::cout << "STATUS : sp count " << spcount << " | train events " << BGAna->training_eventcount << " | tb_eff " << BGAna->tb_training_eff << " | bg_eff " << BGAna->bg_discr_eff << std::endl;
+            std::cout << "STATUS : sp count " << spcount << " | train events " << BGAna->tb_training_eventcount << " | bg events " << BGAna->bg_events << " | templ count " << BGAna->template_count;
+            std::cout << " | tb_eff " << BGAna->tb_training_eff << " | bg_eff " << BGAna->bg_discr_eff << std::endl;
         }
 
 

@@ -33,7 +33,7 @@ void cosmicTemplatesBgROC() {
     const int dataset = 9;
     const int bgevents = 99900;
 
-    std::vector<int> SPcounts = {512};
+    std::vector<int> SPcounts = {300, 512};
     std::vector<float> SPratios = {1,2,4};
     std::vector<float> tb_stopping_effs = {0.6};
 

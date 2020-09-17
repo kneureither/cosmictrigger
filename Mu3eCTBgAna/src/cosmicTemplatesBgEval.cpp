@@ -71,9 +71,8 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     Mu3eMChitsTree Mu3eMChits = Mu3eMChitsTree(t_mu3e_mchits);
 
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
-    TemplateBank TB(pathtorunplots, 0, 0, 0, 0);
+    TemplateBank TB(pathtorunplots, dataset, mode, spWbins, spZbins);
     TB.PRINTS = PRINTS;
-    //FIXME --> zbins and wbins swapped to get correct file! undo in TDB
     TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF);
 
 
@@ -98,7 +97,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     std::vector<float> frame_eff;
     std::vector<int> frame_bghits;
 
-    std::cout << "(STATUS): TDB: mywbins " << TB.mywbins << " | myzbins" << TB.myzbins << " | PE: wbins " << PE.WBins[0] << " zbins "<< PE.ZBins[0] << std::endl;
+    std::cout << "(CONFIG) : TDB: mywbins " << TB.mywbins << " | myzbins " << TB.myzbins << " | PE: wbins " << PE.WBins[0] << " zbins "<< PE.ZBins[0] << std::endl;
 
     for(int frame=0; frame <= bg_events; frame++) {
         Mu3e.getEntry(frame);
@@ -308,12 +307,13 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     int bg_run = run;
     float tb_max_efficiency = TB.getEfficiency();
 
+    std::cout << "tb event count " << TB.getTrainingEventCount() << " templ count " << TB.getTemplateCount() << std::endl;
 
     TTree tT_met("MetadataTree","Metadata associated with these plots (SID config and dataset)");
     MetaDataTreeWrite Meta = MetaDataTreeWrite(&tT_met, dataset, PE.ZBins, PE.WBins, PE.areaDescript,
                                                mode, tb_max_efficiency, bg_events, "default", bg_run, MAX_MUON_HITS,
                                                MAX_NHITS, processed_frames, tb_stopping_efficiency,
-                                               (unsigned int) centralTPcount, spWZratio, 0, 0);
+                                               (unsigned int) centralTPcount, spWZratio, TB.getTrainingEventCount(), TB.getTemplateCount());
     tT_met.Write();
 
 
