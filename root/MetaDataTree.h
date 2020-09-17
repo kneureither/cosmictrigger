@@ -19,7 +19,6 @@ public:
     char areaDescript[3][8];
     int mode;
     float efficiency;
-    int training_eventcount;
     int tb_training_eventcount;
     int bg_events;
     std::string mode_description;
@@ -28,7 +27,7 @@ public:
     int bg_run;
     int max_muon_hits;
     int max_frame_nhits;
-    int processed_frames;
+//    int processed_frames;
     float tb_stopping_eff;
     float sp_target_ratio;
     unsigned int sp_count;

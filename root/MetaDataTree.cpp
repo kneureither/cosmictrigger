@@ -27,7 +27,7 @@ MetaDataTreeWrite::MetaDataTreeWrite(TTree *tT_meta, const int dataset, const in
 
     this->mode = mode;
     this->efficiency = training_efficiency;
-    this->training_eventcount = bg_events;
+    this->bg_events = bg_events;
     this->tb_training_eventcount = tb_training_eventcount;
     this->mode_description = mode_description;
 
@@ -55,7 +55,7 @@ MetaDataTreeWrite::MetaDataTreeWrite(TTree *tT_meta, const int dataset, const in
 
     this->tT_meta->Branch("training_efficiency", &this->efficiency, "training_efficiency/F");
     this->tT_meta->Branch("stopping_efficiency", &this->tb_stopping_eff, "stopping_efficiency/F");
-    this->tT_meta->Branch("training_events", &this->training_eventcount, "training_events/I");
+    this->tT_meta->Branch("training_events", &this->tb_training_eventcount, "training_events/I");
     this->tT_meta->Branch("bg_events", &this->bg_events, "bg_events/I");
     this->tT_meta->Branch("bg_run", &this->bg_run, "bg_run/I");
 //    this->tT_meta->Branch("processed_frames", &this->processed_frames, "processed_frames/I");
@@ -89,14 +89,13 @@ void MetaDataTreeRead::setBranches() {
     tT_meta->SetBranchAddress("zBins2", &this->zBins[2]);
     tT_meta->SetBranchAddress("mode", &this->mode);
 //    tT_meta->SetBranchAddress("mode_description", &this->mode_description_ptr);
-//    tT_meta->SetBranchAddress("training_efficiency", &this->training_efficiency);
 
     tT_meta->SetBranchAddress("training_efficiency", &this->efficiency);
     tT_meta->SetBranchAddress("stopping_efficiency", &this->tb_stopping_eff);
-    tT_meta->SetBranchAddress("training_events", &this->training_eventcount);
+    tT_meta->SetBranchAddress("training_events", &this->tb_training_eventcount);
+    tT_meta->SetBranchAddress("template_count", &this->template_count);
     tT_meta->SetBranchAddress("bg_events", &bg_events);
     tT_meta->SetBranchAddress("bg_run", &bg_run);
-    tT_meta->SetBranchAddress("training_events", &tb_training_eventcount);
     tT_meta->SetBranchAddress("stopping_efficiency", &tb_stopping_eff);
     tT_meta->SetBranchAddress("sp_count", &sp_count);
     tT_meta->SetBranchAddress("sp_target_ratio", &sp_target_ratio);
