@@ -30,12 +30,12 @@ void cosmicTemplatesBgROC() {
     const int PRINTS = false;
     const int mode = 0;
     const int run = 107;
-    const int dataset = 10;
+    const int dataset = 9;
     const int bgevents = 99900;
 
-    std::vector<int> SPcounts = {1024};
-    std::vector<float> SPratios = {0.25,1,4};
-    std::vector<float> tb_stopping_effs = {0.7, 0.75, 0.8, 0.85, 0.9};
+    std::vector<int> SPcounts = {512};
+    std::vector<float> SPratios = {1,2,4};
+    std::vector<float> tb_stopping_effs = {0.6};
 
     const std::string pathtoplots = "output/Mu3eCosPatBgEval/";
     const std::string pathtooutfile =
@@ -93,7 +93,7 @@ void cosmicTemplatesBgROC() {
                 training_effs.push_back(BGAna->tb_training_eff);
                 bg_discr_effs.push_back(BGAna->bg_discr_eff);
 
-                std::cout << "STATUS : sp count " << spcount << " | tb_eff " << BGAna->tb_training_eff << " | bg_eff " << BGAna->bg_discr_eff << std::endl;
+                std::cout << "STATUS : sp count " << spcount << " | sp ratio " << BGAna->sp_target_ratio << " | tb_eff " << BGAna->tb_training_eff << " | bg_eff " << BGAna->bg_discr_eff << std::endl;
             }
 
             std::string ltext="#it{" + get_string(BGAna->wBins[0]) + "x" + get_string(BGAna->zBins[0]) + "}  |  " +
@@ -101,9 +101,9 @@ void cosmicTemplatesBgROC() {
                               "#it{" + (spratio < 1 ? "1:" + get_string(1/spratio) : get_string(spratio) + ":1") + "}";
 
             TGraph *g_effroc = new TGraph(training_effs.size(), &training_effs[0], &bg_discr_effs[0]);
-            legend->AddEntry(g_effroc, ltext.c_str());
-            g_effroc->SetMarkerColor(5);
-            g_effROCs->Add(g_effroc, "PL"); //no markers shown
+            legend->AddEntry(g_effroc, ltext.c_str(), "lp");
+            g_effroc->SetMarkerStyle(23);
+            g_effROCs->Add(g_effroc, "P");
 
         }
     }
