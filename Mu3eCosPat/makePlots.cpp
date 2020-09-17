@@ -146,6 +146,13 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 
         std::cout << "  -- SPcount=" << SPcount << " SPratio=" << spWZratio << " wBins=" << wBins[0] << " zBins=" << zBins[0] << std::endl;
 
+        if(1040 < SPcount && SPcount < 1500) {
+
+        } else {
+            continue;
+        }
+
+
         tinF.GetObject(("g_efficiency;" + get_string(cycle)).c_str(), g_efficiency);
         tinF.GetObject(("g_tnumber;" + get_string(cycle)).c_str(), g_tnumber);
         tinF.GetObject(("h_templfreq;" + get_string(cycle)).c_str(), h_templfreq);
