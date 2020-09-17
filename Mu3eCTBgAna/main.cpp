@@ -10,11 +10,11 @@ int main() {
     int max_muon_hits = 0;
     int background_dataset = 107;
     int pattern_dataset = 11;
-    std::vector<float> spratios = {4,8, 16 };
-    std::vector<int> SPcounts = {800, 1024, 1500};
-    std::vector<float> tb_stopping_efficiencies = {0.6, 0.7, 0.8};
+    std::vector<float> spratios = {32};
+    std::vector<int> SPcounts = {1568};
+    std::vector<float> tb_stopping_efficiencies = {0.7};
 
-    int append = 0;
+    int append = 1;
     for(auto &spratio : spratios) {
         for(auto &spcout : SPcounts) {
             for (auto &tb_eff : tb_stopping_efficiencies) {

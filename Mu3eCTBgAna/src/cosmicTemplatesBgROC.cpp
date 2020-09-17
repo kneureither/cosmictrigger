@@ -6,6 +6,7 @@
 #include "TFile.h"
 #include "TMultiGraph.h"
 #include "TH1F.h"
+#include "TStyle.h"
 
 #include <map>
 #include <stdlib.h>
@@ -30,12 +31,12 @@ void cosmicTemplatesBgROC() {
     const int PRINTS = false;
     const int mode = 0;
     const int run = 107;
-    const int dataset = 9;
+    const int dataset = 11;
     const int bgevents = 99900;
 
-    std::vector<int> SPcounts = {300, 512};
-    std::vector<float> SPratios = {1,2,4};
-    std::vector<float> tb_stopping_effs = {0.6};
+    std::vector<int> SPcounts = {1500};
+    std::vector<float> SPratios = {8, 16, 32};
+    std::vector<float> tb_stopping_effs = {0.6, 0.7, 0.8};
 
     const std::string pathtoplots = "output/Mu3eCosPatBgEval/";
     const std::string pathtooutfile =
@@ -51,6 +52,8 @@ void cosmicTemplatesBgROC() {
     std::vector<std::string> ltexts;
     auto g_effROCs = new TMultiGraph();
 
+    gStyle->SetPalette(kBlueGreenYellow);
+
     TCanvas *canvas = new TCanvas("canvas", "Background Evaluation ROC curve", 900, 600);
     canvas->SetTicks(1, 1);
     auto *pad1 = new TPad("bg eff vs training eff", "bg eff vs training eff", 0, 0, 1, 0.99);
@@ -59,16 +62,23 @@ void cosmicTemplatesBgROC() {
     pad1->Draw();
     auto legend = new TLegend(0.55, 0.3, 0.9, 0.55);
 
-    for (auto &spcount : SPcounts) {
+    for (int spcount : SPcounts) {
         for (auto &spratio : SPratios) {
+
+            if(spratio == 32){
+                spcount = 1568;
+            }
+
 
             // get the filename
             // Get the Pattern Engine and Template Manager
             const int spWbins = (int) sqrt((float) spratio * (float) spcount);
             const int spZbins = (int) sqrt((float) spcount / (float) spratio);
+//            std::cout << "(STATUS) : Trying to open config | bgevents " << bgevents << " | run " << run << " | wbins" << spWbins << " | zbins " << spZbins << std::endl;
 
             // FILE FOR READING BG EVAL DATA
             std::string infile = get_bgevalfile(bgevents, run, dataset, mode, spWbins, spZbins);
+            std::cout << "(STATUS) : reading file " << infile << std::endl;
             TFile tinF((pathtooutfile + infile).c_str());
             if (!tinF.IsOpen()) {
                 std::cout << "[ERROR] File " << tinF.GetName() << " is not open!" << std::endl;
@@ -103,7 +113,7 @@ void cosmicTemplatesBgROC() {
             TGraph *g_effroc = new TGraph(training_effs.size(), &training_effs[0], &bg_discr_effs[0]);
             legend->AddEntry(g_effroc, ltext.c_str(), "lp");
             g_effroc->SetMarkerStyle(23);
-            g_effROCs->Add(g_effroc, "P");
+            g_effROCs->Add(g_effroc, "PL");
 
         }
     }
@@ -125,5 +135,5 @@ void cosmicTemplatesBgROC() {
     legend->Draw("C");
 
 
-    saveCanvas(canvas, "BgEvalROC_spc_" + get_string(SPcounts[0]) + "_dataset_" + get_string(dataset), pathtorunplots);
+    saveCanvas(canvas, "BgEvalROC_dataset_" + get_string(dataset) + "_spc_" + get_string(SPcounts[0]), pathtorunplots);
 }

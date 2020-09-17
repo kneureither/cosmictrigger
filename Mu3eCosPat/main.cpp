@@ -26,12 +26,12 @@ int main(int argc, char *argv[]) {
     //this must be set -->
 //    std::vector<float> sp_ratios = {0.1, 0.25, 0.5, 1, 2, 4, 10};
 //    std::vector<float> sp_ratios = {0.25, 1, 4};
-    std::vector<float> sp_ratios = {1,2,4,8};
+    std::vector<float> sp_ratios = {32};
 //    std::vector<int> sp_count = {200,400,600,800, 1024};
-    std::vector<int> sp_count = {300};
-    std::vector<float> stopping_effs = {0.6};
-    int combination_id = 4; //will produce a separate file
-    int dataset = 9;
+    std::vector<int> sp_count = {1568};
+    std::vector<float> stopping_effs = {0.7};
+    int combination_id = 0; //will produce a separate file
+    int dataset = 11;
     //   <-- up till here.
 
     std::vector<int> cycle_plotting_order;

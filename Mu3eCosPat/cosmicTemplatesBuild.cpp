@@ -118,7 +118,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
                 std::string prog_bar_fill((int) (MAX_LEN * prog_perc), '=');
                 std::string prog_bar_empty((int) (MAX_LEN * (1-prog_perc)), ' ');
                 std::cout << "\r(STATUS) : " << "[" << prog_bar_fill << ">" << prog_bar_empty << "] ";
-                std::cout << entryno /  (float) max_entry * 100 << "% | TB eff " << TB.getEfficiency() * 100 << "%" << std::flush;
+                std::cout << entryno /  (float) max_entry * 100 << "% | TB eff " << TB.getEfficiency() * 100 << "% | processed entries " << processed_entries << std::flush;
             }
 
             std::vector<unsigned int> SPIDs;

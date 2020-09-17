@@ -75,7 +75,6 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     TB.PRINTS = PRINTS;
     TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF);
 
-
     //make some analysis plots
     TH1F h_bgeff("h_bgeff", "background match efficiency", 100, 0, 0.01);
     TH1F h_discreff(("h_discreff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), ("h_discreff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), 100, 0, 0.1);
