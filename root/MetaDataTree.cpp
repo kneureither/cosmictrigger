@@ -96,8 +96,8 @@ void MetaDataTreeRead::setBranches() {
     tT_meta->SetBranchAddress("training_events", &this->training_eventcount);
     tT_meta->SetBranchAddress("bg_events", &bg_events);
     tT_meta->SetBranchAddress("bg_run", &bg_run);
-    tT_meta->SetBranchAddress("tb_training_eventcount", &tb_training_eventcount);
-    tT_meta->SetBranchAddress("tb_stopping_eff", &tb_stopping_eff);
+    tT_meta->SetBranchAddress("training_events", &tb_training_eventcount);
+    tT_meta->SetBranchAddress("stopping_efficiency", &tb_stopping_eff);
     tT_meta->SetBranchAddress("sp_count", &sp_count);
     tT_meta->SetBranchAddress("sp_target_ratio", &sp_target_ratio);
     tT_meta->SetBranchAddress("max_muon_hits", &max_muon_hits);
