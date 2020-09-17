@@ -33,6 +33,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     const int MAX_ENTRIES = 0;
     const bool PRINTS = false;
     const int delete_cycle=0;
+    const bool FILTER = false;
 
     gStyle->SetTitleFontSize(0.06);
 
@@ -119,10 +120,11 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 
     for(auto &cycle : cycle_plotting_order) {
 
-        if(delete_cycle != 0) {
-            if(cycle == delete_cycle) {
+        if (delete_cycle != 0) {
+            if (cycle == delete_cycle) {
                 std::string object_to_remove = tree + ";" + get_string(delete_cycle);
-                std::cout << " now deleting object " << tree << " cycle " << cycle << " complete name " << object_to_remove << std::endl;
+                std::cout << " now deleting object " << tree << " cycle " << cycle << " complete name "
+                          << object_to_remove << std::endl;
                 gDirectory->Delete(object_to_remove.c_str());
                 continue;
             }
@@ -144,12 +146,16 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
         SPcount = wBins[0] * zBins[0];
         spWZratio = (float) wBins[0] / (float) zBins[0];
 
-        std::cout << "  -- SPcount=" << SPcount << " SPratio=" << spWZratio << " wBins=" << wBins[0] << " zBins=" << zBins[0] << std::endl;
+        std::cout << "  -- SPcount=" << SPcount << " SPratio=" << spWZratio << " wBins=" << wBins[0] << " zBins="
+                  << zBins[0] << std::endl;
 
-        if(1040 < SPcount && SPcount < 1500) {
 
-        } else {
-            continue;
+        if (FILTER) {
+            if (1040 < SPcount && SPcount < 1500) {
+
+            } else {
+                continue;
+            }
         }
 
 

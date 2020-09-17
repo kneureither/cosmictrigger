@@ -109,7 +109,7 @@ float TemplateBank::getEfficiency() {
 }
 
 int TemplateBank::getTrainingEventCount() {
-    return this->Nevents[this->Nevents.size() - 1];
+    return this->eventcount;
 }
 
 int TemplateBank::getTemplateCount() {
@@ -540,7 +540,7 @@ TemplateBank::readAMfromFile(std::string path, float stopping_efficiency) {
 
     std::cout << "(INFO)   : CHECK -> Got AM Template Database from file " << filename << std::endl;
     std::cout << "(CONFIG) : wBins " << mywbins << " | zBins " << myzbins << " | T count " << newtemplatecount;
-    std::cout << " | training eff " << this->getEfficiency() << std::endl;
+    std::cout << " | training eff " << this->getEfficiency()  << " | train events " << eventcount << std::endl;
 }
 
 int TemplateBank::getRejectedCount() {
