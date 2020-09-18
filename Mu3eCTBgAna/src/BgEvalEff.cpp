@@ -34,16 +34,16 @@ void BgEvalEff() {
     const int PRINTS = false;
     const int mode = 0;
     const int run = 107;
-    const int dataset = 11;
+    const int dataset = 12;
     const int bgevents = 99900;
 
-    std::vector<int> SPcounts = {1500};
-    std::vector<float> SPratios = {8, 16, 32};
-    std::vector<float> tb_stopping_effs = {0.6, 0.8};
+    std::vector<int> SPcounts = {1152, 2048, 3200};
+    std::vector<float> SPratios = {32, 128};
+    std::vector<float> tb_stopping_effs = {0.5};
     float tb_stopping_eff = tb_stopping_effs[0];
     float max_frame_nhits = 0;
 
-    const std::string pathtoplots = "output/Mu3eCosPatBgEval/";
+    const std::string pathtoplots = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtooutfile =
             pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/"; //this is where the root file is stored
     const std::string pathtorunplots = pathtooutfile + "PDF/"; //this is where the pdf files are stored
@@ -61,7 +61,7 @@ void BgEvalEff() {
     auto g_eff_spress = new TMultiGraph();
     auto g_tcounts_spress = new TMultiGraph();
 
-    gStyle->SetPalette(kBlueGreenYellow);
+    gStyle->SetPalette(kRust);
 
     TCanvas *canvas = new TCanvas("canvas", "Background Evaluation Eff", 900, 750);
     canvas->SetTicks(1, 1);
@@ -89,7 +89,7 @@ void BgEvalEff() {
             for (int spcount : SPcounts) {
                 temp_spcount = spcount;
 
-                if(spratio == 32){
+                if(spratio == 32 && spcount == 500){
                     spcount = 1568;
                 }
 
@@ -135,7 +135,7 @@ void BgEvalEff() {
             //                          "#it{" + get_string(BGAna->wBins[0] * BGAna->zBins[0]) + "}  |  " +
             //                          "#it{" + (spratio < 1 ? "1:" + get_string(1/spratio) : get_string(spratio) + ":1") + "}";
 
-            std::string ltext = "#bf{TB S-EFF} #it{" + get_string(tb_stopping_eff) + +"} | #bf{SP RATIO} W:Z #it{" +
+            std::string ltext = "#bf{TB EFF} #it{" + get_string(tb_stopping_eff) + +"} | #bf{SP RATIO} W:Z #it{" +
                                 (spratio < 1 ? "1:" + get_string(1 / spratio) : get_string(spratio) + ":1") + "}";
 
             TGraph *g_eff_spres = new TGraph(spcounts.size(), &spcounts[0], &bg_discr_effs[0]);
@@ -160,7 +160,7 @@ void BgEvalEff() {
     g_eff_spress->GetYaxis()->SetTitle("background discr. #epsilon");
     g_eff_spress->GetYaxis()->SetTitleFont(53);
     g_eff_spress->GetYaxis()->SetTitleSize(14);
-    g_eff_spress->GetYaxis()->SetTitleOffset(1.6);
+    g_eff_spress->GetYaxis()->SetTitleOffset(1.9);
     g_eff_spress->Draw("A PLC PMC");
 
     std::string lheadtext="#bf{SP CONFIGURATION} #it{DATASET " + get_string(dataset) + "}";
@@ -193,14 +193,14 @@ void BgEvalEff() {
     g_tcounts_spress->GetXaxis()->SetTitleFont(52);
     g_tcounts_spress->GetXaxis()->SetLabelFont(42);
     g_tcounts_spress->GetXaxis()->SetTitleOffset(1);
-    g_tcounts_spress->GetYaxis()->SetTitleOffset(1.1);
+    g_tcounts_spress->GetYaxis()->SetTitleOffset(1.2);
 
     g_tcounts_spress->GetYaxis()->SetTitle("# templates in db");
     g_tcounts_spress->GetYaxis()->SetTitleSize(0.06);
     g_tcounts_spress->GetYaxis()->SetLabelSize(0.08);
     g_tcounts_spress->GetYaxis()->SetTitleFont(52);
     g_tcounts_spress->GetYaxis()->SetLabelFont(42);
-    g_tcounts_spress->GetYaxis()->SetTitleOffset(0.6);
+    g_tcounts_spress->GetYaxis()->SetTitleOffset(0.7);
     g_tcounts_spress->Draw("A PLC PMC");
 
 

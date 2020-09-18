@@ -25,7 +25,7 @@
 #include "plots.h"
 
 void makeBgEvalPlots(const int dataset, const int bgrun, std::string filename) {
-    const std::string pathtodata = "plots/Mu3eCosPatBgEval/";
+    const std::string pathtodata = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtoplots = "plots/Mu3eCosPatBgEvalPlots/";
     std::string pathtorunplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0')+ "_run_" + get_padded_string(bgrun, 3, '0') + "/";
     std::string pathtorundata = pathtodata + "bgrun_" + get_padded_string(bgrun, 3, '0') + "/";

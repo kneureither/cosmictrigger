@@ -39,7 +39,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
 
     const std::string pathtoBGdata = "data/SimulationData/";
     const std::string pathtoTemplateData = "data/TemplateData/";
-    const std::string pathtoplots = "output/Mu3eCosPatBgEval/";
+    const std::string pathtoplots = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtooutfile = pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/"; //this is where the root file is stored
     const std::string pathtorunplots = pathtooutfile +"/PDF/"; //this is where the pdf files are stored
     const std::string pathtodatasettemplatedata = pathtoTemplateData + "dataset_" + get_padded_string(dataset, 3, '0') + "/";

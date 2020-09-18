@@ -31,14 +31,14 @@ void cosmicTemplatesBgROC() {
     const int PRINTS = false;
     const int mode = 0;
     const int run = 107;
-    const int dataset = 11;
+    const int dataset = 12;
     const int bgevents = 99900;
 
-    std::vector<int> SPcounts = {1500};
-    std::vector<float> SPratios = {8, 16, 32};
-    std::vector<float> tb_stopping_effs = {0.6, 0.7, 0.8};
+    std::vector<int> SPcounts = { 3200};
+    std::vector<float> SPratios = { 128};
+    std::vector<float> tb_stopping_effs = {0.5, 0.6 };
 
-    const std::string pathtoplots = "output/Mu3eCosPatBgEval/";
+    const std::string pathtoplots = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtooutfile =
             pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/"; //this is where the root file is stored
     const std::string pathtorunplots = pathtooutfile + "PDF/"; //this is where the pdf files are stored
@@ -65,9 +65,9 @@ void cosmicTemplatesBgROC() {
     for (int spcount : SPcounts) {
         for (auto &spratio : SPratios) {
 
-            if(spratio == 32){
-                spcount = 1568;
-            }
+//            if(spratio == 32 && spcount == 1500){
+//                spcount = 1568;
+//            }
 
 
             // get the filename
