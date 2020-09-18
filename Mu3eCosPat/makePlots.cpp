@@ -23,6 +23,8 @@
 #include "utilityFunctions.h"
 #include "plots.h"
 
+#define LEGEND_ON_TOP false
+
 void makeCosPatPlots(const int dataset, const int combination_id, std::vector<int> cycle_plotting_order) {
     const std::string pathtodata = "output/Mu3eCosPat/";
     const std::string pathtoplots = "output/Mu3eCosPatPlots/";
@@ -34,8 +36,12 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     const bool PRINTS = false;
     const int delete_cycle=0;
     const bool FILTER = false;
+//    const bool LEGEND_ON_TOP = false;
+
+    std::string filelabel = "onlyhighwbinconfigs";
 
     gStyle->SetTitleFontSize(0.06);
+    gStyle->SetPalette(kThermometer);
 
     check_create_directory(pathtodata);
     check_create_directory(pathtoplots);
@@ -69,7 +75,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     auto g_tnumbers  = new TMultiGraph();
 
 //    int colpalette[10] = {433,435,427,420,410,414,601,603,861,854};
-//    gStyle->SetPalette(kBlueGreenYellow);
+
 
 
     TCanvas *canvas = new TCanvas("canvas", "Template Bank Pattern Result", 900, 600);
@@ -82,7 +88,11 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     pad1->SetGrid(1,5);
     pad1->Draw();
 
-    auto legend = new TLegend(0.6,0.1,0.9,0.55);
+#if LEGEND_ON_TOP
+        auto legend = new TLegend(0.6,0.55,0.9,0.9);
+#else
+        auto legend = new TLegend(0.6,0.1,0.9,0.55);
+#endif
 
     auto *pad2 = new TPad("template count", "template count", 0, 0, 1, 0.3);
     pad2->SetLogx(0);
@@ -254,7 +264,47 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 
     legend->SetHeader(lheadtext.c_str(),"C"); // option "C" allows to center the header
     legend->Draw("C");
-    saveCanvas(canvas, "CosPatPlots_dataset_" + get_string(dataset) + "_id" + get_padded_string(combination_id, 3, '0'), pathtorunplots);
+    saveCanvas(canvas, "CosPatPlots_dataset_" + get_string(dataset) +"_" + filelabel + "_id" + get_padded_string(combination_id, 3, '0') + "_overview", pathtorunplots);
+
+    TCanvas *canvas2 = new TCanvas("canvas2", "Efficiency", 900, 600);
+    canvas2->SetGrid(1, 1);
+    canvas2->SetTicks(1, 1);
+
+    auto *pad3 = new TPad("template efficiency", "template efficiency", 0, 0, 1, 0.99);
+    pad3->SetLogx(0);
+    pad3->SetGrid(1,5);
+    pad3->Draw();
+    pad3->cd();
+
+    legend->Draw("C");
+    g_efficiencies->Draw("A PLC PMC");
+    saveCanvas(canvas2, "CosPatPlots_dataset_" + get_string(dataset) +"_" + filelabel + "_id" + get_padded_string(combination_id, 3, '0') + "_Efficiency", pathtorunplots);
+
+    TCanvas *canvas3 = new TCanvas("canvas3", "Template Count", 900, 600);
+    canvas3->SetGrid(1, 1);
+    canvas3->SetTicks(1, 1);
+
+    auto *pad4 = new TPad("template count", "template count", 0, 0, 1, 0.99);
+    pad4->SetLogx(0);
+    pad4->SetGrid(1,5);
+    pad4->Draw();
+    pad4->cd();
+
+    g_tnumbers->GetYaxis()->SetNdivisions(10, 5, 0, true);
+    g_tnumbers->GetXaxis()->SetLabelSize(0.03);
+    g_tnumbers->GetYaxis()->SetLabelSize(0.03);
+    g_tnumbers->GetXaxis()->SetTitleSize(0.03);
+    g_tnumbers->GetYaxis()->SetTitleSize(0.03);
+    g_tnumbers->GetXaxis()->SetTitleFont(52);
+    g_tnumbers->GetYaxis()->SetTitleFont(52);
+    g_tnumbers->GetYaxis()->SetMaxDigits(1);
+    g_tnumbers->GetYaxis()->SetTitleOffset(1.6);
+
+    legend->Draw("C");
+    g_tnumbers->Draw("A PLC PMC");
+    saveCanvas(canvas3, "CosPatPlots_dataset_" + get_string(dataset) +"_" + filelabel + "_id" + get_padded_string(combination_id, 3, '0') + "_TemplateCount", pathtorunplots);
+
+
 
     tinF.Close();
 
