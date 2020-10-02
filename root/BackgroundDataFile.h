@@ -23,11 +23,12 @@ public:
     int wBins[3];
     char areaDescript[3][8];
     int mode;
-    float efficiency;
-    int eventcount;
-    std::string mode_description;
+    float training_efficiency;
+    float stopping_efficiency;
     std::string *mode_description_ptr = nullptr;
-
+    int training_events;
+    int template_count;
+    std::string mode_description;
 
     //actual background templates -- every entry is a frame
 

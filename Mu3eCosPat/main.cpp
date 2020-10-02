@@ -8,6 +8,7 @@
 #include "cosmicTemplatesBuild.h"
 #include "cosmicTemplatesEval.h"
 #include "makePlots.h"
+#include <vector>
 
 
 void processSegsPrototype(int, int);
@@ -25,13 +26,15 @@ int main(int argc, char *argv[]) {
     //this must be set -->
 //    std::vector<float> sp_ratios = {0.1, 0.25, 0.5, 1, 2, 4, 10};
 //    std::vector<float> sp_ratios = {0.25, 1, 4};
-    std::vector<float> sp_ratios = {4};
+    std::vector<float> sp_ratios = {128};
 //    std::vector<int> sp_count = {200,400,600,800, 1024};
-    std::vector<int> sp_count = {500};
+    std::vector<int> sp_count = {3200};
     std::vector<float> stopping_effs = {0.6};
     int combination_id = 0; //will produce a separate file
-    int dataset = 9;
+    int dataset = 12;
     //   <-- up till here.
+
+    std::vector<int> cycle_plotting_order;
 
 
     if(argc < 0) {
@@ -48,13 +51,14 @@ int main(int argc, char *argv[]) {
             for(int n=0; n < stopping_effs.size(); n++) {
                 std::cout << "Building Template Database for dataset " << dataset << " SPratio=" << sp_ratios[i]
                           << " SPcout=" << sp_count[j] << ".." << std::endl;
+                cycle_plotting_order.push_back(cycle_plotting_order.size()+1);
                 cosmicTemplatesBuild(dataset, sp_count[j], sp_ratios[i], combination_id, stopping_effs[n]);
             }
         }
     }
 
     std::cout << "Producing combined plots for dataset " << dataset << "..." << std::endl;
-    makeCosPatPlots(dataset, combination_id);
+    makeCosPatPlots(dataset, combination_id, cycle_plotting_order);
 
 
 
@@ -87,7 +91,7 @@ int main(int argc, char *argv[]) {
     }
 
     if(TEST_TB) {
-        TemplateBank TB("plots/Mu3eCosPat");
+        TemplateBank TB("plots/Mu3eCosPat", 0, 0, 0, 0);
     TB.testTemplateID();
 //    TB.testFill();
 //        TB.testGetMostPopTemplates();

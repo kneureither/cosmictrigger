@@ -12,6 +12,9 @@ using std::cout;
 namespace fs = std::experimental::filesystem;
 
 
+// Configuration variables
+
+
 // pad an int number
 static std::string get_padded_string(int number, int n, char c) {
     std::stringstream ss;
@@ -61,5 +64,32 @@ static void check_create_directory(std::string path) {
         cout << "STATUS : no such path - created: " << path << endl;
     }
 }
+
+static void print_status_bar(int entry, int max_entries, std::string label, std::string info) {
+    const int STATUS_BAR_LEN = 50;
+    float prog_perc = entry /  (float) max_entries;
+    std::string prog_bar_fill((int) (STATUS_BAR_LEN * prog_perc), '=');
+    std::string prog_bar_empty((int) (STATUS_BAR_LEN * (1-prog_perc)), ' ');
+    std::cout << "\r(STATUS) : " << label <<  " [" << prog_bar_fill << ">" << prog_bar_empty << "] ";
+
+    if(prog_bar_empty != ""){
+        std::cout << entry /  (float) max_entries * 100 << "% | " << info << "\r" << std::flush;
+    } else {
+        std::cout << 100 << "% |" << info << "\r" << std::flush;
+    }
+}
+
+static std::string getfileidtag(int mydataset, int mode, int wbins, int zbins) {
+    return "dataset" + get_string(mydataset) + "_mode" + get_string(mode) + "wBins" + get_string(wbins) + "zBins" + get_string(zbins);
+}
+
+static std::string getfileidtag(int mydataset, int mode, int wbins, int zbins, float stopping_efficiency) {
+    return "dataset" + get_string(mydataset) + "_mode" + get_string(mode) + "wBins" + get_string(wbins) + "zBins" + get_string(zbins) + "_maxeff" + get_string(stopping_efficiency);
+}
+
+static std::string getfileidtag(int mode, int wbins, int zbins) {
+    return "mode" + get_string(mode) + "wBins" + get_string(wbins) + "zBins" + get_string(zbins);
+}
+
 
 #endif //COSMICTRIGGER_UTILITY_FUNCTIONS_H

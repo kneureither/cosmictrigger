@@ -19,18 +19,19 @@ public:
     char areaDescript[3][8];
     int mode;
     float efficiency;
-    int eventcount;
     int tb_training_eventcount;
+    int bg_events;
     std::string mode_description;
     std::string *mode_description_ptr = nullptr;
 
     int bg_run;
     int max_muon_hits;
     int max_frame_nhits;
-    int processed_frames;
+//    int processed_frames;
     float tb_stopping_eff;
-    unsigned int sp_count;
     float sp_target_ratio;
+    unsigned int sp_count;
+    unsigned int template_count;
 
     //bg ana data
     float bg_discr_eff;
@@ -53,10 +54,12 @@ public:
 
 class MetaDataTreeWrite : public MetaDataTreeFile {
 public:
-    MetaDataTreeWrite(TTree *tT_meta, const int dataset, const int *zBins, const int *wBins, char areaDescript[3][8],
-                      const int mode, const float efficiency, const int eventcount, std::string mode_description,
-                      int bg_run, int max_muon_hits, int max_frame_nhits, int processed_frames, float tb_stopping_eff,
-                      unsigned int sp_count, float sp_target_ratio, int tb_training_eventcount);
+    MetaDataTreeWrite(TTree *tT_meta, const int dataset, const int *zBins, const int *wBins,
+                      char areaDescript[3][8], const int mode, const float training_efficiency,
+                      const int bg_events, std::string mode_description, int bg_run,
+                      int max_muon_hits, int max_frame_nhits, int processed_frames,
+                      float tb_stopping_eff, unsigned int sp_count, float sp_target_ratio,
+                      int tb_training_eventcount, unsigned int template_count);
 };
 
 
@@ -66,8 +69,8 @@ class BGAnaResTreeWrite : public MetaDataTreeWrite {
 //                      const int* zBins, const int* wBins,
 //                      char areaDescript[3][8],
 //                      const int mode,
-//                      const float efficiency,
-//                      const int eventcount,
+//                      const float training_efficiency,
+//                      const int training_events,
 //                      std::string mode_description,
 //                      int bg_run,
 //                      int max_muon_hits,
@@ -78,14 +81,15 @@ class BGAnaResTreeWrite : public MetaDataTreeWrite {
 //                      float sp_target_ratio) {
 //
 //        MetaDataTreeWrite(tT_meta, dataset, zBins, wBins, areaDescript[3][8],
-//                mode, efficiency, eventcount, mode_description, bg_run,max_muon_hits,
+//                mode, training_efficiency, training_events, mode_description, bg_run,max_muon_hits,
 //                int max_frame_nhits,
 //                int processed_frames,
 //                float tb_stopping_eff,
 //                unsigned int sp_count,
 //                float sp_target_ratio);
 //    }
-    BGAnaResTreeWrite() : MetaDataTreeWrite(nullptr, 0, nullptr, nullptr, nullptr, 0, 0, 0, std::string(), 0, 0, 0, 0, 0, 0, 0, 0) {}
+    BGAnaResTreeWrite() : MetaDataTreeWrite(nullptr, 0, nullptr, nullptr, nullptr, 0, 0, 0, std::string(), 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0) {}
 };
 
 class BGAnaResTreeRead : public MetaDataTreeRead {

@@ -5,6 +5,8 @@
 #ifndef COSMICTRIGGER_MAKEPLOTS_H
 #define COSMICTRIGGER_MAKEPLOTS_H
 
-void makeCosPatPlots(const int dataset, const int combination_id);
+#include <vector>
+
+void makeCosPatPlots(const int dataset, const int combination_id, std::vector<int>);
 
 #endif //COSMICTRIGGER_MAKEPLOTS_H

@@ -24,8 +24,8 @@ BackgroundDataWrite::BackgroundDataWrite(TTree *tT_meta, TTree *tT_frames, const
     }
 
     this->mode = mode;
-    this->efficiency = efficiency;
-    this->eventcount = eventcount;
+    this->training_efficiency = training_efficiency;
+    this->training_events = eventcount;
     this->mode_description = mode_description;
 
     this->tT_meta->Branch("area0Description", &this->areaDescript[0], "area0Description/C");
@@ -39,8 +39,8 @@ BackgroundDataWrite::BackgroundDataWrite(TTree *tT_meta, TTree *tT_frames, const
     this->tT_meta->Branch("zBins2", &this->zBins[2], "zBins2/I");
     this->tT_meta->Branch("mode", &this->mode, "mode/I");
     this->tT_meta->Branch("mode_description", &this->mode_description);
-    this->tT_meta->Branch("efficiency", &this->efficiency, "efficiency/F");
-    this->tT_meta->Branch("eventcount", &this->eventcount, "eventcount/I");
+    this->tT_meta->Branch("training_efficiency", &this->training_efficiency, "training_efficiency/F");
+    this->tT_meta->Branch("training_events", &this->training_events, "training_events/I");
     this->tT_meta->Branch("bgtid_len", &this->bgtid_len, "bgtid_len/I");
     this->tT_meta->Branch("max_cosmic_hits", &this->max_cosmic_hits, "max_cosmic_hits/I");
     this->tT_meta->Fill();
@@ -80,8 +80,8 @@ void BackgroundDataRead::setBranches() {
     tT_meta->SetBranchAddress("zBins2", &this->zBins[2]);
     tT_meta->SetBranchAddress("mode", &this->mode);
     tT_meta->SetBranchAddress("mode_description", &this->mode_description_ptr);
-    tT_meta->SetBranchAddress("efficiency", &this->efficiency);
-    tT_meta->SetBranchAddress("eventcount", &this->eventcount);
+    tT_meta->SetBranchAddress("training_efficiency", &this->training_efficiency);
+    tT_meta->SetBranchAddress("training_events", &this->training_events);
     tT_meta->SetBranchAddress("bgtid_len", &this->bgtid_len);
     tT_meta->SetBranchAddress("max_cosmic_hits", &this->max_cosmic_hits);
     tT_meta->GetEntry(0);

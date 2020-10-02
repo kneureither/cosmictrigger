@@ -109,17 +109,22 @@ float TemplateBank::getEfficiency() {
 }
 
 int TemplateBank::getTrainingEventCount() {
-    return this->Nevents[this->Nevents.size() - 1];
+    return this->eventcount;
 }
 
 int TemplateBank::getTemplateCount() {
     return this->newtemplatecount;
 }
 
-void TemplateBank::initializeMembers() {
+void TemplateBank::initializeMembers(int dataset, int mode, int wBins, int zBins) {
     this->Nevents.push_back(0);
     this->Ntemplates.push_back(0);
     this->efficiency.push_back(0.0);
+
+    mywbins = wBins;
+    myzbins = zBins;
+    mymode = mode;
+    mydataset = dataset;
 
     assert(TID_LEN % 2 == 0);
     hitorder.push_back(3);
@@ -139,13 +144,14 @@ void TemplateBank::initializeMembers() {
     assert(hitorder.size() == TID_LEN);
 }
 
-TemplateBank::TemplateBank(std::string plottingpath) {
-    initializeMembers();
+TemplateBank::TemplateBank(std::string plottingpath, int dataset, int mode, int wBins, int zBins) {
+    initializeMembers(dataset, mode, wBins, zBins);
     this->plottingpath = plottingpath;
 }
 
-TemplateBank::TemplateBank(std::string plottingpath, float stopping_efficiency) {
-    initializeMembers();
+TemplateBank::TemplateBank(std::string plottingpath, float stopping_efficiency, int dataset, int mode, int wBins,
+                           int zBins) {
+    initializeMembers(dataset, mode, wBins, zBins);
     this->plottingpath = plottingpath;
     this->stopping_efficiency = stopping_efficiency;
 }
@@ -318,7 +324,7 @@ void TemplateBank::displayTemplateMatchedFreqHistogram(std::string filetag) {
 
 
 
-void TemplateBank::displayTemplatePopulationHistogram(std::string filetag) {
+void TemplateBank::displayTemplatePopulationHistogram() {
     auto *canvas = new TCanvas("template frequency", "template frequency", 1200, 900);
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
@@ -341,10 +347,10 @@ void TemplateBank::displayTemplatePopulationHistogram(std::string filetag) {
     }
     h_templfreq->Draw();
     h_templfreq->Write();
-    saveCanvas(canvas, ("templateFrequency_" + filetag).c_str(), plottingpath);
+    saveCanvas(canvas, ("templateFrequency_" + getfileidtag(0)).c_str(), plottingpath);
 }
 
-void TemplateBank::plotFreqTimesTemplatecount(std::string filetag) {
+void TemplateBank::plotFreqTimesTemplatecount() {
     auto *canvas = new TCanvas("template weights", "template weights", 1200, 900);
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
@@ -394,10 +400,10 @@ void TemplateBank::plotFreqTimesTemplatecount(std::string filetag) {
 
     h_templweights->Draw();
     h_templweights->Write();
-    saveCanvas(canvas, ("templateFrequencyTimesCount_" + filetag).c_str(), plottingpath);
+    saveCanvas(canvas, ("templateFrequencyTimesCount_" + getfileidtag(0)).c_str(), plottingpath);
 }
 
-void TemplateBank::displayEfficiency(std::string filetag) {
+void TemplateBank::displayEfficiency() {
     auto *canvas = new TCanvas("template bank stats", "cosmic template bank stats", 1200, 900);
 
     canvas->SetLeftMargin(0.15);
@@ -440,19 +446,17 @@ void TemplateBank::displayEfficiency(std::string filetag) {
     g_tnumber->Write();
 
     canvas->Update();
-    saveCanvas(canvas, ("templateBankStats" + filetag).c_str(), plottingpath);
+    saveCanvas(canvas, ("templateBankStats" + getfileidtag(0)).c_str(), plottingpath);
 }
 
 void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
-        const int &dataset, const int &mode, std::string mode_description) {
+                                 std::string mode_description) {
     //iterate over the Associative Memory map this->AM and write data to root file
 
-    mydataset = dataset;
-    myzbins = zBins[0];
-    mywbins = wBins[0];
-    mymode = mode;
+    assert(myzbins == zBins[0]);
+    assert(mywbins == wBins[0]);
 
-    std::cout << " -- Writing AM Template Database to file..." << std::endl;
+    std::cout << "(INFO)   : Writing AM Template Database to file..." << std::endl;
 
     std::string customnametag = getfileidtag(0);
     TFile tF((path + "CosmicPatternDatabase_" + customnametag + ".root").c_str(), "recreate");
@@ -463,13 +467,18 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
     TTree tT_spconfig("ConfigTree","Tree with Superpixel configuration information");
     TTree tT_tids("TIDTree","Tree with Template IDentification (TID) number");
 
-    TemplateDatabaseWrite TDB = TemplateDatabaseWrite(&tT_spconfig, &tT_tids, dataset, zBins, wBins, areaDescript,
-            mode, this->efficiency[this->efficiency.size() - 1], eventcount, mode_description);
+    TemplateDatabaseWrite TDB = TemplateDatabaseWrite(&tT_spconfig, &tT_tids, mydataset, zBins, wBins, areaDescript,
+                                                      mymode, this->efficiency[this->efficiency.size() - 1], eventcount,
+                                                      mode_description, this->newtemplatecount, this->stopping_efficiency);
 
     int tid_len = TID_LEN;
     AssociativeMemory::iterator it;
 
+    int i = 0;
+
     for(it = AMem.begin(); it != AMem.end(); it++){
+        if(i % 1000 == 0) print_status_bar(i, AMem.size(), "writing templates", "");
+        i++;
         temid TID(it->first);
         TDB.fillTIDData(TID.HIDS, tid_len, TID.toString(), (it->second).frequency);
     }
@@ -479,26 +488,18 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
     tF.Write();
     tF.Close();
 
-    std::cout << " -- CHECK: Wrote AM Template Database to file " << filename << std::endl;
+    std::cout << "(INFO)   : CHECK -> Wrote AM Template Database to file " << filename << std::endl;
+    std::cout << "(CONFIG) : wBins " << mywbins << " | zBins " << myzbins << " | T count " << newtemplatecount;
+    std::cout << " | training eff " << this->getEfficiency() << " | training events " << eventcount << std::endl;
 }
 
 bool
-TemplateBank::readAMfromFile(std::string path, int wbins, int zbins, int mode, int dataset, float stopping_efficiency) {
-    mydataset = dataset;
-
-    // tODO this is correct
-//    mywbins = wbins;
-//    myzbins = zbins;
-
-    mywbins = zbins;
-    myzbins = wbins;
-
-    mymode = mode;
+TemplateBank::readAMfromFile(std::string path, float stopping_efficiency) {
     this->stopping_efficiency = stopping_efficiency;
 
     std::string customnametag = getfileidtag(0);
     std::string filename = path + "CosmicPatternDatabase_" + customnametag + ".root";
-    std::cout << " -- START: Getting AM Template Database from file " << filename << std::endl;
+    std::cout << "(INFO)   : START -> Getting AM Template Database from file " << filename << std::endl;
 
     // FILE FOR READING
     TFile tF(filename.c_str());
@@ -516,25 +517,30 @@ TemplateBank::readAMfromFile(std::string path, int wbins, int zbins, int mode, i
 
     //check if the meta data is okay
     assert(TDB.tid_len == TID_LEN);
-    assert(TDB.wBins[0] == wbins);
-    assert(TDB.zBins[0] == zbins);
-    assert(TDB.mode == mode);
-    assert(TDB.dataset == dataset);
+    assert(TDB.wBins[0] == mywbins);
+    assert(TDB.zBins[0] == myzbins);
+    assert(TDB.mode == mymode);
+    assert(TDB.dataset == mydataset);
 
     unsigned int entries = TDB.tT_tid->GetEntries();
-    this->efficiency.push_back(TDB.efficiency);
-    this->Nevents.push_back(TDB.eventcount); //not exactly correct, as the efficiency is calculated upt to the last 10e6 value.
-    this->Ntemplates.push_back(entries); //also not exactly correct
+    this->efficiency.push_back(TDB.training_efficiency); //not exactly correct, as the efficiency is calculated upt to the last 10e6 value.
+    this->Nevents.push_back(TDB.training_events); //not exactly correct, as the Nevents is calculated upt to the last 10e6 value.
+    this->Ntemplates.push_back(entries); //correct!
 
     for(int i=0; i<entries; i++) {
+        if(i % 1000 == 0) print_status_bar(i, entries, "reading templates", "");
         TDB.getEntry(i);
         temid TID = getTemplateID(TDB.tid, TID_LEN);
         this->fillTemplateFromDB(TID, TDB.frequency);
     }
 
+    assert(newtemplatecount == entries);
+
     tF.Close();
 
-    std::cout << " -- CHECK: Got AM Template Database from file " << filename << std::endl;
+    std::cout << "(INFO)   : CHECK -> Got AM Template Database from file " << filename << std::endl;
+    std::cout << "(CONFIG) : wBins " << mywbins << " | zBins " << myzbins << " | T count " << newtemplatecount;
+    std::cout << " | training eff " << this->getEfficiency()  << " | train events " << eventcount << std::endl;
 }
 
 int TemplateBank::getRejectedCount() {
@@ -548,15 +554,15 @@ int TemplateBank::getAcceptedCount() {
 std::string TemplateBank::getfileidtag(int format) {
     if(format == 1) {
         //no max eff
-        return "dataset" + get_string(mydataset) + "_mode" + get_string(mymode) + "zBins" + get_string(myzbins) + "wBins" + get_string(mywbins);
+        return ::getfileidtag(mydataset, mymode, mywbins, myzbins);
     } else {
         //default
-        return "dataset" + get_string(mydataset) + "_mode" + get_string(mymode) + "zBins" + get_string(myzbins) + "wBins" + get_string(mywbins) + "_maxeff" + get_string(stopping_efficiency);
+        return ::getfileidtag(mydataset, mymode, mywbins, myzbins, stopping_efficiency);
     }
 }
 
 
-void TemplateBank::displayTemplatePopHistSortedbyFreq(std::string filetag) {
+void TemplateBank::displayTemplatePopHistSortedbyFreq() {
     std::vector<temid> priorityTemplates = getMostPopulatedTemplates(10000);
     std::vector<int> templateIndex(priorityTemplates.size());
     std::iota (std::begin(templateIndex), std::end(templateIndex), 0);

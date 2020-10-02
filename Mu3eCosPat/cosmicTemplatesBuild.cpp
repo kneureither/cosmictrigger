@@ -50,7 +50,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
     PE.PRINTS = PRINTS;
-    TemplateBank TB(pathtorunplots, MAX_EFFICIENCY);
+    TemplateBank TB(pathtorunplots, MAX_EFFICIENCY, dataset, 0, spWbins, spZbins);
     TB.PRINTS = PRINTS;
 
     // FILE FOR READING
@@ -118,7 +118,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
                 std::string prog_bar_fill((int) (MAX_LEN * prog_perc), '=');
                 std::string prog_bar_empty((int) (MAX_LEN * (1-prog_perc)), ' ');
                 std::cout << "\r(STATUS) : " << "[" << prog_bar_fill << ">" << prog_bar_empty << "] ";
-                std::cout << entryno /  (float) max_entry * 100 << "% | TB eff " << TB.getEfficiency() * 100 << "%" << std::flush;
+                std::cout << entryno /  (float) max_entry * 100 << "% | TB eff " << TB.getEfficiency() * 100 << "% | processed entries " << processed_entries << std::flush;
             }
 
             std::vector<unsigned int> SPIDs;
@@ -160,13 +160,14 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
             stopping_point_reached = TB.fillTemplate(&SPIDs[0], SPIDs.size(), SlimSegs.kari_p, SlimSegs.kari_dca, SlimSegs.kari_phi, SlimSegs.kari_theta);
 
             if(stopping_point_reached){
-                std::cout << "STATUS : Reached efficiency stopping point! MAX_EFF=" << MAX_EFFICIENCY <<  " TB EFF=" << TB.getEfficiency() << std::endl;
+                std::cout << std::endl << "(STATUS) : Reached efficiency stopping point! MAX_EFF=" << MAX_EFFICIENCY <<  " TB EFF=" << TB.getEfficiency() << std::endl;
                 break;
             }
         }
+        std::cout << std::endl;
         if(stopping_point_reached) break;
     }
-    std::cout << std::endl;
+
 
     tinF.Close();
 
@@ -194,20 +195,24 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     tT_met.Branch("zBins1", &PE.ZBins[1], "zBins1/I");
     tT_met.Branch("zBins2", &PE.ZBins[2], "zBins2/I");
     tT_met.Branch("mode", &PE.mode, "mode/I");
-    tT_met.Branch("efficiency", &eff, "efficiency/F");
-    tT_met.Branch("templ_count", &templatecount, "templ_count/I");
+    tT_met.Branch("training_efficiency", &eff, "training_efficiency/F");
+    tT_met.Branch("template_count", &templatecount, "template_count/I");
     tT_met.Branch("processed_events", &processed_entries, "processed_events/I");
     tT_met.Branch("sp_count", &centralTPcount, "spcount/i");
     tT_met.Branch("sp_target_ratio", &spWZratio, "sp_target_ratio/F");
     tT_met.Fill();
     tT_met.Write();
 
+//    std::string mydirectory = "TrainingPlots";
+//    tF->mkdir(mydirectory.c_str());
+//    tF->cd(mydirectory.c_str());
+
     //Make plots and add them to the root file
     PE.displayBinBoundaries(); //check if PE worked and was initialized correctly.
     PE.displayBinWeightDistribution();
     PE.closePlot();
-    TB.displayTemplatePopulationHistogram(PE.getModeTag());
-    TB.displayEfficiency(PE.getModeTag());
+    TB.displayTemplatePopulationHistogram();
+    TB.displayEfficiency();
 
     //close plot root file
     tF->Close();
@@ -215,10 +220,9 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     //do some template bank stuff, eg. write the TemplateBank to a root database file
 //    TB.getMostPopulatedTemplates(50);
 
-    //FIXME: ZBins and wbins are in wrong order!! TDB filenames are wrong --> now corrected, but problem in db
-    if(WRITE_DB_FILE) TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, datast, PE.mode, "testing_mode_descr");
+    if(WRITE_DB_FILE) TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, "testing_mode_descr");
 
-    TB.plotFreqTimesTemplatecount(PE.getModeTag());
+    TB.plotFreqTimesTemplatecount();
 
     std::cout << "\n\n[============ GENERAL STATS ============]\n";
 

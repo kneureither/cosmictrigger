@@ -20,8 +20,12 @@ void TemplateDatabaseFile::reinitializeData() {
     dca.clear();
 }
 
-TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int *zBins, const int *wBins, char areaDescript[3][8],
-                                             const int mode, const float efficiency, const int eventcount, std::string mode_description) {
+TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, const int dataset, const int *zBins,
+                                             const int *wBins,
+                                             char areaDescript[3][8], const int mode, const float efficiency,
+                                             const int eventcount,
+                                             std::string mode_description, unsigned int template_count,
+                                             const float stopping_efficiency) {
 
     this->tT_meta = tT_meta;
     this->tT_tid = tT_tid;
@@ -34,8 +38,10 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
     }
 
     this->mode = mode;
-    this->efficiency = efficiency;
-    this->eventcount = eventcount;
+    this->training_efficiency = efficiency;
+    this->training_events = eventcount;
+    this->stopping_efficiency = stopping_efficiency;
+    this->template_count = template_count;
     this->mode_description = mode_description;
 
     this->tT_meta->Branch("dataset", &this->dataset, "dataset/I");
@@ -50,8 +56,10 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
     this->tT_meta->Branch("zBins2", &this->zBins[2], "zBins2/I");
     this->tT_meta->Branch("mode", &this->mode, "mode/I");
     this->tT_meta->Branch("mode_description", &this->mode_description);
-    this->tT_meta->Branch("efficiency", &this->efficiency, "efficiency/F");
-    this->tT_meta->Branch("eventcount", &this->eventcount, "eventcount/I");
+    this->tT_meta->Branch("training_events", &this->training_events, "training_events/I");
+    this->tT_meta->Branch("template_count", &this->template_count, "template_count/i");
+    this->tT_meta->Branch("training_efficiency", &this->training_efficiency, "training_efficiency/F");
+    this->tT_meta->Branch("stopping_efficiency", &this->stopping_efficiency, "stopping_efficiency/F");
     this->tT_meta->Branch("tid_len", &this->tid_len, "tid_len/I");
     this->tT_meta->Fill();
 
@@ -60,13 +68,6 @@ TemplateDatabaseWrite::TemplateDatabaseWrite(TTree *tT_meta, TTree *tT_tid, cons
     this->tT_tid->Branch("tid", tid, "tid[tid_len]/s");
     this->tT_tid->Branch("tid_repr", &this->tid_repr, "tid_repr/C");
     this->tT_tid->Branch("freq", &this->frequency, "frequency/I");
-
-//really needed?
-//    this->tT_tid->Branch("nhit", &this->nhit);
-//    this->tT_tid->Branch("p", &this->pt);
-//    this->tT_tid->Branch("phi", &this->phi);
-//    this->tT_tid->Branch("theta", &this->theta);
-//    this->tT_tid->Branch("dca", &this->dca);
 }
 
 
@@ -119,8 +120,10 @@ void TemplateDatabaseRead::setBranches() {
     tT_meta->SetBranchAddress("zBins2", &this->zBins[2]);
     tT_meta->SetBranchAddress("mode", &this->mode);
     tT_meta->SetBranchAddress("mode_description", &this->mode_description_ptr);
-    tT_meta->SetBranchAddress("efficiency", &this->efficiency);
-    tT_meta->SetBranchAddress("eventcount", &this->eventcount);
+    tT_meta->SetBranchAddress("training_events", &this->training_events);
+    tT_meta->SetBranchAddress("template_count", &this->template_count);
+    tT_meta->SetBranchAddress("training_efficiency", &this->training_efficiency);
+    tT_meta->SetBranchAddress("stopping_efficiency", &this->stopping_efficiency);
     tT_meta->SetBranchAddress("tid_len", &this->tid_len);
     tT_meta->GetEntry(0);
 

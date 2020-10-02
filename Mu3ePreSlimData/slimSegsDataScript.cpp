@@ -133,7 +133,9 @@ void slimSegsDataScript(const int dataset, const int run, const bool appendToFil
     double rres[TRIPLET_HIT_ARRAY_LENGTH] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
 
     //iterate through entries in segs tree
-    for (unsigned int i = 0; i < (MAX_ENTRIES == 0 ? Segs.my_entries : MAX_ENTRIES); i++) {
+    int max_entries = (MAX_ENTRIES == 0 ? Segs.my_entries : MAX_ENTRIES);
+
+    for (unsigned int i = 0; i < max_entries; i++) {
 //        printf("SEGS ENTRY %d ------- \n", i);
 
 //        if(((i % (int) pow((float) 10, (float) std::floor(log10(i))) == 0) && (i >= 1000))
@@ -142,7 +144,8 @@ void slimSegsDataScript(const int dataset, const int run, const bool appendToFil
 //        }
 
         if(i % 1000 == 0) {
-            std::cout << "\r(STATUS) : processing entry " << i << " of " << Segs.my_entries << std::flush;
+            print_status_bar(i, max_entries, "processing run " + get_string(run), "");
+//            std::cout << "\r(STATUS) : processing entry " << i << " of " << Segs.my_entries << std::flush;
         }
 
         //update data in Segs class

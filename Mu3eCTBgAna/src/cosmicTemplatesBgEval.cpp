@@ -39,7 +39,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
 
     const std::string pathtoBGdata = "data/SimulationData/";
     const std::string pathtoTemplateData = "data/TemplateData/";
-    const std::string pathtoplots = "output/Mu3eCosPatBgEval/";
+    const std::string pathtoplots = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtooutfile = pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/"; //this is where the root file is stored
     const std::string pathtorunplots = pathtooutfile +"/PDF/"; //this is where the pdf files are stored
     const std::string pathtodatasettemplatedata = pathtoTemplateData + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
@@ -71,11 +71,9 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     Mu3eMChitsTree Mu3eMChits = Mu3eMChitsTree(t_mu3e_mchits);
 
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
-    TemplateBank TB(pathtorunplots);
+    TemplateBank TB(pathtorunplots, dataset, mode, spWbins, spZbins);
     TB.PRINTS = PRINTS;
-    //FIXME --> zbins and wbins swapped to get correct file! undo in TDB
-    TB.readAMfromFile(pathtodatasettemplatedata, spWbins, spZbins, mode, dataset, TB_STOPPING_EFF);
-
+    TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF);
 
     //make some analysis plots
     TH1F h_bgeff("h_bgeff", "background match efficiency", 100, 0, 0.01);
@@ -98,7 +96,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     std::vector<float> frame_eff;
     std::vector<int> frame_bghits;
 
-    std::cout << "(STATUS): TDB: mywbins " << TB.mywbins << " | myzbins" << TB.myzbins << " | PE: wbins " << PE.WBins[0] << " zbins "<< PE.ZBins[0] << std::endl;
+    std::cout << "(CONFIG) : TDB: mywbins " << TB.mywbins << " | myzbins " << TB.myzbins << " | PE: wbins " << PE.WBins[0] << " zbins "<< PE.ZBins[0] << std::endl;
 
     for(int frame=0; frame <= bg_events; frame++) {
         Mu3e.getEntry(frame);
@@ -308,12 +306,13 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     int bg_run = run;
     float tb_max_efficiency = TB.getEfficiency();
 
+    std::cout << "tb event count " << TB.getTrainingEventCount() << " templ count " << TB.getTemplateCount() << std::endl;
 
     TTree tT_met("MetadataTree","Metadata associated with these plots (SID config and dataset)");
     MetaDataTreeWrite Meta = MetaDataTreeWrite(&tT_met, dataset, PE.ZBins, PE.WBins, PE.areaDescript,
                                                mode, tb_max_efficiency, bg_events, "default", bg_run, MAX_MUON_HITS,
                                                MAX_NHITS, processed_frames, tb_stopping_efficiency,
-                                               (unsigned int) centralTPcount, spWZratio, 0);
+                                               (unsigned int) centralTPcount, spWZratio, TB.getTrainingEventCount(), TB.getTemplateCount());
     tT_met.Write();
 
 
@@ -355,7 +354,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
 
 //    TB.getMostPopulatedTemplates(50);
 //    TB.getMostMatchedTemplates(50);
-    TB.displayTemplatePopulationHistogram(TB.getfileidtag(0));
+    TB.displayTemplatePopulationHistogram();
     TB.displayTemplateMatchedFreqHistogram(TB.getfileidtag(0));
 //    TB.displayTemplatePopHistSortedbyFreq(TB.getfileidtag());
 

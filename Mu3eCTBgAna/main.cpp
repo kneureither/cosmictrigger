@@ -9,12 +9,12 @@ int main() {
     //only muon background
     int max_muon_hits = 0;
     int background_dataset = 107;
-    int pattern_dataset = 10;
-    std::vector<float> spratios = {0.25, 1, 4};
-    std::vector<int> SPcounts = {200,400,600,800,1024};
-    std::vector<float> tb_stopping_efficiencies = {0.7, 0.75, 0.8, 0.85, 0.9};
+    int pattern_dataset = 12;
+    std::vector<float> spratios = {128};
+    std::vector<int> SPcounts = {3200};
+    std::vector<float> tb_stopping_efficiencies = {0.6};
 
-    int append = 0;
+    int append = 1;
     for(auto &spratio : spratios) {
         for(auto &spcout : SPcounts) {
             for (auto &tb_eff : tb_stopping_efficiencies) {
