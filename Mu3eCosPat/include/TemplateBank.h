@@ -16,6 +16,12 @@ typedef std::map<temid, TemplateData> AssociativeMemory;
 typedef std::pair<temid, TemplateData> AssociativePair;
 typedef std::map<temid, int> CheckedMemory;
 
+//to distinquish between TID types (area dependend)
+enum TrackType {RLRL, RLCE, CECE, RRCE, RRRR};
+
+//filter when loading tids from file
+enum TIDLoadingFilter {CENTER_ONLY, RECURL_ONLY, RECURL_CENTER, CUT_ON_FREQ, ALL};
+
 struct tidQueueNode {
     temid TID; //the template
     unsigned int frequency; //population
@@ -42,6 +48,8 @@ private:
     std::vector<float> efficiency;
     std::vector<int> hitorder;
 
+    unsigned int count_loaded_template_types[5] = {0,0,0,0,0};
+
     //for checking templates
     unsigned int rejectedcount = 0;
     unsigned int acceptedcount = 0;
@@ -55,7 +63,7 @@ private:
 
 public:
 
-    //FIXME MAke private again
+    //FIXME Make private again (usage in CosmicTemplatesBgEval)
     //for some meta information
     int mywbins;
     int myzbins;
@@ -82,18 +90,18 @@ public:
 
     void rmSinglePopulatedTemplates();
     std::vector<temid>  getMostPopulatedTemplates(int howmany);
-
     std::vector<temid>  getMostMatchedTemplates(int howmany);
     template <typename spidtype>
     temid getTemplateID(spidtype *SPIDs, int hitcount);
     unsigned int getSPIDfromTemplateID(temid TID, int index);
+    TrackType GetTypeOfTID(temid TID);
     float getEfficiency();
 
     int getTemplateCount();
     void writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
                        std::string mode_description);
 
-    bool readAMfromFile(std::string path, float stopping_efficiency);
+    bool readAMfromFile(std::string path, float stopping_efficiency, TIDLoadingFilter filter);
 
     std::string getfileidtag(int format);
 
@@ -106,6 +114,8 @@ public:
     void testGetMostPopTemplates();
 
     int getTrainingEventCount();
+
+    void fillTemplateFromDB(temid TID, int frequency, TIDLoadingFilter filter);
 };
 
 

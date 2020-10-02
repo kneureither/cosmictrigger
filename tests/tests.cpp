@@ -14,6 +14,7 @@
 #include "testTemplateData.h"
 #include "testTemplateID.h"
 #include "../Mu3eCosPat/include/TemplateBank.h"
+#include "testTemplateBank.h"
 
 
 #ifndef TRIPLET_HIT_ARRAY_LENGTH
@@ -23,13 +24,17 @@
 void TESTncombinedhits();
 void TESTslimsegs();
 
+
+
 int main (int argc, char *argv[]) {
     srand (static_cast <unsigned> (time(0)));
 
 //    TESTncombinedhits();
 //    TESTslimsegs();
-    TESTtemplateData();
-    testTemplateID();
+//    TESTtemplateData();
+//    testTemplateID();
+
+    testTemplateBank();
 
 
     printf("SUCCESS! Finished all tests.\n");

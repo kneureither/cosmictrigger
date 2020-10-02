@@ -44,7 +44,7 @@ void cosmicTemplatesEval(const int dataset, unsigned int centralTPcount, float s
     TemplateBank TB(pathtorunplots, 0, 0, 0, 0);
     TB.PRINTS = PRINTS;
 
-    TB.readAMfromFile(pathtorundata, 0);
+    TB.readAMfromFile(pathtorundata, 0, ALL);
     TB.getMostPopulatedTemplates(50);
 
     TB.displayTemplatePopulationHistogram();

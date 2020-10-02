@@ -58,6 +58,64 @@ void TemplateBank::fillTemplateFromDB(temid TID, int frequency) {
     eventcount += frequency;
 }
 
+TrackType TemplateBank::GetTypeOfTID(temid TID) {
+    //return type of TID (recurlL, recurlL), (recurlL, center), (center, center) (center, rcurlR) (recurlR, recurlR)
+    int tidareas[TID_LEN];
+    int type = 0;
+    int area = 0;
+    for(int i=0; i<TID_LEN; i++) {
+        area = SPC.getAreaFromSPID(TID.HIDS[i]);
+        type += pow(10, area);
+    }
+
+    if(type == TID_LEN) {
+        return CECE;
+    } else if(type == 10 * TID_LEN) {
+        return RRRR;
+    } else if(type == 100*TID_LEN) {
+        return RLRL;
+    } else if(10 < type && type < 100) {
+        return RRCE;
+    } else if(100 < type && type < 1000) {
+        return RLCE;
+    } else {
+        std::cout << "(WARING): Something went wrong it TID type classification" << std::endl;
+        exit(0);
+    }
+}
+
+void TemplateBank::fillTemplateFromDB(temid TID, int frequency, TIDLoadingFilter filter) {
+    TrackType tidAreaType = this->GetTypeOfTID(TID); //get area type of track
+
+    switch(filter) {
+        case ALL:
+            break;
+        case CENTER_ONLY:
+            if(!(tidAreaType == CECE)) return;
+            break;
+        case RECURL_ONLY:
+            if(!(tidAreaType == RRRR || tidAreaType == RLRL)) return;
+            break;
+        case RECURL_CENTER:
+            if(tidAreaType == CECE) return;
+            break;
+        case CUT_ON_FREQ:
+            if(frequency == 1) return;
+            break;
+        default:
+            break;
+    }
+
+//    std::cout << "  -> TID: " << TID.toString() << "tid type " << tidAreaType << std::endl;
+
+    TemplateData TD = TemplateData(frequency);
+    AMem[TID] = TD;
+    newtemplatecount++;
+    matchedtemplatecount += (frequency - 1);
+    eventcount += frequency;
+    this->count_loaded_template_types[tidAreaType]++;
+}
+
 bool TemplateBank::checkTemplate(temid &TID) {
     if(AMem.count(TID) == 0) {
         rejectedcount++;
@@ -494,7 +552,7 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
 }
 
 bool
-TemplateBank::readAMfromFile(std::string path, float stopping_efficiency) {
+TemplateBank::readAMfromFile(std::string path, float stopping_efficiency, TIDLoadingFilter filter) {
     this->stopping_efficiency = stopping_efficiency;
 
     std::string customnametag = getfileidtag(0);
@@ -531,14 +589,20 @@ TemplateBank::readAMfromFile(std::string path, float stopping_efficiency) {
         if(i % 1000 == 0) print_status_bar(i, entries, "reading templates", "");
         TDB.getEntry(i);
         temid TID = getTemplateID(TDB.tid, TID_LEN);
-        this->fillTemplateFromDB(TID, TDB.frequency);
+        this->fillTemplateFromDB(TID, TDB.frequency, filter);
     }
 
-    assert(newtemplatecount == entries);
+    if(filter == ALL) assert(newtemplatecount == entries);
 
     tF.Close();
 
     std::cout << "(INFO)   : CHECK -> Got AM Template Database from file " << filename << std::endl;
+    std::cout << "(INFO)   : loaded Templ types: RLRL " << count_loaded_template_types[RLRL] << string_perc(count_loaded_template_types[RLRL], entries);
+    std::cout << " | RLCE " << count_loaded_template_types[RLCE] << string_perc(count_loaded_template_types[RLCE], entries);
+    std::cout << " | CECE " << count_loaded_template_types[CECE] << string_perc(count_loaded_template_types[CECE], entries);
+    std::cout << " | RRCE " << count_loaded_template_types[RRCE] << string_perc(count_loaded_template_types[RRCE], entries);
+    std::cout << " | RRRR " << count_loaded_template_types[RRRR] << string_perc(count_loaded_template_types[RRRR], entries);
+    std::cout << " | used " << string_perc(newtemplatecount, entries) << "of db templates" << std::endl;
     std::cout << "(CONFIG) : wBins " << mywbins << " | zBins " << myzbins << " | T count " << newtemplatecount;
     std::cout << " | training eff " << this->getEfficiency()  << " | train events " << eventcount << std::endl;
 }

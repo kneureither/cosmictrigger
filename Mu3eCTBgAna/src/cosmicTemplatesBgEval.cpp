@@ -73,7 +73,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
     TemplateBank TB(pathtorunplots, dataset, mode, spWbins, spZbins);
     TB.PRINTS = PRINTS;
-    TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF);
+    TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF, ALL);
 
     //make some analysis plots
     TH1F h_bgeff("h_bgeff", "background match efficiency", 100, 0, 0.01);
