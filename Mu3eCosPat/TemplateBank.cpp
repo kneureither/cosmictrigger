@@ -13,6 +13,8 @@
 #include <TGraph.h>
 #include <TCanvas.h>
 #include <TTree.h>
+#include <TLatex.h>
+#include <TStyle.h>
 #include "plots.h"
 #include "TemplateDatabaseFile.h"
 
@@ -58,32 +60,6 @@ void TemplateBank::fillTemplateFromDB(temid TID, int frequency) {
     eventcount += frequency;
 }
 
-TrackType TemplateBank::GetTypeOfTID(temid TID) {
-    //return type of TID (recurlL, recurlL), (recurlL, center), (center, center) (center, rcurlR) (recurlR, recurlR)
-    int tidareas[TID_LEN];
-    int type = 0;
-    int area = 0;
-    for(int i=0; i<TID_LEN; i++) {
-        area = SPC.getAreaFromSPID(TID.HIDS[i]);
-        type += pow(10, area);
-    }
-
-    if(type == TID_LEN) {
-        return CECE;
-    } else if(type == 10 * TID_LEN) {
-        return RRRR;
-    } else if(type == 100*TID_LEN) {
-        return RLRL;
-    } else if(10 < type && type < 100) {
-        return RRCE;
-    } else if(100 < type && type < 1000) {
-        return RLCE;
-    } else {
-        std::cout << "(WARING): Something went wrong it TID type classification" << std::endl;
-        exit(0);
-    }
-}
-
 void TemplateBank::fillTemplateFromDB(temid TID, int frequency, TIDLoadingFilter filter) {
     TrackType tidAreaType = this->GetTypeOfTID(TID); //get area type of track
 
@@ -96,7 +72,10 @@ void TemplateBank::fillTemplateFromDB(temid TID, int frequency, TIDLoadingFilter
         case RECURL_ONLY:
             if(!(tidAreaType == RRRR || tidAreaType == RLRL)) return;
             break;
-        case RECURL_CENTER:
+        case MIXED_ONLY:
+            if(!(tidAreaType == RRCE || tidAreaType == RLCE)) return;
+            break;
+        case NO_CENTER:
             if(tidAreaType == CECE) return;
             break;
         case CUT_ON_FREQ:
@@ -130,6 +109,32 @@ bool TemplateBank::checkTemplate(temid &TID) {
             if(PRINTS) std::cout << " -- first occurence of TID=" + TID.toString() << std::endl;
         }
         return true;
+    }
+}
+
+TrackType TemplateBank::GetTypeOfTID(temid TID) {
+    //return type of TID (recurlL, recurlL), (recurlL, center), (center, center) (center, rcurlR) (recurlR, recurlR)
+    int tidareas[TID_LEN];
+    int type = 0;
+    int area = 0;
+    for(int i=0; i<TID_LEN; i++) {
+        area = SPC.getAreaFromSPID(TID.HIDS[i]);
+        type += pow(10, area);
+    }
+
+    if(type == TID_LEN) {
+        return CECE;
+    } else if(type == 10 * TID_LEN) {
+        return RRRR;
+    } else if(type == 100*TID_LEN) {
+        return RLRL;
+    } else if(10 < type && type < 100) {
+        return RRCE;
+    } else if(100 < type && type < 1000) {
+        return RLCE;
+    } else {
+        std::cout << "(WARING): Something went wrong it TID type classification" << std::endl;
+        exit(0);
     }
 }
 
@@ -354,7 +359,7 @@ std::vector<temid>  TemplateBank::getMostMatchedTemplates(int howmany) {
     return priorityTemplates;
 }
 
-void TemplateBank::displayTemplateMatchedFreqHistogram(std::string filetag) {
+void TemplateBank::PlotTemplateMatchedFreqHistogram(std::string filetag) {
     auto *canvas = new TCanvas("template matching frequency", "template matching frequency", 1200, 900);
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
@@ -380,9 +385,7 @@ void TemplateBank::displayTemplateMatchedFreqHistogram(std::string filetag) {
     saveCanvas(canvas, ("templateMatchingFrequency_" + filetag).c_str(), plottingpath);
 }
 
-
-
-void TemplateBank::displayTemplatePopulationHistogram() {
+void TemplateBank::PlotTemplatePopulationHistogram() {
     auto *canvas = new TCanvas("template frequency", "template frequency", 1200, 900);
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
@@ -408,7 +411,7 @@ void TemplateBank::displayTemplatePopulationHistogram() {
     saveCanvas(canvas, ("templateFrequency_" + getfileidtag(0)).c_str(), plottingpath);
 }
 
-void TemplateBank::plotFreqTimesTemplatecount() {
+void TemplateBank::PlotFreqTimesTemplatecount() {
     auto *canvas = new TCanvas("template weights", "template weights", 1200, 900);
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
@@ -461,7 +464,7 @@ void TemplateBank::plotFreqTimesTemplatecount() {
     saveCanvas(canvas, ("templateFrequencyTimesCount_" + getfileidtag(0)).c_str(), plottingpath);
 }
 
-void TemplateBank::displayEfficiency() {
+void TemplateBank::PlotEfficiency() {
     auto *canvas = new TCanvas("template bank stats", "cosmic template bank stats", 1200, 900);
 
     canvas->SetLeftMargin(0.15);
@@ -554,6 +557,7 @@ void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *
 bool
 TemplateBank::readAMfromFile(std::string path, float stopping_efficiency, TIDLoadingFilter filter) {
     this->stopping_efficiency = stopping_efficiency;
+    this->loading_filter = filter;
 
     std::string customnametag = getfileidtag(0);
     std::string filename = path + "CosmicPatternDatabase_" + customnametag + ".root";
@@ -594,6 +598,8 @@ TemplateBank::readAMfromFile(std::string path, float stopping_efficiency, TIDLoa
 
     if(filter == ALL) assert(newtemplatecount == entries);
 
+
+
     tF.Close();
 
     std::cout << "(INFO)   : CHECK -> Got AM Template Database from file " << filename << std::endl;
@@ -626,7 +632,7 @@ std::string TemplateBank::getfileidtag(int format) {
 }
 
 
-void TemplateBank::displayTemplatePopHistSortedbyFreq() {
+void TemplateBank::PlotTemplatePopHistSortedbyFreq() {
     std::vector<temid> priorityTemplates = getMostPopulatedTemplates(10000);
     std::vector<int> templateIndex(priorityTemplates.size());
     std::iota (std::begin(templateIndex), std::end(templateIndex), 0);
@@ -647,5 +653,62 @@ void TemplateBank::displayTemplatePopHistSortedbyFreq() {
 //
 //    g_templpop->Draw("ALP");
 //    saveCanvas(canvas, ("TemplatesByPopulation_" + filetag).c_str(), plottingpath);
+}
+
+
+void TemplateBank::PlotTemplateTypeDistribution() {
+
+    //check if the array is not empty
+    int loaded_templ=0;
+    for(int i=0; i<5; i++) {
+        loaded_templ += this->count_loaded_template_types[i];
+    }
+    if(loaded_templ == 0){
+        std::cout << "(WARNING): TemplateTypeDistribution Plot can only be created after loading template database form file." << std::endl;
+        return;
+    }
+
+    auto *canvas = new TCanvas("template type distribution", "template type distribution", 900, 600);
+    TH1F *h_templtypes = new TH1F("h_templtypes", "template type distribution", 5, 0, 5);
+    h_templtypes->SetStats(false);
+
+
+    //fill with data
+    for(int i=0; i<5; i++) {
+        int templates = this->count_loaded_template_types[i];
+        for(int j=0; j<templates; j++) h_templtypes->Fill(i);
+        h_templtypes->GetXaxis()->SetBinLabel(i+1, enum_to_string(static_cast<TrackType>(i)).c_str());
+    }
+
+    //make it nice
+    h_templtypes->GetYaxis()->SetTitle("Normalized distribution");
+    h_templtypes->GetXaxis()->SetTitle("Template type");
+    h_templtypes->SetFillColor(kBlue);
+    h_templtypes->SetFillStyle(3003);
+    h_templtypes->SetMaximum(h_templtypes->GetMaximum()*1.3);
+    h_templtypes->SetTitle(("Template Type Distribution - filter: " + enum_to_string(this->loading_filter)).c_str());
+
+    setPlottingStyle(h_templtypes); //general plotting style defined in plots.h
+
+//    h_templtypes->SetBit(TH1::kNoTitle);
+    h_templtypes->Draw();
+
+    TLatex tline1(.5,.81,("#it{#bf{TEMPLATE BANK} FILTER " + enum_to_string(this->loading_filter) +
+                          " | TEMPL CNT " + get_string(this->newtemplatecount) +
+                          string_perc(newtemplatecount, this->Ntemplates[Ntemplates.size()-1]) + "}").c_str());
+    tline1.SetTextFont(43);
+    tline1.SetTextSize(10);
+    tline1.SetNDC(kTRUE);
+    tline1.Draw();
+
+    TLatex tline2(.5,.78,("#it{#bf{CONFIG} WBINS " + get_string(this->mywbins) + " | ZBINS " + get_string(this->myzbins) +
+                          " | DATASET " + get_string(this->mydataset) + " | TRAIN EFF " + get_string(this->getEfficiency()) + "}").c_str());
+    tline2.SetTextFont(43);
+    tline2.SetTextSize(10);
+    tline2.SetNDC(kTRUE);
+    tline2.Draw();
+
+    h_templtypes->Write();
+    saveCanvas(canvas, ("TemplateTypes_" + getfileidtag(0)).c_str(), plottingpath);
 }
 
