@@ -354,9 +354,9 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
 
 //    TB.getMostPopulatedTemplates(50);
 //    TB.getMostMatchedTemplates(50);
-    TB.displayTemplatePopulationHistogram();
-    TB.displayTemplateMatchedFreqHistogram(TB.getfileidtag(0));
-//    TB.displayTemplatePopHistSortedbyFreq(TB.getfileidtag());
+    TB.PlotTemplatePopulationHistogram();
+    TB.PlotTemplateMatchedFreqHistogram(TB.getfileidtag(0));
+//    TB.PlotTemplatePopHistSortedbyFreq(TB.getfileidtag());
 
     // Norm
     h_bgeff.Scale(1.0 / h_bgeff.Integral());
