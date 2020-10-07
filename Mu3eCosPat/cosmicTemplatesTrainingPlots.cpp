@@ -19,7 +19,7 @@
 #include "TMultiGraph.h"
 
 //custom
-#include "include/makePlots.h"
+#include "cosmicTemplatesTrainingPlots.h"
 #include "utilityFunctions.h"
 #include "plots.h"
 
@@ -264,7 +264,8 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 
     legend->SetHeader(lheadtext.c_str(),"C"); // option "C" allows to center the header
     legend->Draw("C");
-    saveCanvas(canvas, "CosPatPlots_dataset_" + get_string(dataset) +"_" + filelabel + "_id" + get_padded_string(combination_id, 3, '0') + "_overview", pathtorunplots);
+    saveCanvas(canvas, "CosPatPlots_dataset_" + get_string(dataset) +"_" + filelabel +
+    "_id" + get_padded_string(combination_id, 3, '0') + "_overview", pathtorunplots);
 
     TCanvas *canvas2 = new TCanvas("canvas2", "Efficiency", 900, 600);
     canvas2->SetGrid(1, 1);

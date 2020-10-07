@@ -19,7 +19,7 @@
 
 
 void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcount, float spWZratio,
-                           const float tb_stopping_efficiency, const bool append_outfile) {
+                           const float tb_stopping_efficiency, const bool append_outfile, TIDLoadingFilter filter) {
     /*
      * Read and analyse the mu3e mc hits
      * get the hits in xyz
@@ -72,8 +72,9 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
 
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
     TemplateBank TB(pathtorunplots, dataset, mode, spWbins, spZbins);
-    TB.PRINTS = PRINTS;
-    TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF, ALL);
+    TB.SetPrints(false);
+    TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF, filter);
+    TB.PlotTemplateTypeDistribution();
 
     //make some analysis plots
     TH1F h_bgeff("h_bgeff", "background match efficiency", 100, 0, 0.01);

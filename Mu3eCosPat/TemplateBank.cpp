@@ -712,3 +712,7 @@ void TemplateBank::PlotTemplateTypeDistribution() {
     saveCanvas(canvas, ("TemplateTypes_" + getfileidtag(0)).c_str(), plottingpath);
 }
 
+void TemplateBank::SetPrints(bool opt) {
+    this->PRINTS = opt;
+}
+

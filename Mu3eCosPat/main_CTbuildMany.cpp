@@ -6,8 +6,8 @@
 #include "PatternEngineSingle.h"
 #include "PatternEngine.h"
 #include "cosmicTemplatesBuild.h"
-#include "cosmicTemplatesEval.h"
-#include "makePlots.h"
+#include "cosmicTemplatesLoad.h"
+#include "cosmicTemplatesTrainingPlots.h"
 #include <vector>
 
 
@@ -26,11 +26,11 @@ int main(int argc, char *argv[]) {
     //this must be set -->
 //    std::vector<float> sp_ratios = {0.1, 0.25, 0.5, 1, 2, 4, 10};
 //    std::vector<float> sp_ratios = {0.25, 1, 4};
-    std::vector<float> sp_ratios = {128};
+    std::vector<float> sp_ratios = {2};
 //    std::vector<int> sp_count = {200,400,600,800, 1024};
-    std::vector<int> sp_count = {3200};
+    std::vector<int> sp_count = {200};
     std::vector<float> stopping_effs = {0.6};
-    int combination_id = 0; //will produce a separate file
+    int combination_id = 1; //will produce a separate file
     int dataset = 12;
     //   <-- up till here.
 

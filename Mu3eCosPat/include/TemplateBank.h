@@ -18,7 +18,7 @@ typedef std::map<temid, int> CheckedMemory;
 
 //to distinquish between TID types (area dependency)
 enum TrackType {RLRL, RLCE, CECE, RRCE, RRRR};
-std::string enum_to_string(TrackType tracktype) {
+static std::string enum_to_string(TrackType tracktype) {
     switch(tracktype) {
         case RLRL: return "RLRL";
         case RLCE: return "RLCE";
@@ -31,7 +31,7 @@ std::string enum_to_string(TrackType tracktype) {
 
 //filter when loading tids from file
 enum TIDLoadingFilter {CENTER_ONLY, RECURL_ONLY, MIXED_ONLY, NO_CENTER, CUT_ON_FREQ, ALL};
-std::string enum_to_string(TIDLoadingFilter filter) {
+static std::string enum_to_string(TIDLoadingFilter filter) {
     switch(filter) {
         case CENTER_ONLY: return "CENTER_ONLY";
         case RECURL_ONLY: return "RECURL_ONLY";
@@ -87,6 +87,7 @@ private:
     void initializeMembers(int dataset, int mode, int wBins, int zBins);
 
     float stopping_efficiency;
+    bool PRINTS = false;
 
 public:
 
@@ -101,7 +102,7 @@ public:
     TemplateBank(std::string plottingpath, float stopping_efficiency, int dataset, int mode, int wBins,
                  int zBins);
     ~TemplateBank();
-    bool PRINTS = false;
+    void SetPrints(bool opt);
 
     void PlotTemplatePopulationHistogram(); //how many with one, two, three, ..., n roads stored
     void PlotTemplateMatchedFreqHistogram(std::string filetag);

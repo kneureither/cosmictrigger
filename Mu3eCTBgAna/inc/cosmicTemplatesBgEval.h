@@ -6,9 +6,10 @@
 #define COSMICTRIGGER_COSMICTEMPLATESBGEVAL_H
 
 #include <vector>
+#include "../../Mu3eCosPat/include/TemplateBank.h"
 
 void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcount, float spWZratio,
-                           const float tb_stopping_efficiency, const bool append_outfile);
+                           const float tb_stopping_efficiency, const bool append_outfile, TIDLoadingFilter filter);
 
 struct BGhit{
     double x;

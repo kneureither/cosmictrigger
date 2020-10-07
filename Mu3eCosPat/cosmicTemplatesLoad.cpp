@@ -2,7 +2,7 @@
 // Created by Konstantin Neureither on 06.08.20.
 //
 
-#include "cosmicTemplatesEval.h"
+#include "cosmicTemplatesLoad.h"
 
 //basic stuff
 #include <string>
@@ -42,10 +42,9 @@ void cosmicTemplatesEval(const int dataset, unsigned int centralTPcount, float s
     std::cout << "\n -- PE config data:" << std::endl << "  wbins=" << spWbins << std::endl << "  zbins=" << spZbins << std::endl << std::endl;
 
     TemplateBank TB(pathtorunplots, 0, 0, 0, 0);
-    TB.PRINTS = PRINTS;
+    TB.SetPrints(PRINTS);
 
     TB.readAMfromFile(pathtorundata, 0, ALL);
     TB.getMostPopulatedTemplates(50);
-
     TB.PlotTemplatePopulationHistogram();
 }

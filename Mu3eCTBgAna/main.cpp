@@ -2,6 +2,7 @@
 // Created by Konstantin Neureither on 25.08.20.
 //
 #include "inc/cosmicTemplatesBgEval.h"
+#include "../Mu3eCosPat/include/TemplateBank.h"
 #include <iostream>
 
 int main() {
@@ -19,7 +20,8 @@ int main() {
         for(auto &spcout : SPcounts) {
             for (auto &tb_eff : tb_stopping_efficiencies) {
                 std::cout << "STATUS : Running BG Eval for tb_eff: " << tb_eff << std::endl;
-                cosmicTemplatesBgEval(background_dataset, pattern_dataset, spcout, spratio, tb_eff, append);
+                cosmicTemplatesBgEval(background_dataset, pattern_dataset, spcout, spratio, tb_eff, append,
+                                      ALL);
                 append = true;
             }
         }

@@ -14,10 +14,6 @@ set(SRC main_bgeffplot.cpp src/cosmicTemplatesBgPlots.cpp)
 add_executable(Mu3eCTBg3Plots ${SRC})
 target_link_libraries(Mu3eCTBg3Plots rootTreeFiles)
 
-set(SRC main_bg_combinatorics.cpp src/bgDataCombinatorics.cpp ../root/BackgroundDataFile.cpp)
-add_executable(Mu3eCTBg1ComputeCmbntcs ${SRC})
-target_link_libraries(Mu3eCTBg1ComputeCmbntcs patterns rootTreeFiles)
-
 set(SRC2 main_bgroc.cpp src/cosmicTemplatesBgROC.cpp)
 add_executable(Mu3eCTBg4ROC ${SRC2})
 target_link_libraries(Mu3eCTBg4ROC rootTreeFiles)

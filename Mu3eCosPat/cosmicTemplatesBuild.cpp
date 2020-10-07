@@ -51,7 +51,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     PatternEngine PE(spWbins, spZbins, pathtorunplots);
     PE.PRINTS = PRINTS;
     TemplateBank TB(pathtorunplots, MAX_EFFICIENCY, dataset, 0, spWbins, spZbins);
-    TB.PRINTS = PRINTS;
+    TB.SetPrints(PRINTS);
 
     // FILE FOR READING
     TFile tinF(infile.c_str());
