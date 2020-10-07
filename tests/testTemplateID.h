@@ -1,6 +1,8 @@
 //
 // Created by Konstantin Neureither on 15.07.20.
 //
+// This code is not properly debugged. Especially the compiler directives were quickly implemented
+//
 
 #ifndef COSMICTRIGGER_TESTTEMPLATEID_H
 #define COSMICTRIGGER_TESTTEMPLATEID_H

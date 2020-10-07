@@ -13,7 +13,7 @@ void testTemplateBank() {
     int spWbins = 224;
     int spZbins = 7;
 
-    std::string pathtorunplots = "tests/plots/testTemplateBank/";
+    std::string pathtorunplots = "output/tests/testTemplateBank/";
     std::string pathtodatasettemplatedata = "data/TemplateData/dataset_011/";
     float TB_STOPPING_EFF = 0.6;
 
@@ -46,9 +46,12 @@ void testTemplateBank() {
 
     std::cout << "(STATUS) : Finished Template Bank Area Type test. Success." << std::endl;
 
-    // second test (just check console out
-    // options: {ALL, CENTER_ONLY, RECURL_ONLY, RECURL_CENTER, CUT_ON_FREQ};
-    TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF, ALL);
+    // second test (just check console out)
+    // options: {ALL, CENTER_ONLY, RECURL_ONLY, MIXED_ONLY, , NO_CENTER, CUT_ON_FREQ};
+    TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF, NO_CENTER);
+
+    // test histogram template type
+    TB.PlotTemplateTypeDistribution();
 
 
 
