@@ -47,5 +47,5 @@ void cosmicTemplatesEval(const int dataset, unsigned int centralTPcount, float s
     TB.readAMfromFile(pathtorundata, 0, ALL);
     TB.getMostPopulatedTemplates(50);
 
-    TB.displayTemplatePopulationHistogram();
+    TB.PlotTemplatePopulationHistogram();
 }

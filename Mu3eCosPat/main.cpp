@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
     TB.testTemplateID();
 //    TB.testFill();
 //        TB.testGetMostPopTemplates();
-//        TB.displayTemplatePopulationHistogram("test");
+//        TB.PlotTemplatePopulationHistogram("test");
 
 //        TB.testCheck();
     }

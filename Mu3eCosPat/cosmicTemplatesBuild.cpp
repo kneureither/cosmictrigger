@@ -211,8 +211,8 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     PE.displayBinBoundaries(); //check if PE worked and was initialized correctly.
     PE.displayBinWeightDistribution();
     PE.closePlot();
-    TB.displayTemplatePopulationHistogram();
-    TB.displayEfficiency();
+    TB.PlotTemplatePopulationHistogram();
+    TB.PlotEfficiency();
 
     //close plot root file
     tF->Close();
@@ -222,7 +222,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
     if(WRITE_DB_FILE) TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, "testing_mode_descr");
 
-    TB.plotFreqTimesTemplatecount();
+    TB.PlotFreqTimesTemplatecount();
 
     std::cout << "\n\n[============ GENERAL STATS ============]\n";
 

@@ -16,11 +16,32 @@ typedef std::map<temid, TemplateData> AssociativeMemory;
 typedef std::pair<temid, TemplateData> AssociativePair;
 typedef std::map<temid, int> CheckedMemory;
 
-//to distinquish between TID types (area dependend)
+//to distinquish between TID types (area dependency)
 enum TrackType {RLRL, RLCE, CECE, RRCE, RRRR};
+std::string enum_to_string(TrackType tracktype) {
+    switch(tracktype) {
+        case RLRL: return "RLRL";
+        case RLCE: return "RLCE";
+        case CECE: return "CECE";
+        case RRCE: return "RRCE";
+        case RRRR: return "RRRR";
+        default: return "Invalid TrackType!";
+    }
+}
 
 //filter when loading tids from file
-enum TIDLoadingFilter {CENTER_ONLY, RECURL_ONLY, RECURL_CENTER, CUT_ON_FREQ, ALL};
+enum TIDLoadingFilter {CENTER_ONLY, RECURL_ONLY, MIXED_ONLY, NO_CENTER, CUT_ON_FREQ, ALL};
+std::string enum_to_string(TIDLoadingFilter filter) {
+    switch(filter) {
+        case CENTER_ONLY: return "CENTER_ONLY";
+        case RECURL_ONLY: return "RECURL_ONLY";
+        case MIXED_ONLY: return "MIXED_ONLY";
+        case NO_CENTER: return "NO_CENTER";
+        case CUT_ON_FREQ: return "CUT_ON_FREQ";
+        case ALL: return "ALL";
+        default: return "Invalid TIDLoadingFilter!";
+    }
+}
 
 struct tidQueueNode {
     temid TID; //the template
@@ -43,14 +64,20 @@ private:
     unsigned int newtemplatecount = 0;
     unsigned int eventcount = 0;
     unsigned int matchedtemplatecount = 0;
+
+    // vectors contain data for training stat graphs.
+    // WARNING: when loading templates from file and using a filter, these will still give the "original" data
+    //          (wihtout taking into account the filter)
     std::vector<float> Nevents;
     std::vector<float>Ntemplates;
     std::vector<float> efficiency;
     std::vector<int> hitorder;
 
+    //keep track of template types when loading from file with filter
     unsigned int count_loaded_template_types[5] = {0,0,0,0,0};
+    TIDLoadingFilter loading_filter = ALL;
 
-    //for checking templates
+    //for checking templates (background eval)
     unsigned int rejectedcount = 0;
     unsigned int acceptedcount = 0;
 
@@ -76,11 +103,12 @@ public:
     ~TemplateBank();
     bool PRINTS = false;
 
-    void displayTemplatePopulationHistogram(); //how many with one, two, three, ..., n roads stored
-    void displayTemplateMatchedFreqHistogram(std::string filetag);
-    void displayTemplatePopHistSortedbyFreq();
-    void displayEfficiency();
-    void plotFreqTimesTemplatecount();
+    void PlotTemplatePopulationHistogram(); //how many with one, two, three, ..., n roads stored
+    void PlotTemplateMatchedFreqHistogram(std::string filetag);
+    void PlotTemplatePopHistSortedbyFreq();
+    void PlotEfficiency();
+    void PlotFreqTimesTemplatecount(); //not finished
+    void PlotTemplateTypeDistribution();
 
     bool fillTemplate(unsigned int * SPIDs, int hitcount, float p, float dca, float phi, float theta);
     bool checkTemplate(temid &TID);
