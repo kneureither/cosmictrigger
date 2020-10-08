@@ -22,7 +22,7 @@
 bool TemplateBank::fillTemplate(unsigned int *SPIDs, const int hitcount, const float p, const float dca, const float phi, const float theta) {
     //returns 0 if stopping point reached, else 1
 
-    //assume that SPIDs are already cleaned (only two hits per entry)
+    //assume that SPIDs are already cleaned (only two hits per layer)
     temid TID = getTemplateID(SPIDs, hitcount);
 
     if(AMem.count(TID) > 0) {
@@ -95,6 +95,54 @@ void TemplateBank::fillTemplateFromDB(temid TID, int frequency, TIDLoadingFilter
     this->count_loaded_template_types[tidAreaType]++;
 }
 
+bool TemplateBank::checkCosmicTemplate(unsigned int *SPIDs, const int hitcount, TIDLoadingFilter filter) {
+
+    //assume that SPIDs are already cleaned (only two hits per layer)
+    temid TID = getTemplateID(SPIDs, hitcount);
+    //get area type of track
+    TrackType tidAreaType = this->GetTypeOfTID(TID);
+
+    cosmic_checkedcount++;
+
+    switch(filter) {
+        case ALL:
+            break;
+        case CENTER_ONLY:
+            if(!(tidAreaType == CECE)) return false;
+            break;
+        case RECURL_ONLY:
+            if(!(tidAreaType == RRRR || tidAreaType == RLRL)) return false;
+            break;
+        case MIXED_ONLY:
+            if(!(tidAreaType == RRCE || tidAreaType == RLCE)) return false;
+            break;
+        case NO_CENTER:
+            if(tidAreaType == CECE) return false;
+            break;
+        case CUT_ON_FREQ:
+            if(AMem.count(TID) != 0)
+                if(AMem[TID].frequency == 1) return false;
+            break;
+        default:
+            break;
+    }
+
+    if(AMem.count(TID) == 0) {
+        cosmic_rejectedcount++;
+        return false;
+    } else {
+        cosmic_acceptedcount++;
+        if(CMem.count(TID) > 0) {
+            CMem[TID]++;
+            if(PRINTS) std::cout << " -- found multi occurence TID=" + TID.toString() + " count=" << CMem[TID] << std::endl;
+        } else {
+            CMem[TID] = 1;
+            if(PRINTS) std::cout << " -- first occurence of TID=" + TID.toString() << std::endl;
+        }
+        return true;
+    }
+}
+
 bool TemplateBank::checkTemplate(temid &TID) {
     if(AMem.count(TID) == 0) {
         rejectedcount++;
@@ -109,6 +157,24 @@ bool TemplateBank::checkTemplate(temid &TID) {
             if(PRINTS) std::cout << " -- first occurence of TID=" + TID.toString() << std::endl;
         }
         return true;
+    }
+}
+
+float TemplateBank::GetTrainEffTotal() {
+    if(cosmic_checkedcount + cosmic_acceptedcount + cosmic_rejectedcount == 0) {
+        std::cout << "(WARNING): Training Efficiency total could not be evaluated, because no data was provided. Normal efficiency was returned." << std::endl;
+        return this->getEfficiency();
+    } else {
+        return cosmic_acceptedcount / (float) cosmic_checkedcount;
+    }
+}
+
+float TemplateBank::GetTrainEffRelative() {
+    if(cosmic_checkedcount + cosmic_acceptedcount + cosmic_rejectedcount == 0) {
+        std::cout << "(WARNING): Training Efficiency total could not be evaluated, because no data was provided. Normal efficiency was returned." << std::endl;
+        return this->getEfficiency();
+    } else {
+        return cosmic_acceptedcount / (float) (cosmic_acceptedcount + cosmic_rejectedcount);
     }
 }
 
@@ -177,6 +243,10 @@ int TemplateBank::getTrainingEventCount() {
 
 int TemplateBank::getTemplateCount() {
     return this->newtemplatecount;
+}
+
+int TemplateBank::getInitialTemplateCount() {
+    return this->Ntemplates[this->Ntemplates.size() - 1];
 }
 
 void TemplateBank::initializeMembers(int dataset, int mode, int wBins, int zBins) {
@@ -382,7 +452,7 @@ void TemplateBank::PlotTemplateMatchedFreqHistogram(std::string filetag) {
     }
     h_templfreq->Draw();
     h_templfreq->Write();
-    saveCanvas(canvas, ("templateMatchingFrequency_" + filetag).c_str(), plottingpath);
+    saveCanvas(canvas, ("templateMatchingFrequency_" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
 }
 
 void TemplateBank::PlotTemplatePopulationHistogram() {
@@ -399,7 +469,6 @@ void TemplateBank::PlotTemplatePopulationHistogram() {
     labelAxis(h_templfreq, "frequency of templates", "# templates");
     AssociativeMemory::iterator it;
 
-
     unsigned int frequency;
 
     for(it = AMem.begin(); it != AMem.end(); it++){
@@ -408,7 +477,7 @@ void TemplateBank::PlotTemplatePopulationHistogram() {
     }
     h_templfreq->Draw();
     h_templfreq->Write();
-    saveCanvas(canvas, ("templateFrequency_" + getfileidtag(0)).c_str(), plottingpath);
+    saveCanvas(canvas, ("templateFrequency_" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
 }
 
 void TemplateBank::PlotFreqTimesTemplatecount() {
@@ -461,7 +530,7 @@ void TemplateBank::PlotFreqTimesTemplatecount() {
 
     h_templweights->Draw();
     h_templweights->Write();
-    saveCanvas(canvas, ("templateFrequencyTimesCount_" + getfileidtag(0)).c_str(), plottingpath);
+    saveCanvas(canvas, ("templateFrequencyTimesCount_" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
 }
 
 void TemplateBank::PlotEfficiency() {
@@ -507,7 +576,7 @@ void TemplateBank::PlotEfficiency() {
     g_tnumber->Write();
 
     canvas->Update();
-    saveCanvas(canvas, ("templateBankStats" + getfileidtag(0)).c_str(), plottingpath);
+    saveCanvas(canvas, ("templateBankStats" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
 }
 
 void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
@@ -558,6 +627,7 @@ bool
 TemplateBank::readAMfromFile(std::string path, float stopping_efficiency, TIDLoadingFilter filter) {
     this->stopping_efficiency = stopping_efficiency;
     this->loading_filter = filter;
+    this->loaded_database_from_file = true;
 
     std::string customnametag = getfileidtag(0);
     std::string filename = path + "CosmicPatternDatabase_" + customnametag + ".root";
@@ -625,6 +695,8 @@ std::string TemplateBank::getfileidtag(int format) {
     if(format == 1) {
         //no max eff
         return ::getfileidtag(mydataset, mymode, mywbins, myzbins);
+    } else if(format == 2) {
+        return ::getfileidtag(mydataset, mymode, mywbins, myzbins, stopping_efficiency, enum_to_string(this->loading_filter));
     } else {
         //default
         return ::getfileidtag(mydataset, mymode, mywbins, myzbins, stopping_efficiency);
@@ -663,7 +735,7 @@ void TemplateBank::PlotTemplateTypeDistribution() {
     for(int i=0; i<5; i++) {
         loaded_templ += this->count_loaded_template_types[i];
     }
-    if(loaded_templ == 0){
+    if(loaded_templ == 0 && loaded_database_from_file == true){
         std::cout << "(WARNING): TemplateTypeDistribution Plot can only be created after loading template database form file." << std::endl;
         return;
     }
@@ -709,7 +781,7 @@ void TemplateBank::PlotTemplateTypeDistribution() {
     tline2.Draw();
 
     h_templtypes->Write();
-    saveCanvas(canvas, ("TemplateTypes_" + getfileidtag(0)).c_str(), plottingpath);
+    saveCanvas(canvas, ("TemplateTypes_" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
 }
 
 void TemplateBank::SetPrints(bool opt) {

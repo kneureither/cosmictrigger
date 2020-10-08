@@ -8,4 +8,5 @@
 #endif //COSMICTRIGGER_COSMICTEMPLATEEVAL_H
 
 
-void cosmicTemplatesEval(const int dataset, unsigned int centralTPcount, float spWZratio);
+void
+cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, float spWZratio, float stopping_efficiency);

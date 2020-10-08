@@ -20,9 +20,9 @@ set(SRC2 main_CTbuild.cpp cosmicTemplatesBuild.cpp ../root/TemplateDatabaseFile.
 add_executable(Mu3eCosPatBuild ${SRC2})
 target_link_libraries(Mu3eCosPatBuild patterns rootTreeFiles)
 
-set(SRC3 main_CTload.cpp cosmicTemplatesLoad.cpp ../root/TemplateDatabaseFile.cpp)
-add_executable(Mu3eCosPatLoad ${SRC3})
-target_link_libraries(Mu3eCosPatLoad patterns rootTreeFiles)
+set(SRC3 main_CTefficiency.cpp cosmicTemplatesEfficiency.cpp ../root/TemplateDatabaseFile.cpp)
+add_executable(Mu3eCosPat3Eff ${SRC3})
+target_link_libraries(Mu3eCosPat3Eff patterns rootTreeFiles)
 
 set(SRC4 main_CTplots.cpp cosmicTemplatesTrainingPlots.cpp)
 add_executable(Mu3eCosPat2Plots ${SRC4})

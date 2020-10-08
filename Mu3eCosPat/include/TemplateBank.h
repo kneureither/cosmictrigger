@@ -9,6 +9,7 @@
 #include <queue>
 #include "TemplateData.h"
 #include "SPCalculations.h"
+#include "utilityFunctions.h"
 
 //typedef unsigned long long temid;
 typedef TemplateID temid;
@@ -75,11 +76,17 @@ private:
 
     //keep track of template types when loading from file with filter
     unsigned int count_loaded_template_types[5] = {0,0,0,0,0};
+    bool loaded_database_from_file = false;
     TIDLoadingFilter loading_filter = ALL;
 
     //for checking templates (background eval)
-    unsigned int rejectedcount = 0;
-    unsigned int acceptedcount = 0;
+    unsigned int rejectedcount = 0; //bg
+    unsigned int acceptedcount = 0; //bg
+
+    //for checking templates (eff with filter eval)
+    unsigned int cosmic_checkedcount = 0; //comsics
+    unsigned int cosmic_acceptedcount = 0; //cosmics
+    unsigned int cosmic_rejectedcount = 0; //cosmics
 
     std::string plottingpath;
 
@@ -145,7 +152,50 @@ public:
     int getTrainingEventCount();
 
     void fillTemplateFromDB(temid TID, int frequency, TIDLoadingFilter filter);
+
+    bool checkCosmicTemplate(unsigned int *SPIDs, const int hitcount, TIDLoadingFilter filter);
+
+    float GetTrainEffTotal();
+
+    float GetTrainEffRelative();
+
+    int getInitialTemplateCount();
 };
+
+
+void loadTemplateBank(const int dataset, unsigned int centralTPcount, float spWZratio) {
+    const std::string pathtocosmicdata = "data/SimulationData";
+    const std::string pathtotemplatedata = "data/TemplateData/";
+    const std::string pathtooutput = "plots/TemplateBank/";
+    const std::string pathtooutfile = pathtooutput + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    const std::string pathtoplots = pathtooutfile + "PDF/";
+    const std::string pathtodatasettempldata = pathtotemplatedata + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
+
+    const bool MAKE_PLOT = true;
+    const int MAX_ENTRIES = 0;
+    const bool PRINTS = false;
+    const int mode = 0;
+
+    check_create_directory(pathtocosmicdata);
+    check_create_directory(pathtotemplatedata);
+    check_create_directory(pathtooutput);
+    check_create_directory(pathtooutfile);
+    check_create_directory(pathtoplots);
+    check_create_directory(pathtodatasettempldata);
+
+    //Get the Pattern Engine and Template Manager
+    const int spWbins = (int) sqrt((float) spWZratio * (float) centralTPcount);
+    const int spZbins = (int) sqrt((float) centralTPcount / (float) spWZratio);
+    std::cout << "\n -- PE config data:" << std::endl << "  wbins=" << spWbins << std::endl << "  zbins=" << spZbins << std::endl << std::endl;
+
+    TemplateBank TB(pathtooutfile, dataset, mode, spWbins, spZbins);
+    TB.readAMfromFile(pathtodatasettempldata, 0, ALL);
+    TB.SetPrints(PRINTS);
+
+    TB.PlotTemplatePopulationHistogram();
+    TB.PlotTemplateTypeDistribution();
+
+}
 
 
 #endif //COSMICTRIGGER_TEMPLATEBANK_H

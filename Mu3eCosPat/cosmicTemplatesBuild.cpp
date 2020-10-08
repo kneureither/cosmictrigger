@@ -97,6 +97,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
         std::cout << "(INFO)   : Processing tree " << tree << " cycle " << cycle << " | run " << runID << " | TB eff " << TB.getEfficiency() << std::endl;
         std::cout << "(INFO)   : sp count " << centralTPcount << " | wbins " << spWbins << " | zbins " << spZbins << " | target eff " << max_efficiency << std::endl;
 
+        //initialize file representation and open file
         SlimSegsTreeRead SlimSegs = SlimSegsTreeRead(t_slimsegs);
 
         SlimSegs.getEntry(0);
@@ -136,12 +137,13 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
             unsigned int SPID;
             bool enoughhits = 0;
 
-
+            //combine hits to array that resembles tid shape
             enoughhits = getSymmetricRefHits(xpr, ypr, zpr, layerpr, SlimSegs, 4 - (TID_LEN / 2));
             if(!enoughhits) {
                 failed_count++;
                 continue;
             }
+
 
             for(int i = 0; i<SlimSegs.layerp.size(); i++) {
 //                SPID = PE.getSuperPixel(SlimSegs.xp[i], SlimSegs.yp[i], SlimSegs.zp[i]);
@@ -151,12 +153,14 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
             used_entries++;
 
+            //combining hits to super pixel hit array
             for(int i = 0; i < xpr.size(); i++) {
                 SPID = PE.getSuperPixel(xpr[i], ypr[i], zpr[i]);
                 SPIDs.push_back(SPID);
                 if(PRINTS) printf(" -- SPIDS =%#X \n", SPIDs[i]);
             }
 
+            // actual filling of database
             stopping_point_reached = TB.fillTemplate(&SPIDs[0], SPIDs.size(), SlimSegs.kari_p, SlimSegs.kari_dca, SlimSegs.kari_phi, SlimSegs.kari_theta);
 
             if(stopping_point_reached){
