@@ -1,4 +1,4 @@
-//
+the //
 // Created by Konstantin Neureither on 15.07.20.
 //
 
@@ -37,6 +37,7 @@ public:
     int frequency;
 
     //maybe store these as mean and sigma values
+    //z0 is missing
     std::vector<int> nhit;
     std::vector<float> pt;
     std::vector<float> phi;

@@ -9,7 +9,7 @@ include_directories(include)
 #SET_TARGET_PROPERTIES(util PROPERTIES LINKER_LANGUAGE C)
 #target_link_libraries(cospat ${ROOT_LIBRARIES})
 
-add_library(patterns SHARED SuperPixelHit.cpp PatternEngineSingle.cpp TemplateBank.cpp TemplateData.cpp PatternEngine.cpp SPCalculations.cpp ../root/TemplateDatabaseFile.cpp)
+add_library(patterns SHARED SuperPixelHit.cpp PatternEngineSingle.cpp TemplateBank.cpp TemplateData.cpp PatternEngine.cpp SPCalculations.cpp ../root/TemplateDatabaseFile.cpp TBCosmicEfficiency.cpp include/TBCosmicEfficiency.h)
 target_link_libraries(patterns ${ROOT_LIBRARIES})
 
 set(SRC main_CTbuildMany.cpp cosmicTemplatesBuild.cpp cosmicTemplatesTrainingPlots.cpp)

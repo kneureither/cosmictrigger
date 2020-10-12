@@ -20,13 +20,16 @@
 
 void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcount, float spWZratio,
                            const float tb_stopping_efficiency, const bool append_outfile, TIDLoadingFilter filter) {
-    /*
+    /**
      * Read and analyse the mu3e mc hits
      * get the hits in xyz
      * assign sps to these hits
      * initialize template bank
      * check the frequency
      */
+
+    //TODO add filter train eff
+    //TODO add mutliplicity plot
 
     int MAX_ENTRIES = 80000;
     int MAX_MUON_HITS = 0;

@@ -25,8 +25,15 @@
 
 PatternEngineSingle::PatternEngineSingle() = default;
 
-//initialize with default path
 PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpartition, const int mode) {
+    /**
+     * Initalize as single PE for only one area.
+     *
+     * @param spWpartition number of super pixel bins in X or Phi (=W for width) direction
+     * @param spZpartition number of super pixel bins in Z direction
+     * @param mode type of sp mapping (0=uniform)
+     */
+
     printf("[ ---- INIT SINGLE PATTERN ENGINE ---- ]\n");
     this->initializeMembers(spXpartition, spZpartition, 0, mode);
     this->initializeSPbins();
@@ -35,10 +42,19 @@ PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpa
 
 }
 
-//initalize as single PE
-PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpartition, const int mode, std::string plottingpath) {
+
+PatternEngineSingle::PatternEngineSingle(const int spWpartition, const int spZpartition, const int mode, std::string plottingpath) {
+    /**
+     * initializes as single PE for only one area.
+     *
+     * @param spWpartition number of super pixel bins in X or Phi (=W for width) direction
+     * @param spZpartition number of super pixel bins in Z direction
+     * @param mode type of sp mapping (0=uniform)
+     * @param path to plot pdfs to.
+     */
+
     printf("[ ---- INIT SINGLE PATTERN ENGINE ---- ]\n");
-    this->initializeMembers(spXpartition, spZpartition, 0, mode);
+    this->initializeMembers(spWpartition, spZpartition, 0, mode);
     this->initializeSPbins();
     this->plottingpath = plottingpath;
     this->runspecs = ::getfileidtag(this->mode, this->wBinCount, this->zBinCount);
@@ -46,13 +62,23 @@ PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpa
     printf("\n");
 }
 
-//initialize as one detector segment of compound PE
-PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpartition, const int mode, const int area, std::string plottingpath) {
-    std::cout << "[ ---- INIT SINGLE PATTERN ENGINE AS AREA " << area << " ---- ]" << std::endl;
+
+PatternEngineSingle::PatternEngineSingle(const int spWpartition, const int spZpartition, const int mode, const int area, std::string plottingpath) {
+    /**
+     * initializes as one detector segment of compound PE.
+     *
+     * @param spWpartition number of super pixel bins in X or Phi (=W for width) direction
+     * @param spZpartition number of super pixel bins in Z direction
+     * @param mode type of sp mapping (0=uniform)
+     * @param area detector area that is handled by this single pattern engine.
+     * @param path to plot pdfs to.
+     */
+
+    std::cout << "[ ---- INIT SINGLE PATTERN ENGINE AS AREA " << area << " (" << areaDescript[area] << ") ---- ]" << std::endl;
     std::cout << "[ CONFIG :  Z Coord (min, max)=(" << DetectorZmin[area] << " , " <<  DetectorZmax[area] << ")" << " mode=" << mode << std::endl;
     this->centralDetectorZmin = DetectorZmin[area];
     this->centralDetectorZmax = DetectorZmax[area];
-    this->initializeMembers(spXpartition, spZpartition, area, mode);
+    this->initializeMembers(spWpartition, spZpartition, area, mode);
     this->initializeSPbins();
     this->plottingpath = plottingpath;
     this->plottingfile = "PEplots_" + getAreaTag() + ".pdf";
@@ -60,11 +86,11 @@ PatternEngineSingle::PatternEngineSingle(const int spXpartition, const int spZpa
 }
 
 //init members (called by constructors)
-void PatternEngineSingle::initializeMembers(const int spXpartition, const int spZpartition, const int area, const int mode) {
+void PatternEngineSingle::initializeMembers(const int spWpartition, const int spZpartition, const int area, const int mode) {
 
-    this->wBinCount = spXpartition;
+    this->wBinCount = spWpartition;
     this->zBinCount = spZpartition;
-    this->totalBinCount = spXpartition * spZpartition;
+    this->totalBinCount = spWpartition * spZpartition;
     this->centralDetectorLength = this->centralDetectorZmax - this->centralDetectorZmin;
     this->widthMin = -PI;
     this->widthMax = PI;
@@ -85,8 +111,12 @@ void PatternEngineSingle::initializeMembers(const int spXpartition, const int sp
     }
 }
 
-//init the superpixel bin boundary arrays
+
 void PatternEngineSingle::initializeSPbins() {
+    /**
+     * init the superpixel bin boundary arrays for uniform equidistant mapping.
+     */
+
     float SPZlength = centralDetectorLength / zBinCount;
     for(int i=0; i <= zBinCount; i++) {
         zBins.push_back(i * SPZlength + centralDetectorZmin);
@@ -112,6 +142,10 @@ int PatternEngineSingle::getPhiSP(const float phi) {
 //    return seqSearch(this->phiBins, phi);
 }
 
+int PatternEngineSingle::getXSP(const float x) {
+    return binSearch(this->xBins, x, 0, this->xBins.size() - 1);
+}
+
 
 int PatternEngineSingle::getLayer(const float r) {
     if (layerBoundaries[0] <= r && r <= layerBoundaries[1]) {
@@ -135,16 +169,42 @@ float PatternEngineSingle::getHitPhi(const float x, const float y) {
     return atan2(y, x);
 }
 
-int PatternEngineSingle::getSPXcoord(const int sp2DID) {
+int PatternEngineSingle::getSPWcoord(const int sp2DID) {
+    /**
+     * computes 2D w-coordinate from continuous super pixel index.
+     *
+     * @param sp2DID index in sp grid (12 bit used, without layer+area info)
+     * @return W (x or phi) coordinate in SP grid
+     */
+
     return sp2DID % this->wBinCount;
 }
 
 int PatternEngineSingle::getSPZcoord(const int sp2DID) {
+    /**
+     * computes 2D z-coordinate from continuous super pixel index.
+     *
+     * @param sp2DID index in sp grid (12 bit used, without layer+area info)
+     * @return Z coordinate in SP grid
+     */
+
     return sp2DID / this->wBinCount;
 }
 
 template<typename T>
 int PatternEngineSingle::binSearch(std::vector<T> targetVector, T value, int start, int end) {
+    /**
+     * Recursive bin search on sorted vector. Used to get super pixel index from bin boundary array.
+     * This is necessary, when using a non-uniform bin mapping.
+     * Computation time on average is better than a sequential search, as it is O(log(n)) instead O(n).
+     *
+     * @param targetVector vector to be searched
+     * @param value that is searched
+     * @param start index of area to be searched
+     * @param end index of area to be searched
+     * @return index of bin where `value` lies in.
+     */
+
     int size = end-start;
     if (size <= 0) {
         return -1;
@@ -179,18 +239,22 @@ int PatternEngineSingle::seqSearch(std::vector<T> targetVector, T value) {
 //// <-------------------- SOME UTILITY FUNCTIONS
 
 
-//get xyz coordinates and calculate the superpixel from it. most important function
-unsigned int PatternEngineSingle::getSuperPixel(const float x, const float y, const float z) {
-//    printf("Coordinates delivered: x=%f, y=%f, z=%f\n", x,y,z);
-    float r = getRadius(x, y);
-//    printf("radius=%f\n", r);
-    int layer = getLayer(r);
-//    printf("layer=%d\n", layer);
-    int phiSPIndex = getPhiSP(getHitPhi(x, y));
-//    printf("phiSP=%d\n", phiSPIndex);
-    int zSPIndex = getZSP(z);
-//    printf("zSP=%d\n", zSPIndex);
 
+unsigned int PatternEngineSingle::getSuperPixel(const float x, const float y, const float z) {
+    /**
+     * Computes the Super Pixel ID for a given hit on the detector area. In case the hit can't be assigned to a
+     * Super Pixel, it returns 0.
+     *
+     * @param x,y,z coordinates of hit
+     * @return 16bit SuperPixel ID. bit 1-4 encode area+layer, bit 5-16 encode super pixel index
+     */
+
+    float r = getRadius(x, y);
+    int layer = getLayer(r);
+    int phiSPIndex = getPhiSP(getHitPhi(x, y));
+    int zSPIndex = getZSP(z);
+
+    // data valid?
     assert(0 <= area && area < 3);
     assert(0 <= layer && layer < 4);
     assert(totalBinCount < 4096); // fatal because SID needs format of 0xFFF
@@ -199,7 +263,6 @@ unsigned int PatternEngineSingle::getSuperPixel(const float x, const float y, co
     if(sp2DID < 0 || totalBinCount < sp2DID) sp2DID = 0;
     unsigned int SPID = computeSPID(layer, area, sp2DID);
 
-//    int SPID = layer + 10 * area + 100 * sp2DID;
     if(PRINTS) printf("Hit SuperPixel params\t x=%f, y=%f, z=%f, layer=%d zIndex=%d, phiIndex=%d, Sp2D=%d, SPID=%#X\n", x,y,z,layer, zSPIndex, phiSPIndex, sp2DID, SPID);
 
     //    printf("SP2D = %d, weights = %d \n", sp2DID, this->spWeights[0][sp2DID]);
@@ -259,7 +322,7 @@ void PatternEngineSingle::testCoordImpl() {
 
     int SP2D = zSP * wBinCount + phiSP;
     assert(getLayer(getRadius(x,y)) == 0);
-    assert(phiSP == getSPXcoord(SP2D));
+    assert(phiSP == getSPWcoord(SP2D));
     assert(zSP == getSPZcoord(SP2D));
 }
 
@@ -307,6 +370,9 @@ void PatternEngineSingle::testSPID() {
 
 //// PRINT GRAPHS AND PLOTS ----------->
 void PatternEngineSingle::displayBinBoundaries() {
+    /**
+     * Makes plot that shows the super pixel mapping. Also writes this to the root file, where gROOT is pointing to.
+     */
 
     auto *canvas = new TCanvas(("bin_boundaries" + this->getAreaTag()).c_str(), "bin_boundaries", 1200, 900);
     canvas->SetLeftMargin(0.15);
@@ -345,6 +411,11 @@ void PatternEngineSingle::displayBinBoundaries() {
 }
 
 void PatternEngineSingle::displayBinWeightDistributionLayer(int layer) {
+    /**
+     * Makes 2D hist, that shows the frequency if how often each super pixel was hit.
+     * Also writes this to the root file, where gROOT is pointing to.
+     */
+
     std::string layerno = get_string(layer);
     auto *canvas = new TCanvas(("bin_weights"+layerno).c_str(), ("bin_weights"+layerno).c_str(), 1200, 900);
     canvas->SetLeftMargin(0.15);
@@ -359,7 +430,7 @@ void PatternEngineSingle::displayBinWeightDistributionLayer(int layer) {
     //Fill 2d hist with weights
     for(int i=0; i<totalBinCount; i++) {
         for(int j=0; j<spWeights[layer].at(i); j++) {
-            h_binweights->Fill(getSPZcoord(i), getSPXcoord(i));
+            h_binweights->Fill(getSPZcoord(i), getSPWcoord(i));
         }
     }
 
@@ -388,6 +459,7 @@ void PatternEngineSingle::displayBinWeightDistribution() {
 }
 
 std::string PatternEngineSingle::pltf() {
+    //opens plotting pdf, if necessary.
     if(this->firstplot == 1) {
         printf("first file\n");
         this->firstplot = 0;

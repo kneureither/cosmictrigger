@@ -91,7 +91,10 @@ private:
     std::string plottingpath;
 
     void fillTemplateFromDB(temid TID, int frequency);
+    void fillTemplateFromDB(temid TID, int frequency, TIDLoadingFilter filter);
     void initializeMembers(int dataset, int mode, int wBins, int zBins);
+
+    TrackType GetTypeOfTID(temid TID);
 
     float stopping_efficiency;
     bool PRINTS = false;
@@ -110,7 +113,28 @@ public:
                  int zBins);
     ~TemplateBank();
     void SetPrints(bool opt);
+    std::string getfileidtag(int format);
 
+    //database handling
+    bool fillTemplate(unsigned int * SPIDs, int hitcount, float p, float dca, float phi, float theta);
+    bool checkTemplate(temid &TID);
+    //TODO change signature!! easy fix ->filter not needed, move to temid TID
+    bool checkCosmicTemplate(unsigned int *SPIDs, const int hitcount, TIDLoadingFilter filter);
+    void writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
+                       std::string mode_description);
+
+    bool readAMfromFile(std::string path, float stopping_efficiency, TIDLoadingFilter filter);
+
+    //read out database stats
+    std::vector<temid>  getMostPopulatedTemplates(int howmany);
+    std::vector<temid>  getMostMatchedTemplates(int howmany);
+    template <typename spidtype>
+
+    //util
+    temid getTemplateID(spidtype *SPIDs, int hitcount);
+    unsigned int getSPIDfromTemplateID(temid TID, int index);
+
+    //make plots
     void PlotTemplatePopulationHistogram(); //how many with one, two, three, ..., n roads stored
     void PlotTemplateMatchedFreqHistogram(std::string filetag);
     void PlotTemplatePopHistSortedbyFreq();
@@ -118,52 +142,38 @@ public:
     void PlotFreqTimesTemplatecount(); //not finished
     void PlotTemplateTypeDistribution();
 
-    bool fillTemplate(unsigned int * SPIDs, int hitcount, float p, float dca, float phi, float theta);
-    bool checkTemplate(temid &TID);
-    int getRejectedCount();
-
-    int getAcceptedCount();
-
-    void rmSinglePopulatedTemplates();
-    std::vector<temid>  getMostPopulatedTemplates(int howmany);
-    std::vector<temid>  getMostMatchedTemplates(int howmany);
-    template <typename spidtype>
-    temid getTemplateID(spidtype *SPIDs, int hitcount);
-    unsigned int getSPIDfromTemplateID(temid TID, int index);
-    TrackType GetTypeOfTID(temid TID);
+    //get some numbers and stats
     float getEfficiency();
-
     int getTemplateCount();
-    void writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
-                       std::string mode_description);
-
-    bool readAMfromFile(std::string path, float stopping_efficiency, TIDLoadingFilter filter);
-
-    std::string getfileidtag(int format);
+    int getTrainingEventCount();
+    int getRejectedCount();
+    int getAcceptedCount();
+    float GetTrainEffTotal();
+    float GetTrainEffRelative();
+    int getInitialTemplateCount();
 
     void resetStats();
+
     //tests
     void testTemplateID();
     void testFill();
     void testCheck();
-
     void testGetMostPopTemplates();
 
-    int getTrainingEventCount();
-
-    void fillTemplateFromDB(temid TID, int frequency, TIDLoadingFilter filter);
-
-    bool checkCosmicTemplate(unsigned int *SPIDs, const int hitcount, TIDLoadingFilter filter);
-
-    float GetTrainEffTotal();
-
-    float GetTrainEffRelative();
-
-    int getInitialTemplateCount();
+    //modify database
+    void rmSinglePopulatedTemplates();
 };
 
 
 void loadTemplateBank(const int dataset, unsigned int centralTPcount, float spWZratio) {
+    /**
+     * This function contains a basic code example on how to lad the Template Bank from a File.
+     *
+     * @param dataset that was used for training this specific dataset file
+     * @param centralSPcount the sp count in the central area.
+     * @param spWZratio wbin_count / zbin_count ratio
+     */
+
     const std::string pathtocosmicdata = "data/SimulationData";
     const std::string pathtotemplatedata = "data/TemplateData/";
     const std::string pathtooutput = "plots/TemplateBank/";

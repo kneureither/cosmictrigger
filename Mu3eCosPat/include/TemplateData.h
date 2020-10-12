@@ -66,6 +66,7 @@ struct TemplateID {
 
 struct TemplateData {
     int frequency = 0;
+    //z0 is missing!
     std::vector<int> count;
     std::vector<float> p;
     std::vector<float> dca;

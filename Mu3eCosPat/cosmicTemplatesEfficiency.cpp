@@ -40,7 +40,7 @@ cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, float 
     std::vector<float> train_effs_relative;
     std::vector<std::vector<unsigned int>> cosmic_spid_tracks;
 
-    int cosmic_testing_dataset = 2;
+    int cosmic_testing_dataset = 30;
     const bool MAKE_PLOT = true;
     const int MAX_ENTRIES = 0;
     const bool PRINTS = false;

@@ -46,7 +46,9 @@ bool TemplateBank::fillTemplate(unsigned int *SPIDs, const int hitcount, const f
         this->Ntemplates.push_back((float) newtemplatecount);
         this->efficiency.push_back(efficiency);
 
-        if(efficiency >= this->stopping_efficiency) return true; //stopping efficiency reached
+        if(efficiency >= this->stopping_efficiency) {
+            return true; //stopping efficiency reached
+        }
     }
 
     return false; //efficiency not reached or not checked
@@ -392,13 +394,14 @@ std::vector<temid> TemplateBank::getMostPopulatedTemplates(int howmany) {
     for(int i=0; i<howmany; i++) {
         priorityTemplates.push_back(templQueue.top().TID);
         frequency = templQueue.top().frequency;
-        std::cout << "  *rank["  << i+1 << "] " << priorityTemplates[i].toString() << "  frequency: " << frequency << std::endl;
+        std::cout << "  *rank["  << i+1 << "] " << priorityTemplates[i].toString() << "  frequency: " << frequency;
+        std::cout << " type: " << enum_to_string(GetTypeOfTID(priorityTemplates[i])) << std::endl;
         templQueue.pop();
     }
     return priorityTemplates;
 }
 
-//TODO: Would be nicer to call a generic function e.g. getTopElementsFromMap(int howmany, T* Mem) to avoid code duplication
+//TODO: Better to call a generic function e.g. getTopElementsFromMap(int howmany, T* Mem) to avoid code duplication
 std::vector<temid>  TemplateBank::getMostMatchedTemplates(int howmany) {
     if(howmany > this->CMem.size()) {
         howmany = this->CMem.size();
@@ -423,7 +426,8 @@ std::vector<temid>  TemplateBank::getMostMatchedTemplates(int howmany) {
     for(int i=0; i<howmany; i++) {
         priorityTemplates.push_back(templQueue.top().TID);
         frequency = templQueue.top().frequency;
-        std::cout << "  *rank["  << i+1 << "] " << priorityTemplates[i].toString() << "  frequency: " << frequency << std::endl;
+        std::cout << "  *rank["  << i+1 << "] " << priorityTemplates[i].toString() << "  frequency: " << frequency;
+        std::cout << " type: " << enum_to_string(GetTypeOfTID(priorityTemplates[i])) << std::endl;
         templQueue.pop();
     }
     return priorityTemplates;
@@ -735,6 +739,7 @@ void TemplateBank::PlotTemplateTypeDistribution() {
     for(int i=0; i<5; i++) {
         loaded_templ += this->count_loaded_template_types[i];
     }
+
     if(loaded_templ == 0 && loaded_database_from_file == true){
         std::cout << "(WARNING): TemplateTypeDistribution Plot can only be created after loading template database form file." << std::endl;
         return;

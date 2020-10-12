@@ -33,8 +33,9 @@ private:
     int getLayer(const float r);
     int getZSP(const float z);
     int getPhiSP(const float phi);
+    int getXSP(const float x);
     int getSPZcoord(const int sp2DID);
-    int getSPXcoord(const int sp2DID);
+    int getSPWcoord(const int sp2DID);
 
     std::string getAreaTag();
 
@@ -50,11 +51,11 @@ private:
     float getHitPhi(const float x, const float y);
 
     void initializeSPbins();
-    void initializeMembers(const int spXpartition, const int spZpartition, const int area, const int mode);
+    void initializeMembers(const int spWpartition, const int spZpartition, const int area, const int mode);
 
     std::string pltf();
 
-
+    //necessary  for wbin mapping with x-coord, not phi
     float layerFactor[4] = {0.0}; // scale down x boundaries with reference to outer layer
 
     int mode = 0; //default is cylindrical mode = 0
@@ -74,11 +75,12 @@ private:
 
     std::vector<float> phiBins;
     std::vector<float> zBins;
-    std::vector<float> xBins;
+    std::vector<float> xBins; //not used so far
 
     float SPZsize{};
     float SPWsize{};
 
+    //count freq. of hits in each super pixel
     std::vector<int> spWeights[4];
 
     std::string plottingpath = "plots/PatternEngineSingle/";
@@ -88,26 +90,28 @@ private:
 
 public:
     PatternEngineSingle(const int spXpartition, const int spZpartition, const int mode /*, const int area*/);
-    PatternEngineSingle(const int spXpartition, const int spZpartition, const int mode, /*const int area,*/ std::string plottingpath);
-    PatternEngineSingle(const int spXpartition, const int spZpartition, const int mode, const int area, std::string plottingpath);
+    PatternEngineSingle(const int spWpartition, const int spZpartition, const int mode, /*const int area,*/ std::string plottingpath);
+    PatternEngineSingle(const int spWpartition, const int spZpartition, const int mode, const int area, std::string plottingpath);
 
     PatternEngineSingle();
-//    ~PatternEngineSingle();
+    //~PatternEngineSingle();
 
     unsigned int getSuperPixel(const float x, const float y, const float z);
 
+    // not implemented yet, but important for later implementation on FPGA -->
     int translateToSensorRefSP(const int spIndexRefID);
     int translateToIndexRefSP(const int spSensorRefID);
+    // <--
 
     void displayBinBoundaries();
     void displayBinWeightDistribution();
     std::string getRunSpecs();
-    void closePlot();
+    void closePlot(); //IMPORTANT! plots are all written to one pdf, which is closed by this function.
 
+    //tests
     void testbinSearch();
     void testCoordImpl();
     void testSPID();
-
 };
 
 
