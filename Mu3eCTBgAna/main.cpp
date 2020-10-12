@@ -21,7 +21,7 @@ int main() {
             for (auto &tb_eff : tb_stopping_efficiencies) {
                 std::cout << "STATUS : Running BG Eval for tb_eff: " << tb_eff << std::endl;
                 cosmicTemplatesBgEval(background_dataset, pattern_dataset, spcout, spratio, tb_eff, append,
-                                      ALL);
+                                      NO_CENTER);
                 append = true;
             }
         }

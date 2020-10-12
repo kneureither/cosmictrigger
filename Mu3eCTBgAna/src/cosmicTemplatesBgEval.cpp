@@ -28,7 +28,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
      * check the frequency
      */
 
-    int MAX_ENTRIES = 0;
+    int MAX_ENTRIES = 80000;
     int MAX_MUON_HITS = 0;
     int MAX_NHITS = 100;
     float TB_STOPPING_EFF = tb_stopping_efficiency;
@@ -76,6 +76,8 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF, filter);
     TB.PlotTemplateTypeDistribution();
 
+    //TODO determine the signal efficiency of the TDB! (maybe write a function, that can be called.)
+
     //make some analysis plots
     TH1F h_bgeff("h_bgeff", "background match efficiency", 100, 0, 0.01);
     TH1F h_discreff(("h_discreff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), ("h_discreff_cosmax" + get_string(MAX_MUON_HITS)).c_str(), 100, 0, 0.1);
@@ -96,6 +98,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     //for some plots with bg eff / hits in bg frame
     std::vector<float> frame_eff;
     std::vector<int> frame_bghits;
+    unsigned long nhits_count = 0;
 
     std::cout << "(CONFIG) : TDB: mywbins " << TB.mywbins << " | myzbins " << TB.myzbins << " | PE: wbins " << PE.WBins[0] << " zbins "<< PE.ZBins[0] << std::endl;
 
@@ -224,6 +227,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
         float eff_outerhits = (float) acceptedcount / (float) outerhits;
         float eff_hits = (float) acceptedcount / (float) bgframehits.size();
         // <---- end of calculating the efficiencies in a frame
+        nhits_count += bgframehits.size();
 
 
         if(PRINTS) {
@@ -287,9 +291,10 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
     std::cout << std::endl;
 
     float background_efficiency = (float) rejected_frames / (float) processed_frames;
+    float mean_frame_nhits = nhits_count / (float) processed_frames;
 
     std::cout << "INFO    : rejected frames: " << rejected_frames << " processed frames: " << processed_frames << std::endl;
-    std::cout << "INFO    : --  BG efficiency: " << background_efficiency << std::endl;
+    std::cout << "INFO    : --  BG efficiency: " << background_efficiency << "   (avg. nhits: " << mean_frame_nhits << std::endl;
 
     //open new TFile for plots
     TFile * tF = new TFile((pathtooutfile + "CosmicBackgroundEval_bgevents_" + get_padded_string(bg_events, 6, '0') +
