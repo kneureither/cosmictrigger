@@ -28,5 +28,11 @@ set(SRC4 main_CTplots.cpp cosmicTemplatesTrainingPlots.cpp)
 add_executable(Mu3eCosPat2Plots ${SRC4})
 target_link_libraries(Mu3eCosPat2Plots rootTreeFiles)
 
+set(SRC5 main_get_cosmic_data.cpp cosmicTemplatesEfficiency.cpp)
+add_executable(Mu3eCosPat4LoadCosData ${SRC5})
+target_link_libraries(Mu3eCosPat4LoadCosData rootTreeFiles patterns)
+
+
+
 #target_link_libraries(Mu3eCosPat ${ROOT_LIBRARIES} f2clib karilib)
 #add_compile_options("-lf2c" "-DMAIN")

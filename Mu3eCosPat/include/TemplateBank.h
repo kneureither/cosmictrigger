@@ -165,7 +165,7 @@ public:
 };
 
 
-void loadTemplateBank(const int dataset, unsigned int centralTPcount, float spWZratio) {
+static void loadTemplateBank(const int dataset, unsigned int centralTPcount, float spWZratio) {
     /**
      * This function contains a basic code example on how to lad the Template Bank from a File.
      *
