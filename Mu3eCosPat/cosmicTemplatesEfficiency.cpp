@@ -353,13 +353,17 @@ std::vector<std::vector<unsigned int>> produceCosmicSIDtracks(int cosmic_testing
     PatternEngine PE(spWbins, spZbins, path_to_plots_dataset);
 
     std::string infile = path_to_cosmic_inputdata + "mu3e_slimmed_segs_" + get_padded_string(cosmic_testing_dataset, 6, '0') + ".root";
-    std::string cosmic_sid_file = path_to_cosmic_tids + "CosmicSIDtracks_" + getfileidtag(cosmic_testing_dataset, mode, spWbins, spZbins);
+    std::string cosmic_sid_file = path_to_cosmic_tids_dataset + "CosmicSIDtracks_" + getfileidtag(cosmic_testing_dataset, mode, spWbins, spZbins)  + ".root";
     std::vector<std::vector<unsigned int>> cosmic_spid_tracks;
 
     //First check if a file exists already
     TFile tcosTIDF(cosmic_sid_file.c_str());
     if (!tcosTIDF.IsOpen()) {
         std::cout << "(INFO)   : No TID File " << cosmic_sid_file << " exists. Starting to create data!" << std::endl;
+
+        //open file again with writing access
+        tcosTIDF.Close();
+        TFile tcosTIDF(cosmic_sid_file.c_str(), "recreate");
 
         // FILE FOR READING
         TFile tinF(infile.c_str());
@@ -457,7 +461,7 @@ std::vector<std::vector<unsigned int>> produceCosmicSIDtracks(int cosmic_testing
         tinF.Close();
         std::cout << "(STATUS) : Got cosmic test data. cosmic count: " << used_entries << " processed entries: " << processed_entries << std::endl;
 
-        //TODO Write everything to file
+        tcosTIDF.cd();
 
         //add some meta data for the
         int wbins = spWbins;
@@ -477,7 +481,7 @@ std::vector<std::vector<unsigned int>> produceCosmicSIDtracks(int cosmic_testing
         tT_met.Branch("mode", &PE.mode, "mode/I");
         tT_met.Branch("sp_count", &centralTPcount, "spcount/i");
         tT_met.Branch("sp_target_ratio", &spWZratio, "sp_target_ratio/F");
-
+        tT_met.Fill();
         tT_met.Write();
 
         TTree tT_sids("CosmicSIDtracks","SIDs of cosmic muon tracks (one cosmic track per entry)");
@@ -490,10 +494,12 @@ std::vector<std::vector<unsigned int>> produceCosmicSIDtracks(int cosmic_testing
         }
 
         tT_sids.Write();
+        tcosTIDF.Close();
 
         return cosmic_spid_tracks;
 
     } else {
+
         std::cout << "(INFO)   : Opened file " << cosmic_sid_file << std::endl;
 
         TTree *tT_met;
@@ -510,24 +516,23 @@ std::vector<std::vector<unsigned int>> produceCosmicSIDtracks(int cosmic_testing
         unsigned int tf_sp_count;
         float tf_sp_target_ratio;
 
-        std::vector<unsigned int> *SPIDs;
+        std::vector<unsigned int> *SPIDs = nullptr;
         cosmic_spid_tracks.clear();
 
 
         tT_met->SetBranchAddress("cosmic_dataset", &tf_cosmic_dataset);
         tT_met->SetBranchAddress("cosmic_testing_processed_entries", &tf_cosmic_testing_processed_entries);
-        tT_met->SetBranchAddress("wBins", &wBins);
-        tT_met->SetBranchAddress("zBins", &zBins);
+        tT_met->SetBranchAddress("wBins0", &wBins);
+        tT_met->SetBranchAddress("zBins0", &zBins);
         tT_met->SetBranchAddress("sp_count", &tf_sp_count);
         tT_met->SetBranchAddress("sp_target_ratio", &tf_sp_target_ratio);
         tT_met->GetEntry(0);
 
         tT_sids->SetBranchAddress("cosmic_track_sids",&SPIDs);
         int entries = tT_sids->GetEntries();
-        assert(entries == tf_cosmic_testing_processed_entries);
 
         std::cout << "(INFO)   : Got data from configuration: wbins " << wBins << " | zbins " << zBins << " | mode " << mode << std::endl;
-        std::cout << "(INFO)   : Processed entries " << tf_cosmic_testing_processed_entries << std::endl;
+        std::cout << "(INFO)   : Processed entries " << tf_cosmic_testing_processed_entries << " entries in file " <<  entries << std::endl;
 
         for(int i=0; i<entries; i++) {
             tT_sids->GetEntry(i);
@@ -537,7 +542,7 @@ std::vector<std::vector<unsigned int>> produceCosmicSIDtracks(int cosmic_testing
 
         assert(cosmic_spid_tracks.size() == tf_cosmic_testing_processed_entries);
 
-
+        return cosmic_spid_tracks;
     }
 
 }
