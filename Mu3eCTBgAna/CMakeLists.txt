@@ -4,9 +4,8 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(inc)
 include_directories(src)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/root)
 
-set(SRC main.cpp src/cosmicTemplatesBgEval.cpp)
+set(SRC main.cpp src/cosmicTemplatesBgAna.cpp ../Mu3eCosPat/cosmicTemplatesEfficiency.cpp)
 add_executable(Mu3eCTBg2Ana ${SRC})
 target_link_libraries(Mu3eCTBg2Ana patterns rootTreeFiles)
 

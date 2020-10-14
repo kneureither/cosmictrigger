@@ -19,8 +19,8 @@
 #include "MetaDataTree.h"
 #include "bgeval.h"
 #include "plots.h"
-#include "../Mu3eCosPat/include/PatternEngine.h"
-#include "../Mu3eCosPat/include/TemplateData.h"
+#include "PatternEngine.h"
+#include "TemplateData.h"
 
 
 void BgEvalEff() {

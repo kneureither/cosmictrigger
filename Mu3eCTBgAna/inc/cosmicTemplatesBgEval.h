@@ -34,7 +34,7 @@ struct SIDtype{
     }
 };
 
-struct BGSortedHits{
+struct BGSortedSIDs{
     std::vector<SIDtype> h0; //first hit in TID order
     std::vector<SIDtype> h1; //second hit (layer 2)
     std::vector<SIDtype> h2; //third hit (layer 2, y<0)
