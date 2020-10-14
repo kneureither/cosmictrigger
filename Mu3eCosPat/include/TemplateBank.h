@@ -165,47 +165,47 @@ public:
 };
 
 
-static void loadTemplateBank(const int dataset, unsigned int centralTPcount, float spWZratio) {
-    /**
-     * This function contains a basic code example on how to lad the Template Bank from a File.
-     *
-     * @param dataset that was used for training this specific dataset file
-     * @param centralSPcount the sp count in the central area.
-     * @param spWZratio wbin_count / zbin_count ratio
-     */
-
-    const std::string pathtocosmicdata = "data/SimulationData";
-    const std::string pathtotemplatedata = "data/TemplateData/";
-    const std::string pathtooutput = "plots/TemplateBank/";
-    const std::string pathtooutfile = pathtooutput + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
-    const std::string pathtoplots = pathtooutfile + "PDF/";
-    const std::string pathtodatasettempldata = pathtotemplatedata + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
-
-    const bool MAKE_PLOT = true;
-    const int MAX_ENTRIES = 0;
-    const bool PRINTS = false;
-    const int mode = 0;
-
-    check_create_directory(pathtocosmicdata);
-    check_create_directory(pathtotemplatedata);
-    check_create_directory(pathtooutput);
-    check_create_directory(pathtooutfile);
-    check_create_directory(pathtoplots);
-    check_create_directory(pathtodatasettempldata);
-
-    //Get the Pattern Engine and Template Manager
-    const int spWbins = (int) sqrt((float) spWZratio * (float) centralTPcount);
-    const int spZbins = (int) sqrt((float) centralTPcount / (float) spWZratio);
-    std::cout << "\n -- PE config data:" << std::endl << "  wbins=" << spWbins << std::endl << "  zbins=" << spZbins << std::endl << std::endl;
-
-    TemplateBank TB(pathtooutfile, dataset, mode, spWbins, spZbins);
-    TB.readAMfromFile(pathtodatasettempldata, 0, ALL);
-    TB.SetPrints(PRINTS);
-
-    TB.PlotTemplatePopulationHistogram();
-    TB.PlotTemplateTypeDistribution();
-
-}
+//static void loadTemplateBank(const int dataset, unsigned int centralTPcount, float spWZratio) {
+//    /**
+//     * This function contains a basic code example on how to lad the Template Bank from a File.
+//     *
+//     * @param dataset that was used for training this specific dataset file
+//     * @param centralSPcount the sp count in the central area.
+//     * @param spWZratio wbin_count / zbin_count ratio
+//     */
+//
+//    const std::string pathtocosmicdata = "data/SimulationData";
+//    const std::string pathtotemplatedata = "data/TemplateData/";
+//    const std::string pathtooutput = "plots/TemplateBank/";
+//    const std::string pathtooutfile = pathtooutput + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
+//    const std::string pathtoplots = pathtooutfile + "PDF/";
+//    const std::string pathtodatasettempldata = pathtotemplatedata + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
+//
+//    const bool MAKE_PLOT = true;
+//    const int MAX_ENTRIES = 0;
+//    const bool PRINTS = false;
+//    const int mode = 0;
+//
+//    check_create_directory(pathtocosmicdata);
+//    check_create_directory(pathtotemplatedata);
+//    check_create_directory(pathtooutput);
+//    check_create_directory(pathtooutfile);
+//    check_create_directory(pathtoplots);
+//    check_create_directory(pathtodatasettempldata);
+//
+//    //Get the Pattern Engine and Template Manager
+//    const int spWbins = (int) sqrt((float) spWZratio * (float) centralTPcount);
+//    const int spZbins = (int) sqrt((float) centralTPcount / (float) spWZratio);
+//    std::cout << "\n -- PE config data:" << std::endl << "  wbins=" << spWbins << std::endl << "  zbins=" << spZbins << std::endl << std::endl;
+//
+//    TemplateBank TB(pathtooutfile, dataset, mode, spWbins, spZbins);
+//    TB.readAMfromFile(pathtodatasettempldata, 0, ALL);
+//    TB.SetPrints(PRINTS);
+//
+//    TB.PlotTemplatePopulationHistogram();
+//    TB.PlotTemplateTypeDistribution();
+//
+//}
 
 
 #endif //COSMICTRIGGER_TEMPLATEBANK_H

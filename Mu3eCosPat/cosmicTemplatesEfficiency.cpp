@@ -22,8 +22,7 @@
 #include "plots.h"
 
 
-void
-cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, float spWZratio, float stopping_efficiency) {
+void cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, float spWZratio, float stopping_efficiency) {
     /*
      * Calculates the efficiency of a template database by adding some new cosmic data.
      * train_eff = #templ_matched / #templ_tested
