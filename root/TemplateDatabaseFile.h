@@ -1,4 +1,4 @@
-the //
+//
 // Created by Konstantin Neureither on 15.07.20.
 //
 
