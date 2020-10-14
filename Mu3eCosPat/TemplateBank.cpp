@@ -434,7 +434,7 @@ std::vector<temid>  TemplateBank::getMostMatchedTemplates(int howmany) {
 }
 
 void TemplateBank::PlotTemplateMatchedFreqHistogram(std::string filetag) {
-    auto *canvas = new TCanvas("template matching frequency", "template matching frequency", 1200, 900);
+    auto *canvas = new TCanvas("template matching frequency", "template matching frequency", 900, 600);
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
     canvas->SetGrid(1,1);
@@ -460,7 +460,7 @@ void TemplateBank::PlotTemplateMatchedFreqHistogram(std::string filetag) {
 }
 
 void TemplateBank::PlotTemplatePopulationHistogram() {
-    auto *canvas = new TCanvas("template frequency", "template frequency", 1200, 900);
+    auto *canvas = new TCanvas("template frequency", "template frequency", 900, 600);
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
     canvas->SetGrid(1,1);
@@ -481,11 +481,11 @@ void TemplateBank::PlotTemplatePopulationHistogram() {
     }
     h_templfreq->Draw();
     h_templfreq->Write();
-    saveCanvas(canvas, ("templateFrequency_" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
+    saveCanvas(canvas, ("TemplateBank_" + getfileidtag((loaded_database_from_file ? 2 : 0)) + "_TFrequency").c_str(), plottingpath);
 }
 
 void TemplateBank::PlotFreqTimesTemplatecount() {
-    auto *canvas = new TCanvas("template weights", "template weights", 1200, 900);
+    auto *canvas = new TCanvas("template weights", "template weights", 900, 600);
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
     canvas->SetGrid(1,1);
@@ -534,11 +534,11 @@ void TemplateBank::PlotFreqTimesTemplatecount() {
 
     h_templweights->Draw();
     h_templweights->Write();
-    saveCanvas(canvas, ("templateFrequencyTimesCount_" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
+    saveCanvas(canvas, ("TemplateBank_" + getfileidtag((loaded_database_from_file ? 2 : 0)) + "_TFrequencyTimesCount").c_str(), plottingpath);
 }
 
 void TemplateBank::PlotEfficiency() {
-    auto *canvas = new TCanvas("template bank stats", "cosmic template bank stats", 1200, 900);
+    auto *canvas = new TCanvas("template bank stats", "cosmic template bank stats", 900, 600);
 
     canvas->SetLeftMargin(0.15);
     canvas->SetRightMargin(0.15);
@@ -580,7 +580,37 @@ void TemplateBank::PlotEfficiency() {
     g_tnumber->Write();
 
     canvas->Update();
-    saveCanvas(canvas, ("templateBankStats" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
+    saveCanvas(canvas, ("TemplateBank_" + getfileidtag((loaded_database_from_file ? 2 : 0)) + "_Stats").c_str(), plottingpath);
+}
+
+void TemplateBank::PlotEfficiencyOverTcount() {
+    auto *canvas = new TCanvas("template bank stats", "cosmic template bank stats", 900, 600);
+
+    canvas->SetLeftMargin(0.15);
+    canvas->SetRightMargin(0.15);
+    canvas->SetGrid(1,1);
+    canvas->SetTicks(1, 1);
+    canvas->SetLogx(1);
+
+    auto *pad1 = new TPad("efficiency vs. template count", "efficiency vs. template count", 0, 0, 1, 1);
+    pad1->Draw();
+
+    //Efficiency
+    TGraph *g_efficiencytempl = new TGraph( Ntemplates.size(),&Ntemplates[0],&efficiency[0]);
+    g_efficiencytempl->SetName("g_efficiency");
+    g_efficiencytempl->SetTitle("template efficiency vs template count");
+    labelAxis(g_efficiencytempl, "# templates", "training efficiency");
+    setGraphRange(g_efficiencytempl,100, Ntemplates[Ntemplates.size()-1], 0, 1);
+
+    g_efficiencytempl->SetLineColor(kBlue);
+    g_efficiencytempl->SetMarkerStyle(23);
+    g_efficiencytempl->SetMarkerSize(1);
+    pad1->cd();
+    g_efficiencytempl->Draw("ALP");
+    g_efficiencytempl->Write();
+
+    canvas->Update();
+    saveCanvas(canvas, ("TemplateBank_" + getfileidtag((loaded_database_from_file ? 2 : 0)) + "_EffTcount").c_str(), plottingpath);
 }
 
 void TemplateBank::writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],

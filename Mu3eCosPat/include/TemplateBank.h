@@ -162,6 +162,8 @@ public:
 
     //modify database
     void rmSinglePopulatedTemplates();
+
+    void PlotEfficiencyOverTcount();
 };
 
 

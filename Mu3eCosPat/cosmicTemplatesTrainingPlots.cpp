@@ -74,8 +74,6 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     auto g_efficiencies  = new TMultiGraph();
     auto g_tnumbers  = new TMultiGraph();
 
-//    int colpalette[10] = {433,435,427,420,410,414,601,603,861,854};
-
 
 
     TCanvas *canvas = new TCanvas("canvas", "Template Bank Pattern Result", 900, 600);

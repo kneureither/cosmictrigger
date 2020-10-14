@@ -442,7 +442,7 @@ void PatternEngineSingle::displayBinWeightDistributionLayer(int layer) {
     h_binweights->Draw("colz");
     h_binweights->Write();
 
-    canvas->Print((this->plottingpath + this->runspecs + pltf()).c_str(), "pdf");
+    canvas->Print((this->plottingpath + "PatternEngine_" + this->runspecs + pltf()).c_str(), "pdf");
 
 //    TFile * tF = new TFile("output.root", "RECREATE");
 //    h_binweights->Write();

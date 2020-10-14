@@ -6,6 +6,7 @@
 #include <string>
 #include <cassert>
 #include <iostream>
+#include "plots.h"
 
 //root
 #include "TROOT.h"
@@ -32,13 +33,15 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     const bool WRITE_DB_FILE = true;
 
     std::string runpadded = get_padded_string(dataset, 6, '0');
-    std::string pathtorunplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    std::string pathtorunplotsfile = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    std::string pathtorunplots = pathtorunplotsfile + "PDF/";
     std::string pathtotemplatedb = "data/TemplateData/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     std::string infile = pathtodata + "mu3e_slimmed_segs_" + get_padded_string(dataset, 6, '0') + ".root";
 //    std::string infile = pathtodata + "mu3e_test_slimmed_file_000000.root";
 
     check_create_directory(pathtodata);
     check_create_directory(pathtoplots);
+    check_create_directory(pathtorunplotsfile);
     check_create_directory(pathtorunplots);
     check_create_directory(pathtotemplatedb);
 
@@ -64,8 +67,6 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     int p_fail_count = 0;
     int processed_entries = 0;
     int used_entries = 0;
-    int too_many = 0;
-    int twohittracks = 0;
     int failed_count = 0;
     unsigned int runID;
     bool stopping_point_reached = false;
@@ -177,7 +178,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
 
     //open new TFile for plots
-    TFile * tF = new TFile((pathtorunplots +"TemplateBank_dataset_" +
+    TFile * tF = new TFile((pathtorunplotsfile +"TemplateBank_dataset_" +
             get_padded_string(dataset, 3, '0') + "_id" + get_padded_string(combination_id, 3, '0') + "_plots.root").c_str(), "update");
     if (!tF->IsOpen()) {
         std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
@@ -217,6 +218,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     PE.closePlot();
     TB.PlotTemplatePopulationHistogram();
     TB.PlotEfficiency();
+    TB.PlotEfficiencyOverTcount();
 
     //close plot root file
     tF->Close();
