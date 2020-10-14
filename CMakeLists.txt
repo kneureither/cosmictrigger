@@ -14,6 +14,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/util)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/karimaki)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/root)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Mu3eCosPat)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Mu3eCosPat/include) #this is for the core modules
 
 include_directories(${F2CPATH}) #findet f2c.h
 
