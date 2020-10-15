@@ -6,7 +6,7 @@
 #define COSMICTRIGGER_BACKGROUNDDATAFILE_H
 
 #include "basicDefines.h"
-#include "../Mu3eCosPat/include/TemplateData.h"
+#include "../CTCoreModules/inc/TemplateData.h"
 #include "TTree.h"
 
 using temidarr = std::array<unsigned short, TID_LEN>;

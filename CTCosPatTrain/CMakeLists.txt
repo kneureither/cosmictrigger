@@ -1,0 +1,34 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+project(CosmicTrigger C CXX)
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(include)
+
+#add_library(cospat STATIC processSegsPrototype.cpp SuperPixelHit.cpp PatternEngineSingle.cpp)
+#add_library(util SHARED ../util/plots.h ../util/utilityFunctions.h)
+#SET_TARGET_PROPERTIES(util PROPERTIES LINKER_LANGUAGE C)
+#target_link_libraries(cospat ${ROOT_LIBRARIES})
+
+add_library(patterns SHARED ../CTCoreModules/src/SuperPixelHit.cpp ../CTCoreModules/src/PatternEngineSingle.cpp ../CTCoreModules/src/TemplateBank.cpp ../CTCoreModules/src/TemplateData.cpp ../CTCoreModules/src/PatternEngine.cpp ../CTCoreModules/src/SPCalculations.cpp ../root/TemplateDatabaseFile.cpp TBCosmicEfficiency.cpp include/TBCosmicEfficiency.h)
+target_link_libraries(patterns ${ROOT_LIBRARIES})
+
+set(SRC main_CTbuildMany.cpp cosmicTemplatesBuild.cpp ../CTPlottingScripts/src/cosmicTemplatesTrainingPlots.cpp)
+add_executable(Mu3eCosPat1BuildMany ${SRC})
+target_link_libraries(Mu3eCosPat1BuildMany patterns rootTreeFiles)
+
+set(SRC2 main_CTbuild.cpp cosmicTemplatesBuild.cpp ../root/TemplateDatabaseFile.cpp)
+add_executable(Mu3eCosPatBuild ${SRC2})
+target_link_libraries(Mu3eCosPatBuild patterns rootTreeFiles)
+
+set(SRC3 main_CTefficiency.cpp cosmicTemplatesEfficiency.cpp ../root/TemplateDatabaseFile.cpp)
+add_executable(Mu3eCosPat3Eff ${SRC3})
+target_link_libraries(Mu3eCosPat3Eff patterns rootTreeFiles)
+
+set(SRC5 main_getCosmicData.cpp cosmicTemplatesEfficiency.cpp)
+add_executable(Mu3eCosPat4LoadCosData ${SRC5})
+target_link_libraries(Mu3eCosPat4LoadCosData rootTreeFiles patterns)
+
+
+
+#target_link_libraries(CTCosPatTrain ${ROOT_LIBRARIES} f2clib karilib)
+#add_compile_options("-lf2c" "-DMAIN")

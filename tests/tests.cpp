@@ -13,7 +13,7 @@
 #include <iostream>
 #include "testTemplateData.h"
 #include "testTemplateID.h"
-#include "../Mu3eCosPat/include/TemplateBank.h"
+#include "../CTCoreModules/inc/TemplateBank.h"
 #include "testTemplateBank.h"
 
 

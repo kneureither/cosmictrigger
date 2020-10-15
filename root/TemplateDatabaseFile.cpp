@@ -3,7 +3,7 @@
 //
 
 #include "TemplateDatabaseFile.h"
-#include "../Mu3eCosPat/include/TemplateData.h"
+#include "../CTCoreModules/inc/TemplateData.h"
 
 void TemplateDatabaseFile::reinitializeData() {
     tid_len = -1;

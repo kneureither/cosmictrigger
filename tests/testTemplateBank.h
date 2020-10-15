@@ -5,7 +5,7 @@
 #ifndef COSMICTRIGGER_TESTTEMPLATEBANK_H
 #define COSMICTRIGGER_TESTTEMPLATEBANK_H
 
-#include "../Mu3eCosPat/include/TemplateBank.h"
+#include "TemplateBank.h"
 
 void testTemplateBank() {
     int dataset = 11;
@@ -18,7 +18,7 @@ void testTemplateBank() {
     float TB_STOPPING_EFF = 0.6;
 
     TemplateBank TB(pathtorunplots, dataset, mode, spWbins, spZbins);
-    TB.PRINTS = false;
+    TB.SetPrints(false);
 //    TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF);
 
     //test Area type function
@@ -52,7 +52,6 @@ void testTemplateBank() {
 
     // test histogram template type
     TB.PlotTemplateTypeDistribution();
-
 
 
     std::cout << "\n(STATUS) : Finished all tests for Template Bank!" << std::endl;
