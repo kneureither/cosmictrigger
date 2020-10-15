@@ -2,13 +2,14 @@
 // Created by Konstantin Neureither on 16.06.20.
 //
 
-#include "../CTCoreModules/inc/TemplateBank.h"
-#include "../CTCoreModules/inc/PatternEngineSingle.h"
-#include "../CTCoreModules/inc/PatternEngine.h"
+#include "TemplateBank.h"
+#include "PatternEngineSingle.h"
+#include "PatternEngine.h"
 #include "cosmicTemplatesBuild.h"
 #include "cosmicTemplatesEfficiency.h"
 #include "../CTPlottingScripts/inc/cosmicTemplatesTrainingPlots.h"
 #include <vector>
+#include "Configuration.h"
 
 
 void processSegsPrototype(int, int);
@@ -26,13 +27,16 @@ int main(int argc, char *argv[]) {
     //this must be set -->
 //    std::vector<float> sp_ratios = {0.1, 0.25, 0.5, 1, 2, 4, 10};
 //    std::vector<float> sp_ratios = {0.25, 1, 4};
-    std::vector<float> sp_ratios = {2};
 //    std::vector<int> sp_count = {200,400,600,800, 1024};
-    std::vector<int> sp_count = {200};
-    std::vector<float> stopping_effs = {0.4};
-    int combination_id = 2; //will produce a separate file
-    int dataset = 12;
-    bool append_to_outfile = false;
+    Configuration CONFIG;
+    CONFIG.BUILDTB();
+
+    std::vector<float> sp_ratios = CONFIG.sp_ratios;
+    std::vector<int> sp_count = CONFIG.sp_res;
+    std::vector<float> stopping_effs = CONFIG.stopping_effs;
+    int combination_id = CONFIG.TrainPlots.combination_id; //will produce a separate file
+    int dataset = CONFIG.dataset;
+    bool append_to_outfile = true;
     //   <-- up till here.
 
     std::vector<int> cycle_plotting_order;
@@ -61,7 +65,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "Producing combined plots for dataset " << dataset << "..." << std::endl;
-    makeCosPatPlots(dataset, combination_id, cycle_plotting_order);
+    makeCosPatPlots(dataset, combination_id, cycle_plotting_order, std::string());
 
 
 

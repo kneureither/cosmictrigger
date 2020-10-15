@@ -120,10 +120,17 @@ void BGAnaResTreeRead::setBranches() {
 
     tT_bgeff->SetBranchAddress("background_efficiency", &bg_discr_eff);
     tT_bgeff->SetBranchAddress("tb_training_eff", &tb_training_eff);
+    tT_bgeff->SetBranchAddress("tb_train_eff_total", &train_eff_total);
+    tT_bgeff->SetBranchAddress("tb_train_eff_relative", &train_eff_rel);
+    tT_bgeff->SetBranchAddress("tb_filter", &tb_filter);
+    tT_bgeff->SetBranchAddress("tb_filter_str", &filter_string_ptr);
     tT_bgeff->SetBranchAddress("frame_eff", &frame_effs_ptr);
     tT_bgeff->SetBranchAddress("frame_bghits", &frame_hits_ptr);
     tT_bgeff->GetEntry(0);
 
+    filter = (TIDLoadingFilter) tb_filter;
+
+    filter_str = *filter_string_ptr;
     frame_effs = *frame_effs_ptr;
     frame_hits = *frame_hits_ptr;
 }

@@ -103,4 +103,29 @@ static std::string getfileidtag(int mode, int wbins, int zbins) {
 }
 
 
+static std::string get_bgevalfile(int bgevents, int run, int dataset, int mode, int wbins, int zbins) {
+    return "CosmicBackgroundEval_bgevents_" + get_padded_string(bgevents, 6, '0') + "_run_" + get_padded_string(run, 6, '0') +
+           "_dataset" + get_string(dataset) + "_" + getfileidtag(mode, wbins, zbins) + "_plots.root";
+}
+
+static std::string get_bgevalfile(int bg_events, int cosmic_eff_events, int bg_run, int cosmic_eff_dataset, int dataset, int mode, int wbins, int zbins) {
+
+    return "CosmicTBGAna_bkgEv" + get_padded_string(bg_events, 6, '0') +
+           "_cosEv" + get_padded_string(cosmic_eff_events, 6, '0') +
+           "_bkgrun_" + get_padded_string(bg_run, 6, '0') +
+           "_cosdst_" + get_padded_string(cosmic_eff_dataset, 6, '0') +
+           "_dataset" + get_string(dataset) + "_" + getfileidtag(mode, wbins, zbins) + "_plots.root";
+}
+
+static std::string get_tbtrainingoutfile(int dataset, int id, int legacy=0) {
+    if(!legacy) {
+        return "CTCosPatBuild_dataset_" + get_padded_string(dataset, 3, '0') + "_id" + get_padded_string(id, 3, '0') + "_plots.root";
+    } else {
+        return "TemplateBank_dataset_" + get_padded_string(dataset, 3, '0') + "_id" + get_padded_string(id, 3, '0') + "_plots.root";
+    }
+}
+
+
+
+
 #endif //COSMICTRIGGER_UTILITY_FUNCTIONS_H

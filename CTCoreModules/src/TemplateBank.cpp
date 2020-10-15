@@ -456,7 +456,7 @@ void TemplateBank::PlotTemplateMatchedFreqHistogram(std::string filetag) {
     }
     h_templfreq->Draw();
     h_templfreq->Write();
-    saveCanvas(canvas, ("templateMatchingFrequency_" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
+    saveCanvas(canvas, ("TemplateBank_" + getfileidtag((loaded_database_from_file ? 2 : 0)) + "_MatchingFrequency").c_str(), plottingpath);
 }
 
 void TemplateBank::PlotTemplatePopulationHistogram() {
@@ -817,7 +817,7 @@ void TemplateBank::PlotTemplateTypeDistribution() {
     tline2.Draw();
 
     h_templtypes->Write();
-    saveCanvas(canvas, ("TemplateTypes_" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
+    saveCanvas(canvas, ("TemplateBank_" + getfileidtag((loaded_database_from_file ? 2 : 0)) + "_TemplateTypes").c_str(), plottingpath);
 }
 
 void TemplateBank::SetPrints(bool opt) {

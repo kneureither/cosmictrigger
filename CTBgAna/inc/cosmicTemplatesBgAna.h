@@ -8,7 +8,9 @@
 #include "../../CTCoreModules/inc/TemplateBank.h"
 
 void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcount, float spWZratio,
-                           const float tb_stopping_efficiency, const bool append_outfile, std::vector<TIDLoadingFilter> filters);
+                          const float tb_stopping_efficiency, const bool append_outfile,
+                          std::vector<TIDLoadingFilter> filters, int max_bg_entries, int max_cosmic_entries,
+                          int max_bg_frame_nhits, int cosmic_testing_dst);
 
 struct BGhit{
     double x;

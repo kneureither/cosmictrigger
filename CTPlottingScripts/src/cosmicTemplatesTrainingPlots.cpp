@@ -25,7 +25,8 @@
 
 #define LEGEND_ON_TOP false
 
-void makeCosPatPlots(const int dataset, const int combination_id, std::vector<int> cycle_plotting_order) {
+void makeCosPatPlots(const int dataset, const int combination_id, std::vector<int> cycle_plotting_order,
+                     std::string filelabel="") {
     const std::string pathtodata = "output/Mu3eCosPat/";
     const std::string pathtoplots = "output/Mu3eCosPatPlots/";
     std::string pathtorunplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
@@ -38,7 +39,8 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     const bool FILTER = false;
 //    const bool LEGEND_ON_TOP = false;
 
-    std::string filelabel = "";
+    gStyle->SetLegendBorderSize(0);
+
 
     gStyle->SetTitleFontSize(0.06);
     gStyle->SetPalette(kThermometer);
@@ -49,7 +51,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     check_create_directory(pathtorundata);
 
     //open file with plots from Pattern Engine and Template Bank
-    TFile tinF((pathtorundata + "TemplateBank_dataset_" + get_padded_string(dataset, 3, '0') + "_id" + get_padded_string(combination_id, 3, '0') + "_plots.root").c_str(), "update");
+    TFile tinF((pathtorundata + get_tbtrainingoutfile(dataset, combination_id)).c_str(), "update");
     if (!tinF.IsOpen()) {
         std::cout << "[ERROR] File " << tinF.GetName() << " is not open!" << std::endl;
         exit(0);
@@ -91,7 +93,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 #if LEGEND_ON_TOP
         auto legend = new TLegend(0.6,0.55,0.9,0.9);
 #else
-        auto legend = new TLegend(0.6,0.1,0.9,0.55);
+        auto legend = new TLegend(0.6,0.15,0.88,0.2+cycle_plotting_order.size()*0.05);
 #endif
 
     auto *pad2 = new TPad("template count", "template count", 0, 0, 1, 0.3);
