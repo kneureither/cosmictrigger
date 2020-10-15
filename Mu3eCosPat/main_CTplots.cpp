@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[]) {
     int dataset = 12;
-    int combination_id = 1;
+    int combination_id = 2;
 
     /*dataset 09 id 02*/ std::vector<int> cycle_plotting_order = {1};
 //    /*dataset 09 id 02*/ std::vector<int> cycle_plotting_order = {57,56,55,54,53,52};

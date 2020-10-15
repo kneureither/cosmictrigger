@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
     std::vector<float> stopping_effs = {0.4};
     int combination_id = 2; //will produce a separate file
     int dataset = 12;
+    bool append_to_outfile = false;
     //   <-- up till here.
 
     std::vector<int> cycle_plotting_order;
@@ -46,13 +47,15 @@ int main(int argc, char *argv[]) {
 //        spcount = atoi(argv[2]);
     }
 
+
     for(int i=0; i < sp_ratios.size(); i++) {
         for(int j=0; j < sp_count.size(); j++) {
             for(int n=0; n < stopping_effs.size(); n++) {
                 std::cout << "Building Template Database for dataset " << dataset << " SPratio=" << sp_ratios[i]
                           << " SPcout=" << sp_count[j] << ".." << std::endl;
                 cycle_plotting_order.push_back(cycle_plotting_order.size()+1);
-                cosmicTemplatesBuild(dataset, sp_count[j], sp_ratios[i], combination_id, stopping_effs[n]);
+                cosmicTemplatesBuild(dataset, sp_count[j], sp_ratios[i], combination_id, stopping_effs[n], append_to_outfile);
+                append_to_outfile = true;
             }
         }
     }

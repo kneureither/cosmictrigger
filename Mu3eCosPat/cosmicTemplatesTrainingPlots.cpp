@@ -38,7 +38,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     const bool FILTER = false;
 //    const bool LEGEND_ON_TOP = false;
 
-    std::string filelabel = "onlyhighwbinconfigs";
+    std::string filelabel = "";
 
     gStyle->SetTitleFontSize(0.06);
     gStyle->SetPalette(kThermometer);
@@ -71,19 +71,21 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     TH1F *h_templfreq;
     TGraph *g_efficiency;
     TGraph *g_tnumber;
+    TGraph *g_eff_tnumber;
     auto g_efficiencies  = new TMultiGraph();
     auto g_tnumbers  = new TMultiGraph();
+    auto g_eff_tnumbers  = new TMultiGraph();
 
 
 
     TCanvas *canvas = new TCanvas("canvas", "Template Bank Pattern Result", 900, 600);
-    canvas->SetGrid(1, 1);
+    canvas->SetGrid(0, 0);
     canvas->SetTicks(1, 1);
     canvas->SetLogx(1);
 
     auto *pad1 = new TPad("template efficiency", "template efficiency", 0, 0.3, 1, 0.99);
     pad1->SetLogx(0);
-    pad1->SetGrid(1,5);
+//    pad1->SetGrid(1,5);
     pad1->Draw();
 
 #if LEGEND_ON_TOP
@@ -95,7 +97,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     auto *pad2 = new TPad("template count", "template count", 0, 0, 1, 0.3);
     pad2->SetLogx(0);
     pad2->SetBottomMargin(0.2);
-    pad2->SetGrid(1,5);
+//    pad2->SetGrid(1,5);
     pad2->Draw();
 
 
@@ -123,7 +125,6 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
         for( auto &cycle : cycle_plotting_order) std::cout << cycle << " - ";
         std::cout << std::endl << std::endl;
     }
-
 
 
     for(auto &cycle : cycle_plotting_order) {
@@ -170,6 +171,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
         tinF.GetObject(("g_efficiency;" + get_string(cycle)).c_str(), g_efficiency);
         tinF.GetObject(("g_tnumber;" + get_string(cycle)).c_str(), g_tnumber);
         tinF.GetObject(("h_templfreq;" + get_string(cycle)).c_str(), h_templfreq);
+        tinF.GetObject(("g_eff_templ;" + get_string(cycle)).c_str(), g_eff_tnumber);
 
 
         //make the plots
@@ -183,7 +185,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
         g_efficiency->GetXaxis()->SetTitleSize(14);
         g_efficiency->GetXaxis()->SetTitleOffset(1.4);
 
-        g_efficiency->GetYaxis()->SetTitle("efficiency #epsilon = #frac{tmpl_{matched}}{tmpl_{total}}");
+        g_efficiency->GetYaxis()->SetTitle("efficiency #epsilon^{cosmic}_{train}");
         g_efficiency->GetYaxis()->SetLabelFont(43);
         g_efficiency->GetYaxis()->SetLabelSize(14);
         g_efficiency->GetYaxis()->SetTitleFont(63);
@@ -229,6 +231,30 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 
         //add to multi graph
         g_tnumbers->Add(g_tnumber, "L");
+
+        /// graph eff - tnumber
+        g_eff_tnumber->SetTitle("");
+        g_eff_tnumber->SetMaximum(1);
+
+//        g_eff_tnumber->GetXaxis()->SetTitle("number of templates");
+//        g_eff_tnumber->GetXaxis()->SetLabelFont(43);
+//        g_eff_tnumber->GetXaxis()->SetLabelSize(16);
+//        g_eff_tnumber->GetXaxis()->SetTitleOffset(0);
+//        g_eff_tnumber->GetXaxis()->SetTitleFont(63);
+//        g_eff_tnumber->GetXaxis()->SetTitleSize(14);
+//        g_eff_tnumber->GetXaxis()->SetTickLength(0.05);
+//
+//        g_eff_tnumber->GetYaxis()->SetTitle("efficiency #epsilon^{cosmic}_{train}");
+//        g_eff_tnumber->GetYaxis()->SetLabelFont(43);
+//        g_eff_tnumber->GetYaxis()->SetLabelSize(16);
+//        g_eff_tnumber->GetYaxis()->SetTitleFont(63);
+//        g_eff_tnumber->GetYaxis()->SetTitleSize(13);
+//        g_eff_tnumber->GetYaxis()->SetTitleOffset(0);
+
+        g_eff_tnumber->GetYaxis()->CenterTitle(false);
+
+        //add to multi graph
+        g_eff_tnumbers->Add(g_eff_tnumber, "L");
     }
 
     g_efficiencies->GetYaxis()->SetRangeUser(0, 1);
@@ -271,7 +297,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 
     auto *pad3 = new TPad("template efficiency", "template efficiency", 0, 0, 1, 0.99);
     pad3->SetLogx(0);
-    pad3->SetGrid(1,5);
+//    pad3->SetGrid(1,5);
     pad3->Draw();
     pad3->cd();
 
@@ -285,7 +311,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 
     auto *pad4 = new TPad("template count", "template count", 0, 0, 1, 0.99);
     pad4->SetLogx(0);
-    pad4->SetGrid(1,5);
+//    pad4->SetGrid(1,5);
     pad4->Draw();
     pad4->cd();
 
@@ -304,6 +330,64 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     saveCanvas(canvas3, "CosPatPlots_dataset_" + get_string(dataset) +"_" + filelabel + "_id" + get_padded_string(combination_id, 3, '0') + "_TemplateCount", pathtorunplots);
 
 
+    TCanvas *c_eff_templ = new TCanvas("c_eff_templ", "Template Bank Pattern Result", 900, 600);
+    c_eff_templ->SetGrid(1, 1);
+    c_eff_templ->SetTicks(1, 1);
+    c_eff_templ->SetLogx(1);
+
+    auto *pad5 = new TPad("eff-template_count", "eff over template count", 0, 0, 1, 1);
+    pad5->SetLogx(0);
+    pad5->Draw();
+    pad5->cd();
+    pad5->SetBottomMargin(0.16);
+
+    g_eff_tnumbers->GetXaxis()->SetTitle("# templates");
+    g_eff_tnumbers->GetYaxis()->SetTitle("efficiency #epsilon^{cosmic}_{train}");
+    g_eff_tnumbers->SetMaximum(1);
+
+    g_eff_tnumbers->GetXaxis()->SetTitleFont(52);
+    g_eff_tnumbers->GetXaxis()->SetLabelFont(42);
+    g_eff_tnumbers->GetXaxis()->SetTitleOffset(1);
+    g_eff_tnumbers->GetXaxis()->SetTitleSize(0.04);
+    g_eff_tnumbers->GetXaxis()->SetLabelSize(0.035);
+
+    g_eff_tnumbers->GetYaxis()->SetTitleFont(52);
+    g_eff_tnumbers->GetYaxis()->SetLabelFont(42);
+    g_eff_tnumbers->GetYaxis()->SetTitleOffset(1);
+
+    g_eff_tnumbers->GetYaxis()->SetTitleSize(0.04);
+    g_eff_tnumbers->GetYaxis()->SetLabelSize(0.035);
+
+//    g_eff_tnumbers->GetYaxis()->SetTitleSize(0.06);
+//    g_eff_tnumbers->GetYaxis()->SetLabelSize(0.08);
+
+
+//    g_eff_tnumbers->GetYaxis()->SetNdivisions(10, 5, 0, true);
+//    g_eff_tnumbers->GetXaxis()->SetTitleFont(52);
+//    g_eff_tnumbers->GetYaxis()->SetTitleFont(52);
+//    g_eff_tnumbers->GetXaxis()->SetLabelSize(0.03);
+//    g_eff_tnumbers->GetYaxis()->SetLabelSize(0.03);
+//    g_eff_tnumbers->GetXaxis()->SetTitleSize(0.03);
+//    g_eff_tnumbers->GetYaxis()->SetTitleSize(0.03);
+//    g_eff_tnumbers->GetYaxis()->SetMaxDigits(1);
+//    g_eff_tnumbers->GetYaxis()->SetTitleOffset(0);
+//
+//    g_eff_tnumber->GetXaxis()->SetLabelFont(43);
+//    g_eff_tnumber->GetXaxis()->SetLabelSize(16);
+//    g_eff_tnumber->GetXaxis()->SetTitleOffset(0);
+//    g_eff_tnumber->GetXaxis()->SetTitleFont(63);
+//    g_eff_tnumber->GetXaxis()->SetTitleSize(14);
+//    g_eff_tnumber->GetXaxis()->SetTickLength(0.05);
+//
+//    g_eff_tnumber->GetYaxis()->SetLabelFont(43);
+//    g_eff_tnumber->GetYaxis()->SetLabelSize(16);
+//    g_eff_tnumber->GetYaxis()->SetTitleFont(63);
+//    g_eff_tnumber->GetYaxis()->SetTitleSize(13);
+//    g_eff_tnumber->GetYaxis()->SetTitleOffset(0);
+
+    legend->Draw("C");
+    g_eff_tnumbers->Draw("A PLC PMC");
+    saveCanvas(c_eff_templ, "CosPatPlots_dataset_" + get_string(dataset) +"_" + filelabel + "_id" + get_padded_string(combination_id, 3, '0') + "_EffvsTemplateCount", pathtorunplots);
 
     tinF.Close();
 

@@ -596,8 +596,8 @@ void TemplateBank::PlotEfficiencyOverTcount() {
     pad1->Draw();
 
     //Efficiency
-    TGraph *g_efficiencytempl = new TGraph( Ntemplates.size(),&Ntemplates[0],&efficiency[0]);
-    g_efficiencytempl->SetName("g_efficiency");
+    TGraph *g_efficiencytempl = new TGraph(Ntemplates.size(),&Ntemplates[0],&efficiency[0]);
+    g_efficiencytempl->SetName("g_eff_templ");
     g_efficiencytempl->SetTitle("template efficiency vs template count");
     labelAxis(g_efficiencytempl, "# templates", "training efficiency");
     setGraphRange(g_efficiencytempl,100, Ntemplates[Ntemplates.size()-1], 0, 1);
@@ -605,6 +605,7 @@ void TemplateBank::PlotEfficiencyOverTcount() {
     g_efficiencytempl->SetLineColor(kBlue);
     g_efficiencytempl->SetMarkerStyle(23);
     g_efficiencytempl->SetMarkerSize(1);
+    g_efficiencytempl->SetMaximum(1);
     pad1->cd();
     g_efficiencytempl->Draw("ALP");
     g_efficiencytempl->Write();

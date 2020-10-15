@@ -22,7 +22,7 @@
 void getReferenceHits(unsigned int *pInt, int nhit, unsigned int ncombinedhits);
 
 void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float spWZratio, int combination_id,
-                          float max_efficiency) {
+                          float max_efficiency, bool append_to_outfile) {
     const std::string pathtodata = "data/SlimmedData/";
     const std::string pathtoplots = "output/Mu3eCosPat/";
 
@@ -133,8 +133,6 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 //            continue;
 //        }
 
-            if(PRINTS) printf("\nSLIM SEGS;%d ENTRY %d\n------------------------------\n\n",treecount, entryno);
-
             unsigned int SPID;
             bool enoughhits = 0;
 
@@ -179,7 +177,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
     //open new TFile for plots
     TFile * tF = new TFile((pathtorunplotsfile +"TemplateBank_dataset_" +
-            get_padded_string(dataset, 3, '0') + "_id" + get_padded_string(combination_id, 3, '0') + "_plots.root").c_str(), "update");
+            get_padded_string(dataset, 3, '0') + "_id" + get_padded_string(combination_id, 3, '0') + "_plots.root").c_str(), (append_to_outfile ? "update" : "recreate"));
     if (!tF->IsOpen()) {
         std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
     }
@@ -219,6 +217,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
     TB.PlotTemplatePopulationHistogram();
     TB.PlotEfficiency();
     TB.PlotEfficiencyOverTcount();
+    TB.PlotFreqTimesTemplatecount();
 
     //close plot root file
     tF->Close();
@@ -228,11 +227,11 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
     if(WRITE_DB_FILE) TB.writeAMtoFile(pathtotemplatedb, PE.ZBins, PE.WBins, PE.areaDescript, "testing_mode_descr");
 
-    TB.PlotFreqTimesTemplatecount();
-
     std::cout << "\n\n[============ GENERAL STATS ============]\n";
 
     std::cout << " - total entries processed: " << processed_entries << endl;
     std::cout << "   of which " << used_entries << " (" << used_entries / (float) processed_entries *100 << "%) were used" << std::endl;
     std::cout << " - total trees processed: " << treecount << endl << endl << endl;
+
+    return;
 }

@@ -406,7 +406,7 @@ void PatternEngineSingle::displayBinBoundaries() {
     }
 
     canvas->Write();
-    canvas->Print((this->plottingpath + this->runspecs + pltf()).c_str(), "pdf");
+    canvas->Print((this->plottingpath + "PatternEngine_" + this->runspecs + pltf()).c_str(), "pdf");
 
 }
 
@@ -475,7 +475,7 @@ std::string PatternEngineSingle::getRunSpecs() {
 
 void PatternEngineSingle::closePlot() {
     auto *c_final = new TCanvas("c_final", "c_final");
-    c_final->Print((this->plottingpath + this->runspecs + pltf() + ")").c_str(), "pdf");
+    c_final->Print((this->plottingpath + "PatternEngine_" + this->runspecs + pltf() + ")").c_str(), "pdf");
 }
 
 std::string PatternEngineSingle::getAreaTag() {
