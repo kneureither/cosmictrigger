@@ -14,6 +14,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/util)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/karimaki)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/root)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/CTCosPatTrain)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/CTCosPatTrain/include) #this is for the core modules
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/CTBgAna/inc)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/CTCoreModules/inc)
+
 
 include_directories(${F2CPATH}) #findet f2c.h
 
@@ -25,9 +30,10 @@ SET_TARGET_PROPERTIES(karilib PROPERTIES LINKER_LANGUAGE CXX)
 
 
 add_subdirectory(Mu3eRecAcc)
-add_subdirectory(Mu3eCosPat)
-add_subdirectory(Mu3ePreSlimData)
-add_subdirectory(Mu3eCTBgAna)
+add_subdirectory(CTCosPatTrain)
+add_subdirectory(CTPreSlimData)
+add_subdirectory(CTBgAna)
 add_subdirectory(tests)
 add_subdirectory(root)
 add_subdirectory(playground)
+add_subdirectory(CTPlottingScripts)

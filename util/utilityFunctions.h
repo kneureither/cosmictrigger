@@ -79,12 +79,23 @@ static void print_status_bar(int entry, int max_entries, std::string label, std:
     }
 }
 
+template <typename T1, typename T2>
+static std::string string_perc(T1 nominator, T2 denominator) {
+    std::stringstream ss;
+    ss << " " << nominator / (float) denominator * 100 << "% ";
+    return ss.str();
+}
+
 static std::string getfileidtag(int mydataset, int mode, int wbins, int zbins) {
     return "dataset" + get_string(mydataset) + "_mode" + get_string(mode) + "wBins" + get_string(wbins) + "zBins" + get_string(zbins);
 }
 
 static std::string getfileidtag(int mydataset, int mode, int wbins, int zbins, float stopping_efficiency) {
     return "dataset" + get_string(mydataset) + "_mode" + get_string(mode) + "wBins" + get_string(wbins) + "zBins" + get_string(zbins) + "_maxeff" + get_string(stopping_efficiency);
+}
+
+static std::string getfileidtag(int mydataset, int mode, int wbins, int zbins, float stopping_efficiency, std::string filter) {
+    return "dataset" + get_string(mydataset) + "_mode" + get_string(mode) + "wBins" + get_string(wbins) + "zBins" + get_string(zbins) + "_maxeff" + get_string(stopping_efficiency) + "_filter" + filter;
 }
 
 static std::string getfileidtag(int mode, int wbins, int zbins) {

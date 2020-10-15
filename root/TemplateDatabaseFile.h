@@ -4,7 +4,7 @@
 
 #ifndef COSMICTRIGGER_TEMPLATEDATABASEFILE_H
 #define COSMICTRIGGER_TEMPLATEDATABASEFILE_H
-#include "../Mu3eCosPat/include/TemplateData.h"
+#include "../CTCoreModules/inc/TemplateData.h"
 #include "TTree.h"
 
 class TemplateDatabaseFile {
@@ -37,6 +37,7 @@ public:
     int frequency;
 
     //maybe store these as mean and sigma values
+    //z0 is missing
     std::vector<int> nhit;
     std::vector<float> pt;
     std::vector<float> phi;

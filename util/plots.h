@@ -8,12 +8,32 @@
 #include <TCanvas.h>
 #include <type_traits>
 #include <iostream>
+#include <TStyle.h>
 
 //This file contains functions for setting plot properties
 //and filling plots with data.
 
 using std::cout;
 using std::endl;
+
+static std::vector<int> setPlottingStyle() {
+    gStyle->SetLabelFont(43);
+    gStyle->SetLabelSize(14);
+//    gStyle->SetLabelOffset(1.6);
+    gStyle->SetTitleFont(53);
+    gStyle->SetTitleSize(14);
+    gStyle->SetLegendFont(42);
+    gStyle->SetPadColor(0);
+    gStyle->SetCanvasColor(0);
+
+    gStyle->SetLegendBorderSize(0);
+    gStyle->SetPalette(kThermometer);
+    gStyle->SetMarkerStyle(23);
+
+    std::vector<int> custom_color_palette = {};
+
+    return custom_color_palette;
+}
 
 static void labelAxis(TH1 * h, const char * xtitle, const char * ytitle){
     h->GetXaxis()->SetTitle(xtitle);
@@ -23,7 +43,7 @@ static void labelAxis(TH1 * h, const char * xtitle, const char * ytitle){
     h->GetYaxis()->SetTitleSize(0.04);
 
     h->GetXaxis()->SetTitleOffset(0.9);
-    h->GetYaxis()->SetTitleOffset(1.2);
+    h->GetYaxis()->SetTitleOffset(0.9);
 
     h->GetXaxis()->SetLabelSize(0.03);
     h->GetYaxis()->SetLabelSize(0.03);
@@ -136,6 +156,22 @@ static void makeSimpleSingleCanvas(RootGraph * g, bool setlogy, bool setlogx, st
 template <typename RootGraph>
 static void makeSimpleSingleCanvas(RootGraph * g, std::string plottingfile) {
     makeSimpleSingleCanvas(g, false, false, plottingfile);
+}
+
+static void setPlottingStyle(TH1F* hs) {
+    hs->GetYaxis()->SetLabelFont(43);
+    hs->GetYaxis()->SetLabelSize(16);
+    hs->GetYaxis()->SetTitleFont(53);
+    hs->GetYaxis()->SetTitleSize(14);
+    hs->GetYaxis()->SetTitleOffset(1.6);
+    hs->GetYaxis()->CenterTitle(false);
+
+    hs->GetXaxis()->SetLabelFont(43);
+    hs->GetXaxis()->SetLabelSize(16);
+    hs->GetXaxis()->SetTitleFont(53);
+    hs->GetXaxis()->SetTitleSize(14);
+    hs->GetXaxis()->SetTitleOffset(1.6);
+    hs->GetXaxis()->CenterTitle(false);
 }
 
 #endif //COSMICTRIGGER_TPLOTS_H

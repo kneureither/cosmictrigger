@@ -1,0 +1,10 @@
+//
+// Created by Konstantin Neureither on 15.09.20.
+//
+
+#ifndef COSMICTRIGGER_BGANAPLOTS_EFFSPCOUNT_H
+#define COSMICTRIGGER_BGANAPLOTS_EFFSPCOUNT_H
+
+void BgAnaPlots_EffSPcount();
+
+#endif //COSMICTRIGGER_BGANAPLOTS_EFFSPCOUNT_H
