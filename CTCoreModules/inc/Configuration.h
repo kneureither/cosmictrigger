@@ -24,12 +24,26 @@ struct TltBnkFltr {
     std::vector<TIDLoadingFilter> filters;
 
     TltBnkFltr() {
-        setDefault();
     }
 
-    void setAll() {
+    TltBnkFltr &CLR() {
         filters.clear();
+        return *this;
+    }
+
+    TltBnkFltr &addALL() {
         filters.push_back(ALL);
+        return *this;
+    }
+
+    TltBnkFltr &addNO_CENTER() {
+        filters.push_back(NO_CENTER);
+        return *this;
+    }
+
+    TltBnkFltr &addCUT_ON_FREQ() {
+        filters.push_back(CUT_ON_FREQ);
+        return *this;
     }
 
     void setDefault() {
@@ -48,6 +62,38 @@ struct TltBnkFltr {
         filters.push_back(MIXED_ONLY);
         filters.push_back(CUT_ON_FREQ);
     }
+};
+
+struct BkgRateAna {
+    // Final Plot
+//    std::vector<int> bg_runs = {120, 121, 122, 126, 123};
+//    std::vector<float> beam_rates = {2e7, 6e7, 1e8, 2e8, 1e9};
+//    std::vector<float> nhit_mean = {5.3, 14.5, 24.3, 0, 242};
+//    std::vector<float> nhit_sigma = {10.55, 17.65, 22.9, 0, 71.9};
+//    std::vector<int> max_bkg_frames = {0, 0, 0, 0, 0};  //to reduce claculation time
+
+
+    // Testing
+    std::vector<int> bg_runs = {107, 122};
+    std::vector<float> beam_rates = {6e7, 1e8};
+    std::vector<float> nhit_mean = {14.5, 24.3};
+    std::vector<float> nhit_sigma = {17.65, 22.9};
+    std::vector<int> max_bkg_frames = {99900, 99900};  //to reduce claculation time
+
+
+    std::vector<int> max_nhits;
+
+    std::vector<int> make_max_nhit_cut = {1, 0}; // yes no
+    BkgRateAna(){
+        calc_max_nhits(1);
+    };
+
+    void calc_max_nhits(float sigmas) {
+      for(int i=0; i<nhit_mean.size(); i++) {
+          max_nhits.push_back((int) (nhit_mean[i] + (float) sigmas * nhit_sigma[i]));
+      }
+    }
+
 };
 
 
@@ -73,6 +119,7 @@ public:
 
     TltBnkTrnSet TrainPlots;
     TltBnkFltr TmplBankFilter;
+    BkgRateAna BkgFiles;
 
     Configuration &set1() {
         this->resetMembers();
@@ -125,72 +172,55 @@ public:
         return *this;
     }
 
-    Configuration &set3_build() {
+    Configuration &set3_base() {
         this->resetMembers();
         dataset = 12;
         background_run = 107;
         max_bg_frames = 99900;
         max_bg_frame_nhits = 100;
-
         TrainPlots.combination_id = 0;
-        TrainPlots.setFullCyclePlottingOrder(numOfSettings());
-
-//        sp_ratios.push_back(1);
-//        sp_ratios.push_back(4);
-//        sp_ratios.push_back(16);
-        sp_ratios.push_back(64);
-//        sp_ratios.push_back(256);
-
-
-//        sp_res.push_back(576);
-        sp_res.push_back(1024);
-//        sp_res.push_back(1600);
-//        sp_res.push_back(4096);
-        stopping_effs.push_back(0.6);
-        stopping_effs.push_back(0.8);
-
-        TmplBankFilter.filters.push_back(ALL);
-        TmplBankFilter.filters.push_back(NO_CENTER);
-
+        TmplBankFilter.CLR().addALL().addNO_CENTER().addCUT_ON_FREQ();
         set_description = "fltr_ready";
-
         return *this;
-    };
+    }
 
-    Configuration &set3_spc() {
-        this->resetMembers();
-        dataset = 12;
-        background_run = 107;
-        max_bg_frames = 99900;
-        max_bg_frame_nhits = 100;
+    Configuration &set3_trainplot() {
+        //only SPratio=64, tb_eff=0.6, 0.8
+        std::vector<int> cycles = {3,6,4,1,5,2};
+        TrainPlots.cycle_plotting_order = cycles;
+    }
 
-        TrainPlots.combination_id = 0;
-        TrainPlots.setFullCyclePlottingOrder(numOfSettings());
+    Configuration &set3_build() {
 
-//        sp_ratios.push_back(1);
-//        sp_ratios.push_back(4);
-//        sp_ratios.push_back(16);
+        sp_ratios.push_back(1);
+        sp_ratios.push_back(4);
+        sp_ratios.push_back(16);
         sp_ratios.push_back(64);
-//        sp_ratios.push_back(256);
-
+        sp_ratios.push_back(256);
 
         sp_res.push_back(576);
         sp_res.push_back(1024);
         sp_res.push_back(1600);
 //        sp_res.push_back(4096);
         stopping_effs.push_back(0.6);
-
-        set_description = "fltr_ready";
+        stopping_effs.push_back(0.8);
 
         return *this;
     };
 
+    Configuration &set3_spc(float ratio, float train_eff) {
+        sp_ratios.clear();
+        sp_ratios.push_back(ratio);
+
+        sp_res.push_back(576);
+        sp_res.push_back(1024);
+        sp_res.push_back(1600);
+//        sp_res.push_back(4096);
+        stopping_effs.push_back(train_eff);
+        return *this;
+    };
+
     Configuration &set3_roc() {
-        this->resetMembers();
-        dataset = 12;
-        background_run = 107;
-        max_bg_frames = 99900;
-        max_bg_frame_nhits = 100;
 
         sp_ratios.push_back(64);
 
@@ -200,11 +230,27 @@ public:
 //        sp_res.push_back(4096);
         stopping_effs.push_back(0.6);
         stopping_effs.push_back(0.8);
-
-        set_description = "fltr_ready";
-
         return *this;
     };
+
+    Configuration &bkg_rates() {
+        sp_res.push_back(1024);
+        sp_ratios.push_back(64);
+        stopping_effs.push_back(0.6);
+
+
+        int datapoint_bg_run = 0;
+        max_bg_frames = 99900;
+//        max_bg_frame_nhits = 0;
+        max_bg_frame_nhits = BkgFiles.max_nhits[datapoint_bg_run];
+        background_run = BkgFiles.bg_runs[datapoint_bg_run];
+
+        TmplBankFilter.filters.clear();
+        TmplBankFilter.addALL().addNO_CENTER();
+
+        return *this;
+    }
+
 
     std::string RatiosToString() {
         std::string ratios = "";
@@ -230,34 +276,39 @@ public:
         return res;
     }
 
+    std::string FiltersToString() {
+        std::string filter = "";
+        for(int i=0; i< TmplBankFilter.filters.size(); i++) {
+            filter = filter + enum_to_string(TmplBankFilter.filters[i]) + (i < TmplBankFilter.filters.size() - 1 ? "_" : "");
+        }
+        return filter;
+    }
+
 
     //// SETTING CALLS OF DIFFERENT SCRIPTS
 
     void BUILDTB() {
-        set3_build();
+        set3_base().set3_build();
     }
 
     void BUILDTB_TRAIN_PLOT(){
-        set3_build();
-        TrainPlots.setFullCyclePlottingOrder(2);
-
+        set3_base().set3_trainplot();
     }
+
     void BUILDTB_COS_EFF() {
-        set3_build();
+        set3_base().set3_build();
     }
 
     void BGANA() {
-        set3_build();
-
+        bkg_rates();
+//        set3_base().set3_build();
     }
 
     void BGANA_PLOT_ROC() {
-//        set2_roc();
-        set3_roc();
+        set3_base().set3_roc();
     }
     void BGANA_PLOT_SPC() {
-        set3_spc();
-//        set2_spcount();
+        set3_base().set3_spc(64, 0.6);
     }
 
 

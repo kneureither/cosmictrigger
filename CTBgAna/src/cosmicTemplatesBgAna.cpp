@@ -44,8 +44,6 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
      * check the frequency
      */
 
-    //TODO add mutliplicity plot
-
     int MAX_BG_ENTRIES = max_bg_entries;
     int MAX_COSMIC_ENTRIES = max_cosmic_entries;
     int MAX_MUON_HITS = 0;
@@ -113,7 +111,7 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
         TB.SetPrints(false);
         TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF, filter);
         TB.PlotTemplateTypeDistribution();
-        std::cout << "(CONFIG) : [BKG-EFF] wBins " << TB.mywbins << " | zBins " << TB.myzbins << std::endl;
+        std::cout << "(CONFIG) : [BKG-EFF] wBins " << TB.mywbins << " | zBins " << TB.myzbins << " | max nhits " << max_bg_frame_nhits << std::endl;
 
         int rejected_frames = 0;
         int accepted_frames = 0;
@@ -193,14 +191,18 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
         std::cout << "(INFO)    : [BKG-EFF] BG efficiency: " << background_efficiency << "   (avg. nhits: " << mean_frame_nhits << ")"
                   << std::endl;
 
-
         //open new TFile for plots
-        TFile *tF = new TFile((pathtooutfile + "CosmicTBGAna" +
-                               "_bkgEv" + get_padded_string(BGcmbncsResult.bg_events, 6, '0') +
-                               "_cosEv" + get_padded_string(MAX_COSMIC_ENTRIES, 6, '0') +
-                               "_bkgrun_" + get_padded_string(run, 6, '0') +
-                               "_cosdst_" + get_padded_string(cosmic_testing_dataset, 6, '0') + "_" +
-                               TB.getfileidtag(1) + "_plots.root").c_str(), (RECREATE_FILE ? "recreate" : "update"));
+        TFile *tF = new TFile((pathtooutfile + get_bgevalfile(BGcmbncsResult.bg_events, MAX_COSMIC_ENTRIES,
+                MAX_NHITS, run, cosmic_testing_dataset, dataset, mode, spWbins, spZbins)).c_str(),
+                        (RECREATE_FILE ? "recreate" : "update"));
+
+//        TFile *tF = new TFile((pathtooutfile + "CosmicTBGAna" +
+//                               "_bkgEv" + get_padded_string(BGcmbncsResult.bg_events, 6, '0') +
+//                               "_cosEv" + get_padded_string(MAX_COSMIC_ENTRIES, 6, '0') +
+//                               "_bkgrun_" + get_padded_string(run, 6, '0') +
+//                               "_cosdst_" + get_padded_string(cosmic_testing_dataset, 6, '0') + "_" +
+//                               TB.getfileidtag(1) + "_plots.root").c_str(), (RECREATE_FILE ? "recreate" : "update"));
+
         if (!tF->IsOpen()) {
             std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
         }
@@ -236,7 +238,7 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
         tT_efficiencies.Branch("tb_train_eff_total", &train_eff_total, "tb_train_eff_total/F");
         tT_efficiencies.Branch("tb_train_eff_relative", &train_eff_relative, "tb_train_eff_relative/F");
         tT_efficiencies.Branch("tb_filter_str", &filter_string);
-        tT_efficiencies.Branch("filter", &filter);
+        tT_efficiencies.Branch("tb_filter", &filter);
 
         tT_efficiencies.Branch("frame_eff", &frame_eff);
         tT_efficiencies.Branch("frame_bghits", &frame_bghits);
@@ -295,9 +297,12 @@ BGcombinatorics produceBGcmbncsTID(const int bg_run, PatternEngine &PEbg, int ma
         Mu3e.getEntry(frame);
         if (PRINTS) Mu3e.Print(frame);
 
-        if (Mu3e.Nhit > MAX_NHITS) {
+        if (MAX_NHITS != 0 && Mu3e.Nhit > MAX_NHITS) {
+            continue;
+        } else if(Mu3e.Nhit == 0) {
             continue;
         }
+
         BGcmbncsResult.processed_frames++;
         print_status_bar(frame, bg_events, "bg event combinatorics", "");
 
