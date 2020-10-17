@@ -47,6 +47,8 @@ public:
     std::vector<float> *frame_effs_ptr = nullptr;
     std::vector<int>frame_hits;
     std::vector<int> *frame_hits_ptr = nullptr;
+    float mean_bg_frame_nhits;
+    int max_bg_frame_nhits;
 
     void reinitializeData();
     MetaDataTreeFile() {}

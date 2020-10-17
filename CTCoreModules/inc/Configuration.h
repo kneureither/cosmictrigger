@@ -192,15 +192,15 @@ public:
 
     Configuration &set3_build() {
 
-        sp_ratios.push_back(1);
-        sp_ratios.push_back(4);
-        sp_ratios.push_back(16);
+//        sp_ratios.push_back(1);
+//        sp_ratios.push_back(4);
+//        sp_ratios.push_back(16);
         sp_ratios.push_back(64);
-        sp_ratios.push_back(256);
+//        sp_ratios.push_back(256);
 
-        sp_res.push_back(576);
+//        sp_res.push_back(576);
         sp_res.push_back(1024);
-        sp_res.push_back(1600);
+//        sp_res.push_back(1600);
 //        sp_res.push_back(4096);
         stopping_effs.push_back(0.6);
         stopping_effs.push_back(0.8);
@@ -300,8 +300,8 @@ public:
     }
 
     void BGANA() {
-        bkg_rates();
-//        set3_base().set3_build();
+//        bkg_rates();
+        set3_base().set3_build();
     }
 
     void BGANA_PLOT_ROC() {

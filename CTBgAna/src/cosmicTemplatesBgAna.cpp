@@ -232,17 +232,19 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
 
         std::string filter_string = enum_to_string(filter);
 
+
         TTree tT_efficiencies("BackgroundEfficiency", "Contains the Bg efficiencies per Frame");
         tT_efficiencies.Branch("background_efficiency", &background_efficiency, "background_efficiency/F");
         tT_efficiencies.Branch("tb_training_eff", &tb_max_efficiency, "tb_training_eff/F");
         tT_efficiencies.Branch("tb_train_eff_total", &train_eff_total, "tb_train_eff_total/F");
         tT_efficiencies.Branch("tb_train_eff_relative", &train_eff_relative, "tb_train_eff_relative/F");
         tT_efficiencies.Branch("tb_filter_str", &filter_string);
-        tT_efficiencies.Branch("tb_filter", &filter);
+        tT_efficiencies.Branch("tb_filter", &filter, "tb_filter/I");
 
         tT_efficiencies.Branch("frame_eff", &frame_eff);
         tT_efficiencies.Branch("frame_bghits", &frame_bghits);
         tT_efficiencies.Branch("mean_frame_nhits", &mean_frame_nhits, "mean_frame_nhits/F");
+        tT_efficiencies.Branch("max_bg_frame_nhits", &max_bg_frame_nhits, "max_bg_frame_nhits/I");
         tT_efficiencies.Fill();
         tT_efficiencies.Write();
 

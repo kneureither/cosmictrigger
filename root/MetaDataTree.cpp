@@ -64,7 +64,7 @@ MetaDataTreeWrite::MetaDataTreeWrite(TTree *tT_meta, const int dataset, const in
     this->tT_meta->Branch("template_count", &this->template_count, "template_count/i");
     this->tT_meta->Branch("sp_target_ratio", &this->sp_target_ratio, "sp_target_ratio/F");
     this->tT_meta->Branch("max_muon_hits", &this->max_muon_hits, "max_muon_hits/I");
-    this->tT_meta->Branch("max_frame_nhits", &this->max_frame_nhits, "max_frame_nhits/I");
+    this->tT_meta->Branch("max_bg_frame_nhits", &this->max_frame_nhits, "max_frame_nhits/I");
 
     this->tT_meta->Fill();
 }
@@ -126,6 +126,8 @@ void BGAnaResTreeRead::setBranches() {
     tT_bgeff->SetBranchAddress("tb_filter_str", &filter_string_ptr);
     tT_bgeff->SetBranchAddress("frame_eff", &frame_effs_ptr);
     tT_bgeff->SetBranchAddress("frame_bghits", &frame_hits_ptr);
+    tT_bgeff->SetBranchAddress("max_bg_frame_nhits", &max_bg_frame_nhits);
+    tT_bgeff->SetBranchAddress("mean_bg_frame_nhits", &mean_bg_frame_nhits);
     tT_bgeff->GetEntry(0);
 
     filter = (TIDLoadingFilter) tb_filter;
