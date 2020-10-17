@@ -97,10 +97,12 @@ void BgAnaPlots_EffSPcount() {
                 templ_count.clear();
                 training_eventcount.clear();
 
+                float tb_train_eff_total=101;
+                float tb_train_eff_relative=101;
+
                 for (int spcount : SPcounts) {
                     temp_spcount = spcount;
-                    float tb_train_eff_total=101;
-                    float tb_train_eff_relative=101;
+
 
                     if (spratio == 32 && spcount == 500) {
                         spcount = 1568;
@@ -157,7 +159,7 @@ void BgAnaPlots_EffSPcount() {
                 //                          "#it{" + get_string(BGAna->wBins[0] * BGAna->zBins[0]) + "}  |  " +
                 //                          "#it{" + (spratio < 1 ? "1:" + get_string(1/spratio) : get_string(spratio) + ":1") + "}";
 
-                std::string ltext = "#bf{TB EFF} #it{" + get_string(tb_train_eff_total)+ "} | #bf{SP RATIO} W:Z #it{" +
+                std::string ltext = "#bf{TB EFF} #it{" + get_string(tb_train_eff_total).substr(0, 4) + " [" + get_string(tb_train_eff_relative).substr(0,4) + " ]} | #bf{SP RATIO} W:Z #it{" +
                                     (spratio < 1 ? "1:" + get_string(1 / spratio) : get_string(spratio) + ":1")
                                     +"} | #bf{FLTR} #it{" + enum_to_string(filter) + "}";
 
@@ -185,6 +187,8 @@ void BgAnaPlots_EffSPcount() {
     g_eff_spress->GetYaxis()->SetTitleFont(53);
     g_eff_spress->GetYaxis()->SetTitleSize(14);
     g_eff_spress->GetYaxis()->SetTitleOffset(1.9);
+
+    expandYaxisRange(g_eff_spress);
     g_eff_spress->Draw("A PLC PMC");
 
     std::string lheadtext="#bf{SP CONFIGURATION} #it{DATASET " + get_string(dataset) + "}";
@@ -194,17 +198,27 @@ void BgAnaPlots_EffSPcount() {
 
     std::string effs = "";
     for(auto &eff : tb_stopping_effs)  effs = effs + get_string(100*eff) + "% ";
-    TLatex tline1(.37,.85,("#it{#bf{COSMIC TRIGGER SIM @ }}#it{" + effs + "TRAINING EFF}").c_str());
+
+    std::string l1 = "#it{#bf{COSMIC TRIGGER SIM @ }}#it{" + effs + "TRAINING EFF}";
+    std::string l2 = "#it{#bf{MU3E SIM} RUN " + get_string(run) + " | EVENTS " + get_string(bgevents) + " | MAX HITS " + get_string(max_frame_nhits) + "}";
+    drawAdditionalInfoBlock(pad1,0.37, 0.8, l1, l2);
+
+    float leg_x=0.15;
+    float leg_y=0.75;
+    float spacing = 0.05;
+
+    TLatex tline1(leg_x,leg_y,l1.c_str());
     tline1.SetTextFont(43);
-    tline1.SetTextSize(10);
+    tline1.SetTextSize(14);
     tline1.SetNDC(kTRUE);
     tline1.Draw();
-
-    TLatex tline2(.37,.82,("#it{#bf{MU3E SIM} RUN " + get_string(run) + " | EVENTS " + get_string(bgevents) + " | MAX HITS " + get_string(max_frame_nhits) + "}").c_str());
+    TLatex tline2(leg_x,leg_y-spacing,l2.c_str());
     tline2.SetTextFont(43);
-    tline2.SetTextSize(10);
+    tline2.SetTextSize(14);
     tline2.SetNDC(kTRUE);
     tline2.Draw();
+
+
 
 
 
@@ -225,6 +239,7 @@ void BgAnaPlots_EffSPcount() {
     g_tcounts_spress->GetYaxis()->SetTitleFont(52);
     g_tcounts_spress->GetYaxis()->SetLabelFont(42);
     g_tcounts_spress->GetYaxis()->SetTitleOffset(0.7);
+    expandYaxisRange(g_tcounts_spress);
     g_tcounts_spress->Draw("A PLC PMC");
 
 

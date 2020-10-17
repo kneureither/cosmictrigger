@@ -13,6 +13,10 @@ set(SRC3 main_bgAnaEffSPcount.cpp src/bgAnaPlots_EffSPcount.cpp)
 add_executable(PlotsBgAnaSPcount ${SRC3})
 target_link_libraries(PlotsBgAnaSPcount rootTreeFiles)
 
+set(SRC5 main_bgAnaEffBeam.cpp src/bgAnaPots_EffBeamRate.cpp)
+add_executable(PlotsBgAnaEffBeam ${SRC5})
+target_link_libraries(PlotsBgAnaEffBeam rootTreeFiles)
+
 set(SRC4 main_CTtrainplots.cpp src/cosmicTemplatesTrainingPlots.cpp)
 add_executable(PlotsCosPatTrain ${SRC4})
 target_link_libraries(PlotsCosPatTrain rootTreeFiles)
