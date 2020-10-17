@@ -9,6 +9,8 @@
 #include <type_traits>
 #include <iostream>
 #include <TStyle.h>
+#include <TMultiGraph.h>
+#include <TLatex.h>
 
 //This file contains functions for setting plot properties
 //and filling plots with data.
@@ -172,6 +174,52 @@ static void setPlottingStyle(TH1F* hs) {
     hs->GetXaxis()->SetTitleSize(14);
     hs->GetXaxis()->SetTitleOffset(1.6);
     hs->GetXaxis()->CenterTitle(false);
+}
+
+static void expandYaxisRange(TMultiGraph* g, float factor=0.1) {
+    float min = g->GetHistogram()->GetMinimum();
+    float max = g->GetHistogram()->GetMaximum();
+
+    float range = max-min;
+    g->SetMaximum(max + 0.5*factor*range);
+    g->SetMinimum(min - 0.5*factor*range);
+}
+
+template <typename RootGraph>
+static void expandYaxisRange(RootGraph* g, float factor=0.1) {
+    float min = g->GetMinimum();
+    float max = g->GetMaximum();
+
+    float range = max-min;
+    g->SetMaximum(max + 0.5*factor*range);
+    g->SetMinimum(min - 0.5*factor*range);
+}
+
+static void drawAdditionalInfoBlock(TPad* pad, float x, float y, std::string l1, std::string l2, std::string l3="") {
+    //not working!
+    int font = 43;
+    int textsize = 10;
+    float spacing = 0.05;
+
+    pad->cd();
+
+    TLatex tline1(x,y,"hello");
+    tline1.SetTextFont(font);
+    tline1.SetTextSize(textsize);
+    tline1.SetNDC(kTRUE);
+    tline1.Draw();
+
+//    TLatex tline2(x,y-spacing,l2.c_str());
+//    tline2.SetTextFont(font);
+//    tline2.SetTextSize(textsize);
+//    tline2.SetNDC(kTRUE);
+//    tline2.Draw();
+
+//    TLatex tline3(x,y-2*spacing,l3.c_str());
+//    tline3.SetTextFont(font);
+//    tline3.SetTextSize(textsize);
+//    tline3.SetNDC(kTRUE);
+//    tline3.Draw();
 }
 
 #endif //COSMICTRIGGER_TPLOTS_H
