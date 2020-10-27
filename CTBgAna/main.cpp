@@ -14,7 +14,7 @@ int main() {
     int background_dataset = CONFIG.background_run;
     int pattern_dataset = CONFIG.dataset;
     std::vector<float> spratios = CONFIG.sp_ratios;
-    std::vector<int> SPcounts = CONFIG.sp_res;
+    std::vector<int> SPcounts = CONFIG.sp_cnt;
     std::vector<float> tb_stopping_efficiencies = CONFIG.stopping_effs;
     std::vector<TIDLoadingFilter> filters = CONFIG.TmplBankFilter.filters;
 

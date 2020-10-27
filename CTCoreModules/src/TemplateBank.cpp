@@ -289,6 +289,8 @@ TemplateBank::TemplateBank(std::string plottingpath, float stopping_efficiency, 
     initializeMembers(dataset, mode, wBins, zBins);
     this->plottingpath = plottingpath;
     this->stopping_efficiency = stopping_efficiency;
+    std::cout << "(STATUS) : Template Bank was initialized! | wbins " << wBins << " | zbins " << zBins << " | stopp eff " << stopping_efficiency;
+    std::cout << " | max map size " << this->AMem.max_size() << std::endl;
 }
 
 TemplateBank::~TemplateBank() {

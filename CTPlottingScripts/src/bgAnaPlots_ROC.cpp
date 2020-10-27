@@ -38,7 +38,9 @@ void bgAnaPlots_ROC() {
     const int dataset = CONFIG.dataset;
     const int bgevents = CONFIG.max_bg_frames;
 
-    std::vector<int> SPcounts = CONFIG.sp_res;
+    const bool USE_REL_EFF = true;
+
+    std::vector<int> SPcounts = CONFIG.sp_cnt;
     std::vector<float> SPratios = CONFIG.sp_ratios;
     std::vector<float> tb_stopping_effs = CONFIG.stopping_effs;
     std::vector<TIDLoadingFilter> filters = CONFIG.TmplBankFilter.filters;
@@ -111,7 +113,12 @@ void bgAnaPlots_ROC() {
 
                     BGAna = new BGAnaResTreeRead(t_meta, t_eff);
 
-                    training_effs.push_back(BGAna->train_eff_total);
+                    if(USE_REL_EFF) {
+                        training_effs.push_back(BGAna->train_eff_rel);
+                    } else {
+                        training_effs.push_back(BGAna->train_eff_total);
+                    }
+
                     bg_discr_effs.push_back(BGAna->bg_discr_eff);
 
                     std::cout << "STATUS : sp count " << spcount << " | sp ratio " << BGAna->sp_target_ratio
@@ -134,7 +141,14 @@ void bgAnaPlots_ROC() {
         }
     }
 
-    g_effROCs->GetXaxis()->SetTitle("training #epsilon");
+    std::string xlabel;
+    if(USE_REL_EFF) {
+        xlabel = "cosmic efficiency #epsilon^{cosmic}_{training, relative}";
+    } else {
+        xlabel = "cosmic efficiency #epsilon^{cosmic}_{training, total}";
+    }
+
+    g_effROCs->GetXaxis()->SetTitle(xlabel.c_str());
     g_effROCs->GetXaxis()->SetTitleFont(53);
     g_effROCs->GetXaxis()->SetTitleSize(14);
     g_effROCs->GetXaxis()->SetTitleOffset(1.6);
@@ -143,6 +157,7 @@ void bgAnaPlots_ROC() {
     g_effROCs->GetYaxis()->SetTitleFont(53);
     g_effROCs->GetYaxis()->SetTitleSize(14);
     g_effROCs->GetYaxis()->SetTitleOffset(1.6);
+    expandYaxisRange(g_effROCs);
     g_effROCs->Draw("A PLC PMC");
 
     std::string lheadtext="#bf{SPBINS} #it{W#timesZ} | #bf{SPCOUNT} | #bf{SPRATIO} #it{W:Z} | #bf{T-FLTR}";

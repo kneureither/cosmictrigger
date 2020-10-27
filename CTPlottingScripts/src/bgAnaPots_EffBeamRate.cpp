@@ -92,7 +92,7 @@ void BgAnaPlots_EffBeamRate() {
     float tb_train_eff_relative;
 
     //get data for axis labels
-    assert(1 == CONFIG.sp_res.size());
+    assert(1 == CONFIG.sp_cnt.size());
     assert(1 == CONFIG.sp_ratios.size());
     float spWbins;
     float spZbins;
@@ -102,7 +102,7 @@ void BgAnaPlots_EffBeamRate() {
     int curve_idx=0;
 
     // spc and spr loops are designed to be flexibel later. Acutally this plot should be produced with only one SPconfig
-    for(auto &spcount : CONFIG.sp_res) {
+    for(auto &spcount : CONFIG.sp_cnt) {
         for(auto &spratio : CONFIG.sp_ratios) {
 
             plot_spcount = spcount;
@@ -247,7 +247,7 @@ void BgAnaPlots_EffBeamRate() {
 //
 //    std::string l1 = "#it{#bf{COSMIC TRIGGER SIM @ }}#it{" + effs + "TRAINING EFF}";
 ////    std::string l2 = "#it{#bf{MU3E SIM} RUN " + get_string(run) + " | EVENTS " + get_string(bgevents) + " | MAX HITS " + get_string(max_frame_nhits) + "}";
-//    std::string l2 = "#it{#bf{PE CONFIG} SP RES " + get_string(CONFIG.sp_res[0]) + " | WBINS " + get_string() + " | ZBINS " + get_string(max_frame_nhits) + "}";
+//    std::string l2 = "#it{#bf{PE CONFIG} SP RES " + get_string(CONFIG.sp_cnt[0]) + " | WBINS " + get_string() + " | ZBINS " + get_string(max_frame_nhits) + "}";
 //    drawAdditionalInfoBlock(pad1,0.37, 0.8, l1, l2);
 //
 //    float leg_x=0.15;

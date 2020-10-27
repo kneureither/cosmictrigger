@@ -103,7 +103,7 @@ public:
     int mode = 0;
     bool prints = false;
     std::vector<float> sp_ratios;
-    std::vector<int> sp_res;
+    std::vector<int> sp_cnt;
     std::vector<float> stopping_effs;
 
     int cosmic_testing_dataset = 30;
@@ -111,6 +111,8 @@ public:
     int background_run = 107;
     int max_bg_frames = 0;
     int max_bg_frame_nhits = 0;
+
+    std::string pathtosimfiles = "../../../../../../../../../Volumes/Extreme SSD KN/MAC EXTENSION/Mu3e_data/ServerData/data/";
 
     std::string set_description;
 
@@ -125,7 +127,7 @@ public:
         this->resetMembers();
 
         sp_ratios.push_back(1);
-        sp_res.push_back(400);
+        sp_cnt.push_back(400);
         stopping_effs.push_back(0.6);
         this->TrainPlots.setFullCyclePlottingOrder(numOfSettings());
 
@@ -141,9 +143,9 @@ public:
 
         sp_ratios.push_back(32);
         sp_ratios.push_back(128);
-        sp_res.push_back(1152);
-        sp_res.push_back(2048);
-        sp_res.push_back(3200);
+        sp_cnt.push_back(1152);
+        sp_cnt.push_back(2048);
+        sp_cnt.push_back(3200);
         stopping_effs.push_back(0.5);
 
         TmplBankFilter.filters.push_back(ALL);
@@ -161,7 +163,7 @@ public:
         max_bg_frame_nhits = 100;
 
         sp_ratios.push_back(128);
-        sp_res.push_back(3200);
+        sp_cnt.push_back(3200);
         stopping_effs.push_back(0.5);
         stopping_effs.push_back(0.6);
 
@@ -198,10 +200,10 @@ public:
         sp_ratios.push_back(64);
 //        sp_ratios.push_back(256);
 
-//        sp_res.push_back(576);
-        sp_res.push_back(1024);
-//        sp_res.push_back(1600);
-//        sp_res.push_back(4096);
+//        sp_cnt.push_back(576);
+        sp_cnt.push_back(1024);
+//        sp_cnt.push_back(1600);
+//        sp_cnt.push_back(4096);
         stopping_effs.push_back(0.6);
         stopping_effs.push_back(0.8);
 
@@ -212,10 +214,10 @@ public:
         sp_ratios.clear();
         sp_ratios.push_back(ratio);
 
-        sp_res.push_back(576);
-        sp_res.push_back(1024);
-        sp_res.push_back(1600);
-//        sp_res.push_back(4096);
+        sp_cnt.push_back(576);
+        sp_cnt.push_back(1024);
+        sp_cnt.push_back(1600);
+//        sp_cnt.push_back(4096);
         stopping_effs.push_back(train_eff);
         return *this;
     };
@@ -224,17 +226,17 @@ public:
 
         sp_ratios.push_back(64);
 
-//        sp_res.push_back(576);
-        sp_res.push_back(1024);
-//        sp_res.push_back(1600);
-//        sp_res.push_back(4096);
+//        sp_cnt.push_back(576);
+        sp_cnt.push_back(1024);
+//        sp_cnt.push_back(1600);
+//        sp_cnt.push_back(4096);
         stopping_effs.push_back(0.6);
         stopping_effs.push_back(0.8);
         return *this;
     };
 
     Configuration &bkg_rates() {
-        sp_res.push_back(1024);
+        sp_cnt.push_back(1024);
         sp_ratios.push_back(64);
         stopping_effs.push_back(0.6);
 
@@ -270,8 +272,8 @@ public:
 
     std::string ResolutionsToString() {
         std::string res = "";
-        for(int i=0; i< sp_res.size(); i++) {
-            res = res + get_string(sp_res[i]) + (i < sp_res.size() - 1 ? "_" : "");
+        for(int i=0; i < sp_cnt.size(); i++) {
+            res = res + get_string(sp_cnt[i]) + (i < sp_cnt.size() - 1 ? "_" : "");
         }
         return res;
     }
@@ -288,7 +290,14 @@ public:
     //// SETTING CALLS OF DIFFERENT SCRIPTS
 
     void BUILDTB() {
-        set3_base().set3_build();
+//        set3_base().set3_build();
+        dataset=12;
+        stopping_effs.push_back(0.9);
+        sp_cnt.push_back(400);
+        sp_ratios.push_back(25);
+        sp_ratios.push_back(0.04);
+        sp_ratios.push_back(1);
+        TrainPlots.combination_id = 3;
     }
 
     void BUILDTB_TRAIN_PLOT(){
@@ -315,13 +324,13 @@ public:
 private:
     void resetMembers() {
         sp_ratios.clear();
-        sp_res.clear();
+        sp_cnt.clear();
         stopping_effs.clear();
         TrainPlots.cycle_plotting_order.clear();
     }
 
     int numOfSettings() {
-        return sp_ratios.size() * sp_res.size() * stopping_effs.size();
+        return sp_ratios.size() * sp_cnt.size() * stopping_effs.size();
     }
 };
 

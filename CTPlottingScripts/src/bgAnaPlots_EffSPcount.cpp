@@ -42,7 +42,7 @@ void BgAnaPlots_EffSPcount() {
     const int dataset = CONFIG.dataset;
     const int bgevents = CONFIG.max_bg_frames;
 
-    std::vector<int> SPcounts = CONFIG.sp_res;
+    std::vector<int> SPcounts = CONFIG.sp_cnt;
     std::vector<float> SPratios = CONFIG.sp_ratios;
     std::vector<float> tb_stopping_effs = CONFIG.stopping_effs;
     float tb_stopping_eff = tb_stopping_effs[0];

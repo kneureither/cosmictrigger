@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     CONFIG.BUILDTB();
 
     std::vector<float> sp_ratios = CONFIG.sp_ratios;
-    std::vector<int> sp_count = CONFIG.sp_res;
+    std::vector<int> sp_count = CONFIG.sp_cnt;
     std::vector<float> stopping_effs = CONFIG.stopping_effs;
     int combination_id = CONFIG.TrainPlots.combination_id; //will produce a separate file
     int dataset = CONFIG.dataset;

@@ -257,7 +257,7 @@ unsigned int PatternEngineSingle::getSuperPixel(const float x, const float y, co
     // data valid?
     assert(0 <= area && area < 3);
     assert(0 <= layer && layer < 4);
-    assert(totalBinCount < 4096); // fatal because SID needs format of 0xFFF
+    assert(totalBinCount <= 4096); // fatal because SID needs format of 0xFFF
 
     int sp2DID = computeIndex(zSPIndex, phiSPIndex, this->wBinCount);
     if(sp2DID < 0 || totalBinCount < sp2DID) sp2DID = 0;

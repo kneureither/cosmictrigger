@@ -26,6 +26,7 @@ struct BGcombinatorics {
     std::vector<BGSortedSIDs> frames_sortedhits;
     int total_nhits = 0;
     int processed_frames = 0;
+    int nhit_excluded_frames = 0;
     int bg_events = 0;
 };
 
@@ -187,6 +188,7 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
         std::cout << "(INFO)    : [BKG-EFF] rejected frames: " << rejected_frames
                   << " accepted frames: " << accepted_frames
                   << " processed frames: " << BGcmbncsResult.processed_frames
+                  << " cut off frames (nhit): " << BGcmbncsResult.nhit_excluded_frames
                   << std::endl;
         std::cout << "(INFO)    : [BKG-EFF] BG efficiency: " << background_efficiency << "   (avg. nhits: " << mean_frame_nhits << ")"
                   << std::endl;
@@ -245,6 +247,8 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
         tT_efficiencies.Branch("frame_bghits", &frame_bghits);
         tT_efficiencies.Branch("mean_frame_nhits", &mean_frame_nhits, "mean_frame_nhits/F");
         tT_efficiencies.Branch("max_bg_frame_nhits", &max_bg_frame_nhits, "max_bg_frame_nhits/I");
+        tT_efficiencies.Branch("nhit_cut_off_frames", &BGcmbncsResult.nhit_excluded_frames, "nhit_cut_off_frames/I");
+        tT_efficiencies.Branch("processed_frames", &BGcmbncsResult.processed_frames, "processed_frames/I");
         tT_efficiencies.Fill();
         tT_efficiencies.Write();
 
@@ -300,6 +304,7 @@ BGcombinatorics produceBGcmbncsTID(const int bg_run, PatternEngine &PEbg, int ma
         if (PRINTS) Mu3e.Print(frame);
 
         if (MAX_NHITS != 0 && Mu3e.Nhit > MAX_NHITS) {
+            BGcmbncsResult.nhit_excluded_frames++;
             continue;
         } else if(Mu3e.Nhit == 0) {
             continue;
