@@ -24,10 +24,6 @@ const bool TEST_readDB = true;
 
 int main(int argc, char *argv[]) {
 
-    //this must be set -->
-//    std::vector<float> sp_ratios = {0.1, 0.25, 0.5, 1, 2, 4, 10};
-//    std::vector<float> sp_ratios = {0.25, 1, 4};
-//    std::vector<int> sp_count = {200,400,600,800, 1024};
     Configuration CONFIG;
     CONFIG.BUILDTB();
 
@@ -37,19 +33,8 @@ int main(int argc, char *argv[]) {
     int combination_id = CONFIG.TrainPlots.combination_id; //will produce a separate file
     int dataset = CONFIG.dataset;
     bool append_to_outfile = true;
-    //   <-- up till here.
 
     std::vector<int> cycle_plotting_order;
-
-
-    if(argc < 0) {
-        std::cout << "ERROR: Error in argument! Usage: "
-                     "Mu3eCosPat <dataset number> <super pixel count (single station)>" << std::endl;
-        exit(0);
-    } else {
-//        dataset = atoi(argv[1]);
-//        spcount = atoi(argv[2]);
-    }
 
 
     for(int i=0; i < sp_ratios.size(); i++) {

@@ -88,7 +88,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     canvas->SetLogx(1);
 
     auto *pad1 = new TPad("template efficiency", "template efficiency", 0, 0.3, 1, 0.99);
-    pad1->SetLogx(0);
+    pad1->SetLogx(1);
 //    pad1->SetGrid(1,5);
     pad1->Draw();
 
@@ -100,7 +100,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 #endif
 
     auto *pad2 = new TPad("template count", "template count", 0, 0, 1, 0.3);
-    pad2->SetLogx(0);
+    pad2->SetLogx(1);
     pad2->SetBottomMargin(0.2);
 //    pad2->SetGrid(1,5);
     pad2->Draw();
@@ -230,7 +230,6 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
         g_tnumber->GetYaxis()->SetLabelSize(16);
         g_tnumber->GetYaxis()->SetTitleFont(63);
         g_tnumber->GetYaxis()->SetTitleSize(13);
-        g_tnumber->GetYaxis()->SetTitleOffset(1.6);
 
         g_tnumber->GetYaxis()->CenterTitle(false);
 
@@ -241,34 +240,19 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
         g_eff_tnumber->SetTitle("");
         g_eff_tnumber->SetMaximum(1);
 
-//        g_eff_tnumber->GetXaxis()->SetTitle("number of templates");
-//        g_eff_tnumber->GetXaxis()->SetLabelFont(43);
-//        g_eff_tnumber->GetXaxis()->SetLabelSize(16);
-//        g_eff_tnumber->GetXaxis()->SetTitleOffset(0);
-//        g_eff_tnumber->GetXaxis()->SetTitleFont(63);
-//        g_eff_tnumber->GetXaxis()->SetTitleSize(14);
-//        g_eff_tnumber->GetXaxis()->SetTickLength(0.05);
-//
-//        g_eff_tnumber->GetYaxis()->SetTitle("efficiency #epsilon^{cosmic}_{train}");
-//        g_eff_tnumber->GetYaxis()->SetLabelFont(43);
-//        g_eff_tnumber->GetYaxis()->SetLabelSize(16);
-//        g_eff_tnumber->GetYaxis()->SetTitleFont(63);
-//        g_eff_tnumber->GetYaxis()->SetTitleSize(13);
-//        g_eff_tnumber->GetYaxis()->SetTitleOffset(0);
-
         g_eff_tnumber->GetYaxis()->CenterTitle(false);
 
         //add to multi graph
         g_eff_tnumbers->Add(g_eff_tnumber, "L");
     }
 
-    g_efficiencies->GetYaxis()->SetRangeUser(0, 1);
 
+    // plot the overview multigraphs
+
+    pad2->cd(); // template count
     g_tnumbers->GetYaxis()->SetRangeUser(0, g_tnumbers->GetYaxis()->GetXmax());
     g_tnumbers->GetXaxis()->SetRangeUser(0, g_efficiencies->GetXaxis()->GetXmax());
-
-    pad2->cd();
-    g_tnumbers->GetYaxis()->SetNdivisions(3, 5, 0, false);
+    g_tnumbers->GetYaxis()->SetNdivisions(4, 5, 0, true);
     g_tnumbers->GetXaxis()->SetLabelSize(0.08);
     g_tnumbers->GetYaxis()->SetLabelSize(0.08);
     g_tnumbers->GetXaxis()->SetTitle("# training events");
@@ -277,14 +261,15 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     g_tnumbers->GetYaxis()->SetTitleSize(0.08);
     g_tnumbers->GetXaxis()->SetTitleFont(52);
     g_tnumbers->GetYaxis()->SetTitleFont(52);
-    g_tnumbers->GetYaxis()->SetMaxDigits(1);
+    g_tnumbers->GetYaxis()->SetMaxDigits(2);
     g_tnumbers->GetYaxis()->SetTitleOffset(0.4);
 
     g_tnumbers->Draw("A PLC PMC");
 
-    pad1->cd();
+    pad1->cd(); // efficiency
+    g_efficiencies->GetYaxis()->SetRangeUser(0, 1);
     g_efficiencies->GetXaxis()->SetTitle("# training events");
-    g_efficiencies->GetYaxis()->SetTitle("training #epsilon");
+    g_efficiencies->GetYaxis()->SetTitle("cosmic training efficiency #epsilon^{cosmic}_{training}");
     g_efficiencies->GetXaxis()->SetTitleFont(52);
     g_efficiencies->GetYaxis()->SetTitleFont(52);
     g_efficiencies->Draw("A PLC PMC");
@@ -297,13 +282,15 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     saveCanvas(canvas, "CosPatPlots_dataset_" + get_string(dataset) +"_" + filelabel +
     "_id" + get_padded_string(combination_id, 3, '0') + "_overview", pathtorunplots);
 
+
+    // only efficiency plot
+
     TCanvas *canvas2 = new TCanvas("canvas2", "Efficiency", 900, 600);
     canvas2->SetGrid(1, 1);
     canvas2->SetTicks(1, 1);
 
     auto *pad3 = new TPad("template efficiency", "template efficiency", 0, 0, 1, 0.99);
     pad3->SetLogx(0);
-//    pad3->SetGrid(1,5);
     pad3->Draw();
     pad3->cd();
 
@@ -311,13 +298,14 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     g_efficiencies->Draw("A PLC PMC");
     saveCanvas(canvas2, "CosPatPlots_dataset_" + get_string(dataset) +"_" + filelabel + "_id" + get_padded_string(combination_id, 3, '0') + "_Efficiency", pathtorunplots);
 
+    // only template number plot
+
     TCanvas *canvas3 = new TCanvas("canvas3", "Template Count", 900, 500);
     canvas3->SetGrid(1, 1);
     canvas3->SetTicks(1, 1);
 
     auto *pad4 = new TPad("template count", "template count", 0, 0, 1, 0.99);
     pad4->SetLogx(0);
-//    pad4->SetGrid(1,5);
     pad4->Draw();
     pad4->cd();
 
@@ -335,6 +323,8 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     legend->Draw("C");
     saveCanvas(canvas3, "CosPatPlots_dataset_" + get_string(dataset) +"_" + filelabel + "_id" + get_padded_string(combination_id, 3, '0') + "_TemplateCount", pathtorunplots);
 
+
+    // eff vs. templ count plot
 
     TCanvas *c_eff_templ = new TCanvas("c_eff_templ", "Template Bank Pattern Result", 900, 500);
     c_eff_templ->SetGrid(1, 1);

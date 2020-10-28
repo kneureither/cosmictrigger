@@ -16,6 +16,10 @@ set(SRC main_CTbuildMany.cpp cosmicTemplatesBuild.cpp ../CTPlottingScripts/src/c
 add_executable(Mu3eCosPat1BuildMany ${SRC})
 target_link_libraries(Mu3eCosPat1BuildMany patterns rootTreeFiles)
 
+set(SRC1 main_CTbuildDatapoints.cpp cosmicTemplatesBuild.cpp ../CTPlottingScripts/src/cosmicTemplatesTrainingPlots.cpp)
+add_executable(Mu3eCosPat2BuildDatapoints ${SRC1})
+target_link_libraries(Mu3eCosPat2BuildDatapoints patterns rootTreeFiles)
+
 set(SRC2 main_CTbuild.cpp cosmicTemplatesBuild.cpp ../root/TemplateDatabaseFile.cpp)
 add_executable(Mu3eCosPatBuild ${SRC2})
 target_link_libraries(Mu3eCosPatBuild patterns rootTreeFiles)

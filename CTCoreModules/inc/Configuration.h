@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "TemplateBank.h"
+#include <cmath>
 
 struct TltBnkTrnSet {
     std::vector<int> cycle_plotting_order = {1};
@@ -66,26 +67,37 @@ struct TltBnkFltr {
 
 struct BkgRateAna {
     // Final Plot
-//    std::vector<int> bg_runs = {120, 121, 122, 126, 123};
-//    std::vector<float> beam_rates = {2e7, 6e7, 1e8, 2e8, 1e9};
-//    std::vector<float> nhit_mean = {5.3, 14.5, 24.3, 0, 242};
-//    std::vector<float> nhit_sigma = {10.55, 17.65, 22.9, 0, 71.9};
-//    std::vector<int> max_bkg_frames = {0, 0, 0, 0, 0};  //to reduce claculation time
+//    std::vector<int> bg_runs =        {120,   121,    122,    126,    128,    123};
+//    std::vector<float> beam_rates =   {2e7,   6e7,    1e8,    2e8,    4.932e8,1e9};
+//    std::vector<float> nhit_mean =    {5.3,   14.5,   24.3,   48.3,   119.5,  242};
+//    std::vector<float> nhit_sigma =   {10.55, 17.65,  22.9,   32.1,   50.6,   71.9};
+//    std::vector<int> max_bkg_frames = {0,     0,      0,      0,      0,      0};  //to reduce claculation time
 
+    // michel: 107; 6e7; 14.5; 17.65
+    // plotting
+
+    std::vector<int> bg_runs =        {107,   122,    126,  127};
+    std::vector<float> beam_rates =   {6e7,   1e8,    2e8,  2.466e8};
+    std::vector<float> nhit_mean =    {14.5,   24.3,   48.3,59.86};
+    std::vector<float> nhit_sigma =   {17.65, 22.9,   32.1, 36.07};
+    std::vector<int> max_bkg_frames = {99900, 99900,  99900, 99900,      0,      0};
 
     // Testing
-    std::vector<int> bg_runs = {107, 122};
-    std::vector<float> beam_rates = {6e7, 1e8};
-    std::vector<float> nhit_mean = {14.5, 24.3};
-    std::vector<float> nhit_sigma = {17.65, 22.9};
-    std::vector<int> max_bkg_frames = {99900, 99900};  //to reduce claculation time
+//    std::vector<int> bg_runs = {127};
+//    std::vector<float> beam_rates = {2.466e8};
+//    std::vector<float> nhit_mean = {59.86};
+//    std::vector<float> nhit_sigma = {36.07};
+//    std::vector<int> max_bkg_frames = {99900};  //to reduce calculation time
 
+    std::vector<int> max_nhits; //calculated automatically
 
-    std::vector<int> max_nhits;
+    std::vector<int> make_max_nhit_cut = {0,1}; // yes no
 
-    std::vector<int> make_max_nhit_cut = {1, 0}; // yes no
+    int ndatapoints;
+
     BkgRateAna(){
         calc_max_nhits(1);
+        ndatapoints = bg_runs.size();
     };
 
     void calc_max_nhits(float sigmas) {
@@ -95,6 +107,32 @@ struct BkgRateAna {
     }
 
 };
+
+struct DatabaseConfigBuild {
+    int spc;
+    float spr;
+    int wbins;
+    int zbins;
+    float stopp_eff;
+
+    DatabaseConfigBuild(int wbins, int zbins, float stopp_eff) {
+        this->wbins = wbins;
+        this->zbins = zbins;
+        this->stopp_eff = stopp_eff;
+        this->spc = wbins*zbins;
+        this->spr = wbins / (float) zbins;
+    }
+
+    DatabaseConfigBuild(int spc, float spr, float stopp_eff) {
+        this->wbins = (int) sqrt((float) spr * (float) spc);
+        this->zbins = (int) sqrt((float) spc / (float) spr);
+        this->spr = spr;
+        this->spc = spc;
+        this->stopp_eff = stopp_eff;
+    }
+};
+
+
 
 
 class Configuration {
@@ -112,6 +150,8 @@ public:
     int max_bg_frames = 0;
     int max_bg_frame_nhits = 0;
 
+
+
     std::string pathtosimfiles = "../../../../../../../../../Volumes/Extreme SSD KN/MAC EXTENSION/Mu3e_data/ServerData/data/";
 
     std::string set_description;
@@ -122,6 +162,7 @@ public:
     TltBnkTrnSet TrainPlots;
     TltBnkFltr TmplBankFilter;
     BkgRateAna BkgFiles;
+    std::vector<std::vector<DatabaseConfigBuild>> DBconfigDatapoints;
 
     Configuration &set1() {
         this->resetMembers();
@@ -190,6 +231,7 @@ public:
         //only SPratio=64, tb_eff=0.6, 0.8
         std::vector<int> cycles = {3,6,4,1,5,2};
         TrainPlots.cycle_plotting_order = cycles;
+        return *this;
     }
 
     Configuration &set3_build() {
@@ -235,17 +277,53 @@ public:
         return *this;
     };
 
+//    Configuration &set13_base() {
+//        this->resetMembers();
+//        dataset = 13;
+//        background_run = 107;
+//        max_bg_frames = 99900;
+//        max_bg_frame_nhits = 0;
+//        TrainPlots.combination_id = 0;
+//        TmplBankFilter.CLR().addALL().addNO_CENTER().addCUT_ON_FREQ();
+//        set_description = "final";
+//        return *this;
+//    }
+
+    Configuration &set13_spc_tmpl_plot() {
+        /**
+         * This creates the datapoints for the #templ / spc plot
+         */
+        this->resetMembers();
+        dataset = 13;
+        float stopping_eff = 0.6;
+        TrainPlots.combination_id=0;
+        std::vector<DatabaseConfigBuild> plot_datapoints;
+        plot_datapoints.push_back(DatabaseConfigBuild(1024, 4, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(768, 4, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(512, 4, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(384, 4, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(256, 4, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(128, 4, stopping_eff));
+
+        DBconfigDatapoints.push_back(plot_datapoints);
+        plot_datapoints.clear();
+
+        stopping_eff = 0.8;
+        plot_datapoints.push_back(DatabaseConfigBuild(512, 4, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(384, 4, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(256, 4, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(128, 4, stopping_eff));
+        DBconfigDatapoints.push_back(plot_datapoints);
+
+        return *this;
+    };
+
+
+
     Configuration &bkg_rates() {
         sp_cnt.push_back(1024);
         sp_ratios.push_back(64);
         stopping_effs.push_back(0.6);
-
-
-        int datapoint_bg_run = 0;
-        max_bg_frames = 99900;
-//        max_bg_frame_nhits = 0;
-        max_bg_frame_nhits = BkgFiles.max_nhits[datapoint_bg_run];
-        background_run = BkgFiles.bg_runs[datapoint_bg_run];
 
         TmplBankFilter.filters.clear();
         TmplBankFilter.addALL().addNO_CENTER();
@@ -294,14 +372,25 @@ public:
         dataset=12;
         stopping_effs.push_back(0.9);
         sp_cnt.push_back(400);
-        sp_ratios.push_back(25);
-        sp_ratios.push_back(0.04);
-        sp_ratios.push_back(1);
+        sp_ratios.push_back(400);
+        sp_ratios.push_back(0.0025);
         TrainPlots.combination_id = 3;
     }
 
+    void BUILDTB_DATAPOINTS() {
+        set13_spc_tmpl_plot();
+    }
+
     void BUILDTB_TRAIN_PLOT(){
-        set3_base().set3_trainplot();
+//        set3_base().set3_trainplot();
+        dataset=12;
+        TrainPlots.cycle_plotting_order.clear();
+        TrainPlots.cycle_plotting_order.push_back(4);
+        TrainPlots.cycle_plotting_order.push_back(1);
+        TrainPlots.cycle_plotting_order.push_back(2);
+        TrainPlots.cycle_plotting_order.push_back(3);
+        TrainPlots.cycle_plotting_order.push_back(5);
+        TrainPlots.combination_id=3;
     }
 
     void BUILDTB_COS_EFF() {
@@ -309,8 +398,11 @@ public:
     }
 
     void BGANA() {
-//        bkg_rates();
         set3_base().set3_build();
+    }
+
+    void BGANA_MULTI() {
+        bkg_rates();
     }
 
     void BGANA_PLOT_ROC() {

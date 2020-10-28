@@ -128,7 +128,7 @@ void BgAnaPlots_EffBeamRate() {
                             // Store parameters
                             int max_bkg_frames = CONFIG.BkgFiles.max_bkg_frames[run_idx];
                             int max_bkg_nhits = (make_nhit_cut ? CONFIG.BkgFiles.max_nhits[run_idx] : 0);
-                            int beam_rate = CONFIG.BkgFiles.beam_rates[run_idx];
+                            int beam_rate = CONFIG.BkgFiles.beam_rates[run_idx] / 2.466;
 
                             // FILE FOR READING BG EVAL DATA
                             std::string infile = get_bgevalfile(max_bkg_frames, CONFIG.max_cosmic_events, max_bkg_nhits, bkg_run,
@@ -191,11 +191,18 @@ void BgAnaPlots_EffBeamRate() {
                         tmpl_counts.push_back(tmpl_count);
                         training_eventcounts.push_back(training_eventcnt);
 
-                        std::string ltext = "#splitline{#bf{TB EFF} #it{" + get_string(tb_train_eff_total).substr(0, 4) + " [" + get_string(tb_train_eff_relative).substr(0,4) + " ]" +
-                                            /*"} | #bf{SPRATIO} W:Z #it{" + (spratio < 1 ? "1:" + get_string(1 / spratio) : get_string(spratio) + ":1") +*/
-                                            /*"} | #bf{BINS} W#timesZ #it{" + get_string(spWbins) + "#times" + get_string(spZbins) + */
-                                            "}}{#bf{BG HIT CUT} #it{" + (make_nhit_cut ? "1#sigma" : "none") +
-                                            "} | #bf{FLTR} #it{" + enum_to_string(filter) + "}}";
+                        std::string ltext;
+
+                        if(make_nhit_cut) {
+                            ltext = "#bf{CUT} frames with upper 15% nhits";
+                        } else {
+                            ltext = "#bf{TB EFF [ACC]} #it{" + get_string(tb_train_eff_total).substr(0, 4) + " [" + get_string(tb_train_eff_relative).substr(0,4) + " ]" +
+                                                /*"} | #bf{SPRATIO} W:Z #it{" + (spratio < 1 ? "1:" + get_string(1 / spratio) : get_string(spratio) + ":1") +*/
+                                                /*"} | #bf{BINS} W#timesZ #it{" + get_string(spWbins) + "#times" + get_string(spZbins) + */
+                                                "} | #bf{FLTR} #it{" + enum_to_string(filter) + "}";
+                            legend1->AddEntry((TObject*)0, "", "");
+                        }
+
 
                         // make legend label
 
@@ -219,10 +226,11 @@ void BgAnaPlots_EffBeamRate() {
     //// Make the Multigraph
     //set multiplot style
     pad1->cd();
-    g_eff_beamrates->GetXaxis()->SetTitle("beam rate / mu3e simulation [normal mode]");
+    g_eff_beamrates->GetXaxis()->SetTitle("mu3e simulation [normal mode] / beam rate at target");
     g_eff_beamrates->GetXaxis()->SetTitleFont(53);
     g_eff_beamrates->GetXaxis()->SetTitleSize(14);
     g_eff_beamrates->GetXaxis()->SetTitleOffset(1.6);
+    g_eff_beamrates->GetXaxis()->SetMaxDigits(2);
 
     g_eff_beamrates->GetYaxis()->SetTitle(("#bf{CONFIG} bins w#timesz " + get_string(spWbins) + "#times" + get_string(spZbins) + " /    background discr. #epsilon").c_str());
     g_eff_beamrates->GetYaxis()->SetTitleFont(53);
@@ -230,6 +238,8 @@ void BgAnaPlots_EffBeamRate() {
     g_eff_beamrates->GetYaxis()->SetTitleOffset(1.6);
 
     expandYaxisRange(g_eff_beamrates);
+    g_eff_beamrates->GetXaxis()->SetLimits(2e7, 1e8);
+    g_eff_beamrates->GetXaxis()->SetRangeUser(2e7, 1e8);
     g_eff_beamrates->Draw("A PLC PMC");
 
     std::string lheadtext="#bf{SP CONFIG} #it{DST " + get_string(dataset) + "}";

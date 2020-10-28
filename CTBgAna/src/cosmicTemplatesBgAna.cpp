@@ -17,6 +17,7 @@
 #include "../../CTCoreModules/inc/TemplateData.h"
 #include "cosmicTemplatesEfficiency.h"
 #include "MetaDataTree.h"
+#include "Configuration.h"
 
 struct BGcombinatorics {
     std::vector<std::vector<TemplateID>> frames_TIDS;
@@ -55,7 +56,9 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
     const int mode = 0;
     const int cosmic_testing_dataset = cosmic_testing_dst;
 
-    const std::string pathtoBGdata = "data/SimulationData/";
+    Configuration CONFIG;
+
+    const std::string pathtoBGdata = CONFIG.pathtosimfiles;
     const std::string pathtoTemplateData = "data/TemplateData/";
     const std::string pathtoplots = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtooutfile =
@@ -112,7 +115,7 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
         TB.SetPrints(false);
         TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF, filter);
         TB.PlotTemplateTypeDistribution();
-        std::cout << "(CONFIG) : [BKG-EFF] wBins " << TB.mywbins << " | zBins " << TB.myzbins << " | max nhits " << max_bg_frame_nhits << std::endl;
+        std::cout << "(CONFIG) : [BKG-EFF] wBins " << TB.mywbins << " | zBins " << TB.myzbins << " | max nhits " << MAX_NHITS << std::endl;
 
         int rejected_frames = 0;
         int accepted_frames = 0;
