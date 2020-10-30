@@ -16,3 +16,7 @@ target_link_libraries(Mu3eCTBg2MultiAna patterns rootTreeFiles)
 set(SRC main_bgeffplot.cpp src/cosmicTemplatesBgPlots.cpp)
 add_executable(Mu3eCTBg3Plots ${SRC})
 target_link_libraries(Mu3eCTBg3Plots rootTreeFiles)
+
+set(SRC main_CTBkgAnaDatapoints.cpp src/cosmicTemplatesBgAna.cpp ../CTCosPatTrain/cosmicTemplatesEfficiency.cpp)
+add_executable(Mu3eCTBg2AnaDatapoints ${SRC})
+target_link_libraries(Mu3eCTBg2AnaDatapoints patterns rootTreeFiles)

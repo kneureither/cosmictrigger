@@ -103,7 +103,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 #if LEGEND_ON_TOP
         auto legend = new TLegend(0.6,0.55,0.9,0.9);
 #else
-        auto legend = new TLegend(0.5,0.15,0.88,0.2+cycle_plotting_order.size()*0.05);
+        auto legend = new TLegend(0.5,0.15,0.88,0.25+cycle_plotting_order.size()*0.05);
         legend->SetTextAlign(13);
 #endif
 
@@ -207,11 +207,11 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
         g_efficiency->GetYaxis()->SetTitleOffset(1.6);
         g_efficiency->GetYaxis()->CenterTitle(false);
 
-        if(FIT) {
-            TF1 *f1 = new TF1("f1", "1-[1]*exp(((-1)*x*[2]/100000.))", 6000000, 10000000);
-//        TF1 *f1 = new TF1("f1", "1-[1]*exp(((-1)*x*[2]/100000.))", 500000, 15000000);
-            g_efficiency->Fit("f1");
-        }
+//        if(FIT) {
+//            TF1 *f1 = new TF1("f1", "1-[1]*exp(((-1)*x*[2]/100000.))", 6000000, 10000000);
+////        TF1 *f1 = new TF1("f1", "1-[1]*exp(((-1)*x*[2]/100000.))", 500000, 15000000);
+//            g_efficiency->Fit("f1");
+//        }
 
 
         //add to multi graph
@@ -245,9 +245,6 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 
         g_tnumber->GetYaxis()->CenterTitle(false);
 
-        TF1 *f2 = new TF1("f2", "[0]*(1-exp(((-1)*x*[1])))", 500000, 15000000);
-//        g_tnumber->Fit("f2");
-
         //add to multi graph
         g_tnumbers->Add(g_tnumber, "L");
 
@@ -260,14 +257,20 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
         g_eff_tnumber->GetYaxis()->CenterTitle(false);
 
         if(FIT) {
-            TF1 *f1 = new TF1("f1", "1-[1]*exp(((-1)*x*[2]/100000.))", 6000000, 10000000);
+            TF1 *f1 = new TF1("f1", "1-[0]*exp(((-1)*x*[1]/100000.))", 0, 5000000);
 //        TF1 *f1 = new TF1("f1", "1-[1]*exp(((-1)*x*[2]/100000.))", 500000, 15000000);
             g_eff_tnumber->Fit("f1");
         }
 
         //add to multi graph
-        g_eff_tnumbers->Add(g_eff_tnumber, "P");
+        g_eff_tnumbers->Add(g_eff_tnumber, "L");
     }
+
+    TF1 *f2= new TF1("f2", "1-[0]*exp(((-1)*x*[1]/100000.))", 6000000, 10000000);
+    f2->SetLineWidth(LINE_W);
+    f2->SetLineColor(kRed);
+
+    legend->AddEntry(f2, "Fit function f(x) = a #upoint * exp( #minus b #upoint N_{tmpl})", "L");
 
 
     // plot the overview multigraphs

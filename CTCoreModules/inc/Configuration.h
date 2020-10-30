@@ -134,7 +134,6 @@ struct DatabaseConfigBuild {
 
 
 
-
 class Configuration {
 public:
     int dataset = 12;
@@ -156,7 +155,7 @@ public:
 
     std::string set_description;
 
-    Configuration &michelBackground() {background_run = 107; return *this;}
+    Configuration &michelBackground() {background_run = 107; max_bg_frames=99900; return *this;}
     Configuration &fullBackground() {background_run = 109; return *this;}
 
     TltBnkTrnSet TrainPlots;
@@ -387,7 +386,48 @@ public:
         return *this;
     };
 
+    Configuration &set13_plot_traineff_1024_final() {
+        this->resetMembers();
+        dataset = 13;
+        TrainPlots.combination_id = 6;
+        TrainPlots.cycle_plotting_order.clear();
+        TrainPlots.cycle_plotting_order.push_back(17);
+        return *this;
+    };
 
+    Configuration &set13_bkg_spr_plot() {
+        /**
+         * This creates the datapoints for the #templ / spc plot
+         */
+        this->resetMembers();
+        this->michelBackground();
+        dataset = 13;
+        TrainPlots.combination_id=0;
+        TmplBankFilter.CLR().addALL();
+
+        float stopping_eff = 0.6;
+        std::vector<DatabaseConfigBuild> plot_datapoints;
+//        plot_datapoints.push_back(DatabaseConfigBuild(256, 4, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(128, 8, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(64, 16, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(32, 32, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(16, 64, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(8, 128, stopping_eff));
+
+        DBconfigDatapoints.push_back(plot_datapoints);
+        plot_datapoints.clear();
+
+        stopping_eff = 0.8;
+//        plot_datapoints.push_back(DatabaseConfigBuild(256, 4, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(128, 8, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(64, 16, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(32, 32, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(16, 64, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(8, 128, stopping_eff));
+        DBconfigDatapoints.push_back(plot_datapoints);
+
+        return *this;
+    };
 
 
     Configuration &bkg_rates() {
@@ -409,9 +449,9 @@ public:
 //        set13_build_spc_final();
 
         dataset = 13;
-        stopping_effs.push_back(0.8);
-        sp_ratios.push_back(100);
-        sp_cnt.push_back(1600);
+        stopping_effs.push_back(1);
+        sp_ratios.push_back(64);
+        sp_cnt.push_back(1024);
         TrainPlots.combination_id = 0;
 
 
@@ -421,25 +461,28 @@ public:
 //        sp_ratios.push_back(400);
 //        sp_ratios.push_back(0.0025);
 //        TrainPlots.combination_id = 3;
-
-
-
     }
 
     void BUILDTB_DATAPOINTS() {
 //        set13_spc_tmpl_plot();
-        set13_high_spr_check_build_data();
+//        set13_high_spr_check_build_data(); //final plot fittet in thesis
+        set13_bkg_spr_plot();
     }
 
     void BUILDTB_TRAIN_PLOT(){
 //        set3_base().set3_trainplot();
 //        set12_plot_traineff_spr_final();
 //        set12_plot_traineff_spc_final(); //final plot in thesis
-        set13_plot_traineff_final(); //final plot in thesis
+//        set13_plot_traineff_final(); //final plot in thesis
+//        set13_plot_traineff_1024_final(); //final plot in thesis
     }
 
     void BUILDTB_COS_EFF() {
         set3_base().set3_build();
+    }
+
+    void BGANA_DATAPOINTS() {
+        set13_bkg_spr_plot();
     }
 
     void BGANA() {
