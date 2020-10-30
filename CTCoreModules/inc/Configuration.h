@@ -499,7 +499,13 @@ public:
     void BGANA_PLOT_SPC() {
         set3_base().set3_spc(64, 0.6);
     }
+    void BGANA_PLOT_SPC_DATAPOINTS() {
+        set13_bkg_spr_plot();
+    }
 
+    void BGANA_PLOT_SPR_DATAPOINTS() {
+        set13_bkg_spr_plot();
+    }
 
 
     std::string RatiosToString() {

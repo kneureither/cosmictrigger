@@ -160,8 +160,6 @@ void ctTrainingPlots_TemplatesSPC() {
         std::string fitlegend = "Fit f(x) = ax + bx^{2}";
         legend1->AddEntry(fit, fitlegend.c_str(), "L");
 
-
-
         curve_idx++;
     }
 
