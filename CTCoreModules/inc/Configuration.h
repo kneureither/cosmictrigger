@@ -252,6 +252,44 @@ public:
         return *this;
     };
 
+    Configuration &set13_build_spc_final() {
+        this->resetMembers();
+        dataset = 13;
+        TrainPlots.combination_id = 0;
+        sp_ratios.push_back(4);
+//        sp_cnt.push_back(512);
+        sp_cnt.push_back(784);
+//        sp_cnt.push_back(1024);
+        stopping_effs.push_back(0.8);
+
+        return *this;
+    };
+
+    Configuration &set12_plot_traineff_spc_final() {
+        this->resetMembers();
+        dataset = 12;
+        TrainPlots.combination_id = 0;
+        TrainPlots.cycle_plotting_order.clear();
+        TrainPlots.cycle_plotting_order.push_back(3);
+        TrainPlots.cycle_plotting_order.push_back(6);
+        TrainPlots.cycle_plotting_order.push_back(4);
+        return *this;
+    };
+
+    Configuration &set12_plot_traineff_spr_final() {
+        this->resetMembers();
+        dataset=12;
+        TrainPlots.cycle_plotting_order.clear();
+        TrainPlots.cycle_plotting_order.push_back(4);
+        TrainPlots.cycle_plotting_order.push_back(1);
+        TrainPlots.cycle_plotting_order.push_back(2);
+        TrainPlots.cycle_plotting_order.push_back(3);
+        TrainPlots.cycle_plotting_order.push_back(5);
+        TrainPlots.combination_id=3;
+        return *this;
+    };
+
+
     Configuration &set3_spc(float ratio, float train_eff) {
         sp_ratios.clear();
         sp_ratios.push_back(ratio);
@@ -318,6 +356,38 @@ public:
         return *this;
     };
 
+    Configuration &set13_high_spr_check_build_data() {
+        /**
+         * This creates the datapoints for an appendix plot
+         */
+        this->resetMembers();
+        dataset = 12;
+        float stopping_eff = 0.8;
+        TrainPlots.combination_id=0;
+        std::vector<DatabaseConfigBuild> plot_datapoints;
+        plot_datapoints.push_back(DatabaseConfigBuild(400, 4, stopping_eff));
+        plot_datapoints.push_back(DatabaseConfigBuild(144, 4, stopping_eff));
+
+        DBconfigDatapoints.push_back(plot_datapoints);
+
+        return *this;
+    };
+
+
+
+    Configuration &set13_plot_traineff_final() {
+        this->resetMembers();
+        dataset = 13;
+        TrainPlots.combination_id = 0;
+        TrainPlots.cycle_plotting_order.clear();
+        TrainPlots.cycle_plotting_order.push_back(10);
+        TrainPlots.cycle_plotting_order.push_back(11);
+        TrainPlots.cycle_plotting_order.push_back(12);
+        TrainPlots.cycle_plotting_order.push_back(13);
+        return *this;
+    };
+
+
 
 
     Configuration &bkg_rates() {
@@ -330,6 +400,63 @@ public:
 
         return *this;
     }
+
+
+    //// SETTING CALLS OF DIFFERENT SCRIPTS
+
+    void BUILDTB() {
+//        set3_base().set3_build();
+//        set13_build_spc_final();
+
+        dataset = 13;
+        stopping_effs.push_back(0.8);
+        sp_ratios.push_back(100);
+        sp_cnt.push_back(1600);
+        TrainPlots.combination_id = 0;
+
+
+//        dataset=12;
+//        stopping_effs.push_back(0.9);
+//        sp_cnt.push_back(400);
+//        sp_ratios.push_back(400);
+//        sp_ratios.push_back(0.0025);
+//        TrainPlots.combination_id = 3;
+
+
+
+    }
+
+    void BUILDTB_DATAPOINTS() {
+//        set13_spc_tmpl_plot();
+        set13_high_spr_check_build_data();
+    }
+
+    void BUILDTB_TRAIN_PLOT(){
+//        set3_base().set3_trainplot();
+//        set12_plot_traineff_spr_final();
+//        set12_plot_traineff_spc_final(); //final plot in thesis
+        set13_plot_traineff_final(); //final plot in thesis
+    }
+
+    void BUILDTB_COS_EFF() {
+        set3_base().set3_build();
+    }
+
+    void BGANA() {
+        set3_base().set3_build();
+    }
+
+    void BGANA_MULTI() {
+        bkg_rates();
+    }
+
+    void BGANA_PLOT_ROC() {
+        set3_base().set3_roc();
+    }
+    void BGANA_PLOT_SPC() {
+        set3_base().set3_spc(64, 0.6);
+    }
+
 
 
     std::string RatiosToString() {
@@ -365,54 +492,6 @@ public:
     }
 
 
-    //// SETTING CALLS OF DIFFERENT SCRIPTS
-
-    void BUILDTB() {
-//        set3_base().set3_build();
-        dataset=12;
-        stopping_effs.push_back(0.9);
-        sp_cnt.push_back(400);
-        sp_ratios.push_back(400);
-        sp_ratios.push_back(0.0025);
-        TrainPlots.combination_id = 3;
-    }
-
-    void BUILDTB_DATAPOINTS() {
-        set13_spc_tmpl_plot();
-    }
-
-    void BUILDTB_TRAIN_PLOT(){
-//        set3_base().set3_trainplot();
-        dataset=12;
-        TrainPlots.cycle_plotting_order.clear();
-        TrainPlots.cycle_plotting_order.push_back(4);
-        TrainPlots.cycle_plotting_order.push_back(1);
-        TrainPlots.cycle_plotting_order.push_back(2);
-        TrainPlots.cycle_plotting_order.push_back(3);
-        TrainPlots.cycle_plotting_order.push_back(5);
-        TrainPlots.combination_id=3;
-    }
-
-    void BUILDTB_COS_EFF() {
-        set3_base().set3_build();
-    }
-
-    void BGANA() {
-        set3_base().set3_build();
-    }
-
-    void BGANA_MULTI() {
-        bkg_rates();
-    }
-
-    void BGANA_PLOT_ROC() {
-        set3_base().set3_roc();
-    }
-    void BGANA_PLOT_SPC() {
-        set3_base().set3_spc(64, 0.6);
-    }
-
-
 private:
     void resetMembers() {
         sp_ratios.clear();
@@ -424,6 +503,8 @@ private:
     int numOfSettings() {
         return sp_ratios.size() * sp_cnt.size() * stopping_effs.size();
     }
+
+
 };
 
 

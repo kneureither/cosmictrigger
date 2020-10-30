@@ -21,3 +21,7 @@ set(SRC4 main_CTtrainplots.cpp src/cosmicTemplatesTrainingPlots.cpp)
 add_executable(PlotsCosPatTrain ${SRC4})
 target_link_libraries(PlotsCosPatTrain rootTreeFiles)
 
+set(SRC5 main_CTtrainTemplSPC.cpp src/ctTrainingPlots_TemplatesSPC.cpp)
+add_executable(PlotsCosPatTemplSPC ${SRC5})
+target_link_libraries(PlotsCosPatTemplSPC rootTreeFiles)
+
