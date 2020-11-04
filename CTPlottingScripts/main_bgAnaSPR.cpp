@@ -2,9 +2,9 @@
 // Created by Konstantin Neureither on 30.10.20.
 //
 
-void BgAnaPlots_EffSPR();
+void BgAnaPlots_SPR();
 
 int main(int argc, char *argv[]) {
-    BgAnaPlots_EffSPR();
+    BgAnaPlots_SPR();
     return 0;
 }

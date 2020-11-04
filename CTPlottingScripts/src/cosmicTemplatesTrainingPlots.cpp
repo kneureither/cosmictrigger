@@ -42,7 +42,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
 //    const bool LEGEND_ON_TOP = false;
 
     const bool SET_LOGX = 0;
-    const bool FIT = true;
+    const bool FIT = false;
     const int LINE_W = 2;
 
     gStyle->SetLegendBorderSize(0);
@@ -270,7 +270,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     f2->SetLineWidth(LINE_W);
     f2->SetLineColor(kRed);
 
-    legend->AddEntry(f2, "Fit function f(x) = a #upoint * exp( #minus b #upoint N_{tmpl})", "L");
+//    legend->AddEntry(f2, "Fit function f(x) = a #upoint * exp( #minus b #upoint N_{tmpl})", "L");
 
 
     // plot the overview multigraphs
@@ -363,7 +363,7 @@ void makeCosPatPlots(const int dataset, const int combination_id, std::vector<in
     pad5->cd();
 
     g_eff_tnumbers->GetXaxis()->SetTitle("# templates");
-    g_eff_tnumbers->GetYaxis()->SetTitle("efficiency #epsilon^{cosmic}_{train}");
+    g_eff_tnumbers->GetYaxis()->SetTitle("efficiency #epsilon^{cosmic}_{detection}");
     g_eff_tnumbers->SetMaximum(1);
 
     g_eff_tnumbers->GetXaxis()->SetTitleFont(52);

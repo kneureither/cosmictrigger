@@ -17,7 +17,8 @@
 void ctTrainingPlots_TemplatesSPC() {
 
     Configuration CONFIG;
-    CONFIG.set13_spc_tmpl_plot();
+//    CONFIG.set13_spc_tmpl_plot();
+    CONFIG.set13_bkg_spc_zbins_plot();
 
     const int mode = CONFIG.mode;
     const int dataset = CONFIG.dataset;
@@ -61,6 +62,7 @@ void ctTrainingPlots_TemplatesSPC() {
     pad1->Draw();
     gStyle->SetLegendBorderSize(0);
     auto legend1 = new TLegend(0.12, 0.6, 0.4, 0.88);
+//    auto legend1 = new TLegend(0.47 , 0.15, 0.89 , 0.37);
 
     //file label
     std::string spcounts = "";
@@ -132,7 +134,9 @@ void ctTrainingPlots_TemplatesSPC() {
         sp_zbins.push_back(zbins);
 
         std::string ltext = "#bf{TB EFF} #epsilon^{cosmic}_{training} = #it{" + get_string(stopping_eff) +
-                            "} | #bf{Z SPs} fixed @ #it{" + get_string(zbins[0]) + " bins [" + get_string(400 / zbins[0]) + " mm]" + "}";
+//                            "} | #bf{Z SPs} fixed @ #it{" + get_string(zbins[0]) + " bins [" + get_string(400 / zbins[0]) + " mm]" +
+                            "} | #bf{W SPs} fixed @ #it{" + get_string(wbins[0]) + " bins" +
+                            "}";
 
 
 
@@ -156,6 +160,9 @@ void ctTrainingPlots_TemplatesSPC() {
         g_tmpl_spc->Fit("f2",0);
         TF1* fit = g_tmpl_spc->GetFunction("f2");
         fit->SetLineColor(colors[curve_idx]);
+        if(stopping_eff < 0.8) {
+//            fit->SetLineStyle(7);
+        }
 //        std::string fitlegend = "Fit f(x) = " + get_string(fit->GetParameter(0))+  " x + " + get_string(fit->GetParameter(1)) + " x^{2}";
         std::string fitlegend = "Fit f(x) = ax + bx^{2}";
         legend1->AddEntry(fit, fitlegend.c_str(), "L");
@@ -177,7 +184,7 @@ void ctTrainingPlots_TemplatesSPC() {
     g_templ_spc_multi->GetXaxis()->SetMaxDigits(2);
     g_templ_spc_multi->GetXaxis()->SetLimits(0, 4096);
     g_templ_spc_multi->GetXaxis()->SetRangeUser(0, 4096);
-    g_templ_spc_multi->GetXaxis()->SetNdivisions(8, 5, 0, false);
+    g_templ_spc_multi->GetXaxis()->SetNdivisions(8, 4, 0, false);
     g_templ_spc_multi->GetXaxis()->SetMaxDigits(4);
 
     g_templ_spc_multi->GetYaxis()->SetTitle("# templates");

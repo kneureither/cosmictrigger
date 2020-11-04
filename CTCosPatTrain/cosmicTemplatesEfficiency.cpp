@@ -45,6 +45,8 @@ void cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, f
     const bool PRINTS = false;
     const int mode = 0;
 
+    gStyle->SetLegendBorderSize(0);
+
     //// INITIALIZE PATHS, TEMPLATE BANK
 
     const std::string pathtocosmicdata = "data/SlimmedData/";
@@ -52,6 +54,7 @@ void cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, f
     const std::string pathtooutput = "output/comsicTemplatesEfficiency/";
     const std::string pathtooutfile = pathtooutput + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtoplots = pathtooutfile + "PDF/";
+    const std::string pathtoplotsfilter = pathtoplots + "FilterEffs/";
     const std::string pathtodatasettempldata = pathtotemplatedata + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
 
     std::string infile = pathtocosmicdata + "mu3e_slimmed_segs_" + get_padded_string(cosmic_testing_dataset, 6, '0') + ".root";
@@ -62,6 +65,7 @@ void cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, f
     check_create_directory(pathtooutfile);
     check_create_directory(pathtoplots);
     check_create_directory(pathtodatasettempldata);
+    check_create_directory(pathtoplotsfilter);
 
     //Get the Pattern Engine and Template Manager
     const int spWbins = (int) sqrt((float) spWZratio * (float) centralTPcount);
@@ -69,15 +73,6 @@ void cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, f
 //    std::cout << "\n -- PE config data:" << std::endl << "  wbins=" << spWbins << std::endl << "  zbins=" << spZbins << std::endl << std::endl;
 
     PatternEngine PE(spWbins, spZbins, pathtoplots);
-
-    // FILE FOR READING
-    TFile tinF(infile.c_str());
-    if (!tinF.IsOpen()) {
-        std::cout << "[ERROR] File " << tinF.GetName() << " is not open!" << std::endl;
-        exit(0);
-    } else {
-        std::cout << "(INFO)   : cosmic testing data from file " << infile << std::endl;
-    }
 
     //stats data
     int p_fail_count = 0;
@@ -89,82 +84,9 @@ void cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, f
     unsigned int runID;
     bool stopping_point_reached = false;
 
+    cosmic_spid_tracks=produceCosmicSIDtracks(cosmic_testing_dataset, centralTPcount, spWZratio, mode);
+    processed_entries = cosmic_spid_tracks.size();
 
-    //get different cycles of trees in file
-    int treecount = 0;
-    int cycle = 0;
-    std::string tree;
-    std::vector<int> processed_run_ids;
-
-    TList *list = tinF.GetListOfKeys();
-    TIter iter(list->MakeIterator());
-
-    //iterate over all cycles of trees separately
-    while(TObject* obj = iter()) {
-        treecount++;
-        TKey *theKey = (TKey *) obj;
-        tree = theKey->GetName();
-        cycle = theKey->GetCycle();
-        TTree *t_slimsegs;
-        std::string treename = tree + ";" + get_string(cycle);
-        tinF.GetObject(treename.c_str(), t_slimsegs);
-        t_slimsegs->SetBranchAddress("runID", &runID);
-        t_slimsegs->GetEntry(0);
-        std::cout << "(INFO)   : Processing tree " << tree << " cycle " << cycle << " | run " << runID << std::endl;
-        std::cout << "(INFO)   : sp count " << centralTPcount << " | wbins " << spWbins << " | zbins " << spZbins << std::endl;
-
-        SlimSegsTreeRead SlimSegs = SlimSegsTreeRead(t_slimsegs);
-
-        SlimSegs.getEntry(0);
-        if (std::find(processed_run_ids.begin(), processed_run_ids.end(), SlimSegs.runID) != processed_run_ids.end()) {
-            std::cout << "(WARNING): runID " << SlimSegs.runID << " has already been processed -- skipping cycle "
-                      << cycle << std::endl;
-            continue;
-        } else {
-            processed_run_ids.push_back(SlimSegs.runID);
-        }
-
-
-        int max_entry = SlimSegs.entries;
-        for (unsigned int entryno = 0; entryno < max_entry; entryno++) {
-            SlimSegs.getEntry(entryno);
-            processed_entries++;
-
-            //progress bar
-            print_status_bar(entryno, max_entry, "building cosmic tids", "processed entries " + get_string(processed_entries));
-
-            std::vector<unsigned int> SPIDs;
-            std::vector<float> xpr;
-            std::vector<float> ypr;
-            std::vector<float> zpr;
-            std::vector<int> layerpr;
-
-            unsigned int SPID;
-            bool enoughhits = 0;
-
-            // combine hits into array that suits template format
-            enoughhits = getSymmetricRefHits(xpr, ypr, zpr, layerpr, SlimSegs, 4 - (TID_LEN / 2));
-            if (!enoughhits) {
-                failed_count++;
-                continue;
-            }
-            used_entries++;
-
-            //combining hits to super pixel hit array
-            for (int i = 0; i < xpr.size(); i++) {
-                SPID = PE.getSuperPixel(xpr[i], ypr[i], zpr[i]);
-                SPIDs.push_back(SPID);
-                if (PRINTS) printf(" -- SPIDS =%#X \n", SPIDs[i]);
-            }
-
-            //store preprocessed tracks of cosmics
-            cosmic_spid_tracks.push_back(SPIDs);
-
-        }
-        std::cout << std::endl;
-        break;
-    }
-    tinF.Close();
 
     std::cout << "(STATUS) : Got cosmic test data. cosmic count: " << used_entries << " processed entries: " << processed_entries << std::endl;
 
@@ -239,7 +161,10 @@ void cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, f
 //        h_templtypetotaleff->GetXaxis()->SetBinLabel(i+1, enum_to_string(static_cast<TIDLoadingFilter>(i)).c_str());
 //        h_templtypetotaleff->GetXaxis()->ChangeLabel(1+2*count,-1, -1, -1, -1,-1, enum_to_string(filters[count]));
         count++;
-        h_templtypetotaleff->GetXaxis()->ChangeLabel(count*2,-1, -1, -1, -1,-1, enum_to_string(filters[count-1]));
+
+        std::string label = enum_to_string(filters[count-1]);
+        std::replace( label.begin(), label.end(), '_', ' ');
+        h_templtypetotaleff->GetXaxis()->ChangeLabel(count*2,-1, -1, -1, -1,-1, label);
         h_templtypetotaleff->GetXaxis()->ChangeLabel(count*2-1,-1, -1, -1, -1,-1, " ");
     }
     h_templtypetotaleff->GetXaxis()->ChangeLabel(count*2+1,-1, -1, -1, -1,-1, " ");
@@ -249,12 +174,12 @@ void cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, f
     //make it nice
     h_templtypetotaleff->GetYaxis()->SetTitle("cosmic efficiency");
     h_templtypetotaleff->GetXaxis()->SetTitle("template filter");
-    h_templtypetotaleff->SetFillColor(kGreen);
-    h_templtypetotaleff->SetLineColor(kGreen);
-    h_templtypereleff->SetFillColor(kBlue);
-//    h_templtypereleff->SetLineColor(kBlue);
-    h_templtypetotaleff->SetFillStyle(3003);
-    h_templtypereleff->SetFillStyle(3003);
+    h_templtypetotaleff->SetFillColor(kRed-2);
+    h_templtypetotaleff->SetLineColor(kRed-2);
+    h_templtypereleff->SetLineColor(kCyan+4);
+    h_templtypereleff->SetFillColor(kCyan+4);
+    h_templtypetotaleff->SetFillStyle(3004);
+    h_templtypereleff->SetFillStyle(3004);
 
     setPlottingStyle(h_templtypetotaleff); //general plotting style defined in plots.h
 
@@ -263,38 +188,42 @@ void cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, f
     h_templtypetotaleff->Draw();
     h_templtypereleff->Draw("SAME");
 
+    float leg_x = 0.14;
+    float leg_y = 0.85;
+    float spacing = 0.04;
+
     //legend
-    TLegend *legend = new TLegend(0.5, 0.8, 0.9, 0.9);
-    legend->AddEntry(h_templtypetotaleff, "#epsilon_{training, total} for all cosmics");
-    legend->AddEntry(h_templtypereleff, "#epsilon_{training, relative} for filter conditions");
+    TLegend *legend = new TLegend(leg_x + 0.39, 0.8, 0.89, leg_y+0.03);
+    legend->AddEntry(h_templtypetotaleff, "cosmic detection efficiency #epsilon^{cosmic}_{detection}");
+    legend->AddEntry(h_templtypereleff, "acceptance of filter #Alpha^{cosmic}_{filter}");
     legend->SetTextSize(0.03);
     legend->Draw();
 
-    TLatex tline1(.15,.81,("#it{#bf{TEMPLATE BANK} @ " + get_string(training_efficiency*100) + "% TRAINING EFF" +
-                          " | TEMPL CNT " + get_string(template_count) + "}").c_str());
+    TLatex tline1(leg_x,leg_y,("#it{#bf{TEMPLATE BANK} @ " + get_string(training_efficiency*100).substr(0,2) + "% TRAINING EFF" +
+                          " | T-CNT " + get_string(template_count) + "}").c_str());
     tline1.SetTextFont(43);
-    tline1.SetTextSize(10);
+    tline1.SetTextSize(14);
     tline1.SetNDC(kTRUE);
     tline1.Draw();
 
-    TLatex tline2(.15,.78,("#it{#bf{CONFIG} WBINS " + get_string(spWbins) + " | ZBINS " + get_string(spZbins) +
+    TLatex tline2(leg_x, leg_y-spacing,("#it{#bf{CONFIG} BINS " + get_string(spWbins) + "#times" + get_string(spZbins) +
                           " | DATASET " + get_string(dataset) + "}").c_str());
     tline2.SetTextFont(43);
-    tline2.SetTextSize(10);
+    tline2.SetTextSize(14);
     tline2.SetNDC(kTRUE);
     tline2.Draw();
 
-    TLatex tline3(.15,.75,("#it{COSMIC TESTING DATASET " + get_string(cosmic_testing_dataset) + " | COSMIC CNT " + get_string(processed_entries) + "}").c_str());
-    tline3.SetTextFont(43);
-    tline3.SetTextSize(10);
-    tline3.SetNDC(kTRUE);
-    tline3.Draw();
+//    TLatex tline3(.15,.75,("#it{COSMIC TESTING DATASET " + get_string(cosmic_testing_dataset) + " | COSMIC CNT " + get_string(processed_entries) + "}").c_str());
+//    tline3.SetTextFont(43);
+//    tline3.SetTextSize(14);
+//    tline3.SetNDC(kTRUE);
+//    tline3.Draw();
 //
     canvas->Write();
     h_templtypetotaleff->Write();
     h_templtypereleff->Write();
 
-    saveCanvas(canvas, ("TemplateTypeEffs_" + getfileidtag(dataset, mode, spWbins, spZbins, stopping_efficiency)).c_str(), pathtoplots);
+    saveCanvas(canvas, ("FilterTypeEffs_" + getfileidtag(dataset, mode, spWbins, spZbins, stopping_efficiency)).c_str(), pathtoplotsfilter);
 
     //add some meta data for the
     int datast = dataset;

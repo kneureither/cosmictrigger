@@ -64,8 +64,9 @@ void bgAnaPlots_ROC() {
 
     TCanvas *canvas = new TCanvas("canvas", "Background Evaluation ROC curve", 900, 600);
     canvas->SetTicks(1, 1);
+    canvas->SetLogy(1);
+
     auto *pad1 = new TPad("bg eff vs training eff", "bg eff vs training eff", 0, 0, 1, 0.99);
-    pad1->SetLogx(0);
 //    pad1->SetGrid(1,5);
     pad1->Draw();
     auto legend = new TLegend(0.55, 0.3, 0.9, 0.55);
@@ -121,8 +122,11 @@ void bgAnaPlots_ROC() {
 
                     bg_discr_effs.push_back(BGAna->bg_discr_eff);
 
-                    std::cout << "STATUS : sp count " << spcount << " | sp ratio " << BGAna->sp_target_ratio
-                              << " | tb_stopp_eff " << stopp_eff << " | tb_eff " << BGAna->train_eff_total << " | bg_eff " << BGAna->bg_discr_eff
+                    std::cout << "STATUS : sp count " << spcount
+                              << " | sp ratio " << BGAna->sp_target_ratio
+                              << " | tb_stopp_eff " << stopp_eff
+                              << " | tb_eff " << BGAna->train_eff_total
+                              << " | bg_eff " << BGAna->bg_discr_eff
                               << std::endl;
                 }
 
@@ -166,6 +170,12 @@ void bgAnaPlots_ROC() {
     legend->Draw("C");
 
 
-    saveCanvas(canvas, "Plots_bgAnaROC_dst_" + get_string(dataset) + "_" + CONFIG.set_description +  "_spratio_" + CONFIG.RatiosToString() + "_spcount_" + CONFIG.ResolutionsToString(), pathtorunplots);
+
+    saveCanvas(canvas, "Plots_bgAnaROC_dst_" + get_string(dataset)
+    + "_" + CONFIG.FiltersToString()
+    + "_" + CONFIG.set_description
+    + "_spratio_" + CONFIG.RatiosToString()
+    + "_spcount_" + CONFIG.ResolutionsToString(),
+    pathtorunplots);
 
 }

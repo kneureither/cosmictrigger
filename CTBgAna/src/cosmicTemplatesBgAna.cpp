@@ -148,10 +148,10 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
                 std::cout << "----frame number " << frame << std::endl;
                 std::cout << "  > total hits            --- " << bg_hits << std::endl;
                 std::cout << "  > inner hits            --- " << BGcmbncsResult.frames_innerhits[frame] << std::endl;
-                std::cout << "  > hits in upper layer 3 --- " << BGcmbncsResult.frames_sortedhits[frame].h0.size() << std::endl;
-                std::cout << "  > hits in upper layer 2 --- " << BGcmbncsResult.frames_sortedhits[frame].h1.size() << std::endl;
-                std::cout << "  > hits in lower layer 2 --- " << BGcmbncsResult.frames_sortedhits[frame].h2.size() << std::endl;
-                std::cout << "  > hits in lower layer 3 --- " << BGcmbncsResult.frames_sortedhits[frame].h3.size() << std::endl;
+//                std::cout << "  > hits in upper layer 3 --- " << BGcmbncsResult.frames_sortedhits[frame].h0.size() << std::endl;
+//                std::cout << "  > hits in upper layer 2 --- " << BGcmbncsResult.frames_sortedhits[frame].h1.size() << std::endl;
+//                std::cout << "  > hits in lower layer 2 --- " << BGcmbncsResult.frames_sortedhits[frame].h2.size() << std::endl;
+//                std::cout << "  > hits in lower layer 3 --- " << BGcmbncsResult.frames_sortedhits[frame].h3.size() << std::endl;
 //                std::cout << "  > double sids           --- " << doublesid << std::endl;
 
                 std::cout << "  > templates created: " << tid_count << std::endl;
@@ -385,7 +385,7 @@ BGcombinatorics produceBGcmbncsTID(const int bg_run, PatternEngine &PEbg, int ma
         BGcmbncsResult.frames_outerhits.push_back(outerhits); //int number of hits in outer layers per frame
         BGcmbncsResult.frames_innerhits.push_back(innerhits); //int number of hits in inner layers per frame
         BGcmbncsResult.frames_bgframehits.push_back(bgframehits.size()); // int number of hits per frame
-        BGcmbncsResult.frames_sortedhits.push_back(hits); //SIDs sorted in layers per frame
+//        BGcmbncsResult.frames_sortedhits.push_back(hits); //SIDs sorted in layers per frame
         BGcmbncsResult.total_nhits += bgframehits.size();
     }
 

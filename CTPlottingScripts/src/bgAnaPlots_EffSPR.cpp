@@ -90,7 +90,7 @@ void BgAnaPlots_SPR() {
     pad1->SetLogx(0);
     pad1->Draw();
     gStyle->SetLegendBorderSize(0);
-    auto legend1 = new TLegend(0.5, 0.12, 0.89, 0.35);
+    auto legend1 = new TLegend(0.15, 0.55, 0.45, 0.75);
 
     auto *pad2 = new TPad("template count vs spr", "template count vs spr", 0, 0.01, 1, 0.3);
     pad2->Draw();
@@ -124,7 +124,7 @@ void BgAnaPlots_SPR() {
                 tb_stopping_eff = config.stopp_eff;
 
                 // FILE FOR READING BG EVAL DATA
-                std::string infile = get_bgevalfile(bgevents, CONFIG.max_cosmic_events, run, CONFIG.cosmic_testing_dataset, dataset, mode, config.wbins, config.zbins );
+                std::string infile = get_bgevalfile(bgevents, CONFIG.max_cosmic_events, CONFIG.max_bg_frame_nhits, run, CONFIG.cosmic_testing_dataset, dataset, mode, config.wbins, config.zbins );
                 TFile tinF((pathtooutfile + infile).c_str());
                 if (!tinF.IsOpen()) {
                     std::cout << "[ERROR] File " << tinF.GetName() << " is not open!" << std::endl;
@@ -150,7 +150,7 @@ void BgAnaPlots_SPR() {
                 SPRs.push_back((float) BGAna->wBins[0] /(float) BGAna->zBins[0]);
                 templ_count.push_back((float) BGAna->template_count);
                 training_eventcount.push_back((float) BGAna->tb_training_eventcount);
-                max_frame_nhits = BGAna->max_frame_nhits;
+                max_frame_nhits = BGAna->max_bg_frame_nhits;
 
 
                 std::cout << "STATUS : filter " << enum_to_string(filter)
@@ -161,6 +161,7 @@ void BgAnaPlots_SPR() {
                           << " | tb_target_eff " << BGAna->tb_stopping_eff
                           << " | tb_eff " << tb_train_eff_total
                           << " | bg_eff " << BGAna->bg_discr_eff
+                          << " | max_hits " << max_frame_nhits
                           << std::endl;
 
                 // checks
@@ -175,18 +176,22 @@ void BgAnaPlots_SPR() {
 
             tb_stopping_effs.push_back(tb_stopping_eff);
 
-            std::string ltext = "#bf{TB EFF} #it{" + get_string(tb_train_eff_total).substr(0, 4)
-                                + " [" + get_string(tb_train_eff_relative).substr(0,4)
-                                + " ]} | #bf{SPC} #it{" + get_string(spc)
-                                + "} | #bf{FLTR} #it{" + enum_to_string(filter) + "}";
+            std::string ltext = "#bf{TB EFF} #it{" + get_string(tb_stopping_eff).substr(0, 3) + " "
+                                /*+ "[" + get_string(tb_train_eff_relative).substr(0,4) + " ]" */
+                                + "} | #bf{SPC} #it{" + get_string(spc)
+                                + ( filter != ALL ? ("} | #bf{FLTR} #it{" + enum_to_string(filter)) : "") + "}";
 
             TGraph *g_eff_spres = new TGraph(SPRs.size(), &SPRs[0], &bg_discr_effs[0]);
             legend1->AddEntry(g_eff_spres, ltext.c_str());
             g_eff_spres->SetMarkerStyle(23);
+            g_eff_spres->SetMarkerSize(2 );
+            g_eff_spres->SetLineWidth(2);
             g_eff_spress->Add(g_eff_spres, "PL"); //no markers shown
 
             TGraph *g_tcount_spres = new TGraph(SPRs.size(), &SPRs[0], &templ_count[0]);
             g_tcount_spres->SetMarkerStyle(23);
+            g_tcount_spres->SetMarkerSize(2);
+            g_tcount_spres->SetLineWidth(2);
             g_tcounts_spress->Add(g_tcount_spres, "PL"); //no markers shown
 
             curve_idx++;
@@ -196,10 +201,13 @@ void BgAnaPlots_SPR() {
 
     //set eff sp res mutliplot style
     pad1->cd();
+    pad1->SetLogx(1);
     g_eff_spress->GetXaxis()->SetTitle("super pixel ratio [W bins / Z bins]");
     g_eff_spress->GetXaxis()->SetTitleFont(53);
     g_eff_spress->GetXaxis()->SetTitleSize(14);
-    g_eff_spress->GetXaxis()->SetTitleOffset(1.6);
+    g_eff_spress->GetXaxis()->SetTitleOffset(1.9);
+    g_eff_spress->GetXaxis()->SetNdivisions(5, 3,1, false);
+
 
     g_eff_spress->GetYaxis()->SetTitle("background discr. #epsilon");
     g_eff_spress->GetYaxis()->SetTitleFont(53);
@@ -210,19 +218,20 @@ void BgAnaPlots_SPR() {
     g_eff_spress->Draw("A PLC PMC");
 
     std::string lheadtext="#bf{SP CONFIGURATION} #it{DATASET " + get_string(dataset) + "}";
-    legend1->SetTextSize(0.02);
-    legend1->SetHeader(lheadtext.c_str(), "C"); // option "C" allows to center the header
+    legend1->SetTextSize(0.025);
+    legend1->SetHeader("", "C"); // option "C" allows to center the header
     legend1->Draw("C");
 
-    std::string effs = "";
-    for(auto &eff : tb_stopping_effs)  effs = effs + get_string(100*eff) + "% ";
+    std::string effs2 = "";
+    for(auto &eff : tb_stopping_effs)  effs2 = effs2 + get_string(100*eff) + "% ";
 
-    std::string l1 = "#it{#bf{COSMIC TRIGGER SIM @ }}#it{" + effs + "TRAINING EFF}";
-    std::string l2 = "#it{#bf{MU3E SIM} RUN " + get_string(run) + " | EVENTS " + get_string(bgevents) + " | MAX HITS " + get_string(max_frame_nhits) + "}";
+    std::string l1 = "#it{#bf{COSMIC TRIGGER SIM @ }}#it{" + effs2 + "TRAINING EFF}";
+    std::string l2 = "#it{#bf{MU3E BKG SIM} RUN " + get_string(run) + " | EVENTS " + get_string(bgevents)
+            + (max_frame_nhits != 0 ? (" | MAX HITS " + get_string(max_frame_nhits)) : "") + "}";
     drawAdditionalInfoBlock(pad1,0.37, 0.8, l1, l2);
 
     float leg_x=0.15;
-    float leg_y=0.75;
+    float leg_y=0.8;
     float spacing = 0.05;
 
     TLatex tline1(leg_x,leg_y,l1.c_str());
@@ -236,24 +245,33 @@ void BgAnaPlots_SPR() {
     tline2.SetNDC(kTRUE);
     tline2.Draw();
 
+    // add additional axis on top
+//
+//    for(auto &curve : CONFIG.DBconfigDatapoints) {
+//        for(auto &config : curve) {
+//
+//        }
+//    }
+
 
     //set template count mutliplot style
     pad2->cd();
+    pad2->SetLogx(1);
     pad2->SetBottomMargin(0.16);
     g_tcounts_spress->GetXaxis()->SetTitle("super pixel ratio [W bins / Z bins]");
     g_tcounts_spress->GetXaxis()->SetTitleSize(0.06);
     g_tcounts_spress->GetXaxis()->SetLabelSize(0.08);
     g_tcounts_spress->GetXaxis()->SetTitleFont(52);
     g_tcounts_spress->GetXaxis()->SetLabelFont(42);
-    g_tcounts_spress->GetXaxis()->SetTitleOffset(1);
+    g_tcounts_spress->GetXaxis()->SetTitleOffset(1.3);
     g_tcounts_spress->GetYaxis()->SetTitleOffset(1.2);
 
     g_tcounts_spress->GetYaxis()->SetTitle("# templates in db");
-    g_tcounts_spress->GetYaxis()->SetTitleSize(0.06);
+    g_tcounts_spress->GetYaxis()->SetTitleSize(0.07);
     g_tcounts_spress->GetYaxis()->SetLabelSize(0.08);
     g_tcounts_spress->GetYaxis()->SetTitleFont(52);
     g_tcounts_spress->GetYaxis()->SetLabelFont(42);
-    g_tcounts_spress->GetYaxis()->SetTitleOffset(0.7);
+    g_tcounts_spress->GetYaxis()->SetTitleOffset(0.6);
     expandYaxisRange(g_tcounts_spress);
     g_tcounts_spress->Draw("A PLC PMC");
 

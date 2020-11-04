@@ -100,7 +100,7 @@ void MetaDataTreeRead::setBranches() {
     tT_meta->SetBranchAddress("sp_count", &sp_count);
     tT_meta->SetBranchAddress("sp_target_ratio", &sp_target_ratio);
     tT_meta->SetBranchAddress("max_muon_hits", &max_muon_hits);
-    tT_meta->SetBranchAddress("max_frame_nhits", &max_frame_nhits);
+    tT_meta->SetBranchAddress("max_bg_frame_nhits", &max_frame_nhits);
     tT_meta->GetEntry(0);
 
 }
@@ -127,7 +127,7 @@ void BGAnaResTreeRead::setBranches() {
     tT_bgeff->SetBranchAddress("frame_eff", &frame_effs_ptr);
     tT_bgeff->SetBranchAddress("frame_bghits", &frame_hits_ptr);
     tT_bgeff->SetBranchAddress("max_bg_frame_nhits", &max_bg_frame_nhits);
-    tT_bgeff->SetBranchAddress("mean_bg_frame_nhits", &mean_bg_frame_nhits);
+    tT_bgeff->SetBranchAddress("mean_frame_nhits", &mean_bg_frame_nhits);
     tT_bgeff->GetEntry(0);
 
     filter = (TIDLoadingFilter) tb_filter;

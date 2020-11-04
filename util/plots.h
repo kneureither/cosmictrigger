@@ -164,14 +164,14 @@ static void setPlottingStyle(TH1F* hs) {
     hs->GetYaxis()->SetLabelFont(43);
     hs->GetYaxis()->SetLabelSize(16);
     hs->GetYaxis()->SetTitleFont(53);
-    hs->GetYaxis()->SetTitleSize(14);
+    hs->GetYaxis()->SetTitleSize(16);
     hs->GetYaxis()->SetTitleOffset(1.6);
     hs->GetYaxis()->CenterTitle(false);
 
     hs->GetXaxis()->SetLabelFont(43);
     hs->GetXaxis()->SetLabelSize(16);
     hs->GetXaxis()->SetTitleFont(53);
-    hs->GetXaxis()->SetTitleSize(14);
+    hs->GetXaxis()->SetTitleSize(16);
     hs->GetXaxis()->SetTitleOffset(1.6);
     hs->GetXaxis()->CenterTitle(false);
 }

@@ -21,6 +21,10 @@ set(SRC7 main_bgAnaSPR.cpp src/bgAnaPlots_EffSPR.cpp)
 add_executable(PlotsBgAnaSPRdatapoints ${SRC7})
 target_link_libraries(PlotsBgAnaSPRdatapoints rootTreeFiles)
 
+set(SRC7 main_bgAnaROCdp.cpp src/bgAnaPlots_EffROC.cpp)
+add_executable(PlotsBgAnaROCdatapoints ${SRC7})
+target_link_libraries(PlotsBgAnaROCdatapoints rootTreeFiles)
+
 set(SRC5 main_bgAnaEffBeam.cpp src/bgAnaPots_EffBeamRate.cpp)
 add_executable(PlotsBgAnaEffBeam ${SRC5})
 target_link_libraries(PlotsBgAnaEffBeam rootTreeFiles)
