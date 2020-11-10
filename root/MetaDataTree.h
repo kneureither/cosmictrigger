@@ -6,6 +6,7 @@
 #define COSMICTRIGGER_METADATATREE_H
 
 #include "TTree.h"
+#include "TemplateBank.h"
 
 class MetaDataTreeFile {
 public:
@@ -35,11 +36,19 @@ public:
 
     //bg ana data
     float bg_discr_eff;
-    float tb_training_eff;
+    float tb_training_eff; //training (filter ALL)
+    float train_eff_total; //determined in bgAna with separate dataset for a certain filter (test data unfiltered)
+    float train_eff_rel; //determined in bgAna with separate dataset for a certain filter (test data filtered)
+    int tb_filter; // TIDLoadingFilter
+    TIDLoadingFilter filter;
+    std::string *filter_string_ptr = nullptr;
+    std::string filter_str;
     std::vector<float> frame_effs;
     std::vector<float> *frame_effs_ptr = nullptr;
     std::vector<int>frame_hits;
     std::vector<int> *frame_hits_ptr = nullptr;
+    float mean_bg_frame_nhits;
+    int max_bg_frame_nhits;
 
     void reinitializeData();
     MetaDataTreeFile() {}

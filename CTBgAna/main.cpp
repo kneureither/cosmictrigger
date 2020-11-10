@@ -4,17 +4,19 @@
 #include "inc/cosmicTemplatesBgAna.h"
 #include "../CTCoreModules/inc/TemplateBank.h"
 #include <iostream>
+#include "Configuration.h"
 
 int main() {
-
+    Configuration CONFIG;
+    CONFIG.BGANA();
     //only muon background
-    int max_muon_hits = 0;
-    int background_dataset = 107;
-    int pattern_dataset = 11;
-    std::vector<float> spratios = {1};
-    std::vector<int> SPcounts = {784};
-    std::vector<float> tb_stopping_efficiencies = {0.6};
-    std::vector<TIDLoadingFilter> filters = {ALL, NO_CENTER, CUT_ON_FREQ};
+    int max_muon_hits = CONFIG.max_bg_frame_nhits;
+    int background_dataset = CONFIG.background_run;
+    int pattern_dataset = CONFIG.dataset;
+    std::vector<float> spratios = CONFIG.sp_ratios;
+    std::vector<int> SPcounts = CONFIG.sp_cnt;
+    std::vector<float> tb_stopping_efficiencies = CONFIG.stopping_effs;
+    std::vector<TIDLoadingFilter> filters = CONFIG.TmplBankFilter.filters;
 
     int append = 1;
     for(auto &spratio : spratios) {
@@ -22,7 +24,7 @@ int main() {
             for (auto &tb_eff : tb_stopping_efficiencies) {
                 std::cout << "STATUS : Running BG Eval for tb_eff: " << tb_eff << std::endl;
                 cosmicTemplatesBgAna(background_dataset, pattern_dataset, spcout, spratio, tb_eff, append,
-                                     filters);
+                                     filters, CONFIG.max_bg_frames, CONFIG.max_cosmic_events, CONFIG.max_bg_frame_nhits, CONFIG.cosmic_testing_dataset);
                 append = true;
             }
         }

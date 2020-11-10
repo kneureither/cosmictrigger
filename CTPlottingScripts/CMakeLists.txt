@@ -13,7 +13,31 @@ set(SRC3 main_bgAnaEffSPcount.cpp src/bgAnaPlots_EffSPcount.cpp)
 add_executable(PlotsBgAnaSPcount ${SRC3})
 target_link_libraries(PlotsBgAnaSPcount rootTreeFiles)
 
+set(SRC6 main_bgAnaSPC.cpp src/bgAnaPlots_EffSPC.cpp)
+add_executable(PlotsBgAnaSPCdatapoints ${SRC6})
+target_link_libraries(PlotsBgAnaSPCdatapoints rootTreeFiles)
+
+set(SRC7 main_bgAnaSPR.cpp src/bgAnaPlots_EffSPR.cpp)
+add_executable(PlotsBgAnaSPRdatapoints ${SRC7})
+target_link_libraries(PlotsBgAnaSPRdatapoints rootTreeFiles)
+
+set(SRC7 main_bgAnaROCdp.cpp src/bgAnaPlots_EffROC.cpp)
+add_executable(PlotsBgAnaROCdatapoints ${SRC7})
+target_link_libraries(PlotsBgAnaROCdatapoints rootTreeFiles)
+
+set(SRC5 main_bgAnaEffBeam.cpp src/bgAnaPots_EffBeamRate.cpp)
+add_executable(PlotsBgAnaEffBeam ${SRC5})
+target_link_libraries(PlotsBgAnaEffBeam rootTreeFiles)
+
 set(SRC4 main_CTtrainplots.cpp src/cosmicTemplatesTrainingPlots.cpp)
 add_executable(PlotsCosPatTrain ${SRC4})
 target_link_libraries(PlotsCosPatTrain rootTreeFiles)
+
+set(SRC5 main_CTtrainTemplSPC.cpp src/ctTrainingPlots_TemplatesSPC.cpp)
+add_executable(PlotsCosPatTemplSPC ${SRC5})
+target_link_libraries(PlotsCosPatTemplSPC rootTreeFiles)
+
+set(SRC5 PlotPEconfig.cpp)
+add_executable(PlotsPEconfig ${SRC5})
+target_link_libraries(PlotsPEconfig rootTreeFiles)
 

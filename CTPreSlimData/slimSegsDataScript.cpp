@@ -22,6 +22,7 @@
 #include "SegsTreeRead.h"
 #include "SlimSegsTree.h"
 #include "basicDefines.h"
+#include "Configuration.h"
 
 using std::cout;
 using std::endl;
@@ -29,9 +30,10 @@ using std::endl;
 void slimSegsDataScript(const int dataset, const int run, const bool appendToFile) {
 
     const int MAX_ENTRIES = 0;
+    Configuration CONFIG;
 
     const std::string pathtoplots = "output/Mu3eSlimSegs/";
-    const std::string pathtodata = "data/SimulationData/";
+    const std::string pathtodata = CONFIG.pathtosimfiles;
     const std::string pathtodatasetplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string infile = pathtodata + "mu3e_run_" + get_padded_string(run, 6, '0') + "_trirec_cosmic.root";
 //    const std::string outputfile = pathtodata + "mu3e_slimmed_segs_" + get_padded_string(dataset, 6, '0') + ".root";
@@ -554,6 +556,23 @@ void slimSegsDataScript(const int dataset, const int run, const bool appendToFil
     makeSimpleMultiCanvas(1, 2, 2, hists, plottingfile + ")");
 
     ////###########################################################################
+
+
+    //open new TFile for plots
+    TFile * tF = new TFile((pathtodatasetplots + "SlimSegsOutput.root").c_str(), "RECREATE");
+    if (!tF->IsOpen()) {
+        std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
+    } else {
+        std::cout << "file opened" << std::endl;
+    }
+
+    h_z0kari->Write();
+    h_phikari->Write();
+    h_thetakari->Write();
+    h_ptkari->Write();
+    h_dcakari->Write();
+
+    tF->Close();
 
 #endif
 

@@ -95,8 +95,8 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
         tinF.GetObject(treename.c_str(), t_slimsegs);
         t_slimsegs->SetBranchAddress("runID", &runID);
         t_slimsegs->GetEntry(0);
-        std::cout << "(INFO)   : Processing tree " << tree << " cycle " << cycle << " | run " << runID << " | TB eff " << TB.getEfficiency() << std::endl;
-        std::cout << "(INFO)   : sp count " << centralTPcount << " | wbins " << spWbins << " | zbins " << spZbins << " | target eff " << max_efficiency << std::endl;
+//        std::cout << "(INFO)   : Processing tree " << tree << " cycle " << cycle << " | run " << runID << " | TB eff " << TB.getEfficiency() << std::endl;
+//        std::cout << "(INFO)   : sp count " << centralTPcount << " | wbins " << spWbins << " | zbins " << spZbins << " | target eff " << max_efficiency << std::endl;
 
         //initialize file representation and open file
         SlimSegsTreeRead SlimSegs = SlimSegsTreeRead(t_slimsegs);
@@ -119,7 +119,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
                 float prog_perc = entryno /  (float) max_entry;
                 std::string prog_bar_fill((int) (MAX_LEN * prog_perc), '=');
                 std::string prog_bar_empty((int) (MAX_LEN * (1-prog_perc)), ' ');
-                std::cout << "\r(STATUS) : " << "[" << prog_bar_fill << ">" << prog_bar_empty << "] ";
+                std::cout << "\r(STATUS) : reading cosmics (runID " << SlimSegs.runID << ", cycle " << cycle << ") [" << prog_bar_fill << ">" << prog_bar_empty << "] ";
                 std::cout << entryno /  (float) max_entry * 100 << "% | TB eff " << TB.getEfficiency() * 100 << "% | processed entries " << processed_entries << std::flush;
             }
 
@@ -176,8 +176,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
 
     //open new TFile for plots
-    TFile * tF = new TFile((pathtorunplotsfile +"TemplateBank_dataset_" +
-            get_padded_string(dataset, 3, '0') + "_id" + get_padded_string(combination_id, 3, '0') + "_plots.root").c_str(), (append_to_outfile ? "update" : "recreate"));
+    TFile * tF = new TFile((pathtorunplotsfile + get_tbtrainingoutfile(dataset, combination_id)).c_str(), (append_to_outfile ? "update" : "recreate"));
     if (!tF->IsOpen()) {
         std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
     }

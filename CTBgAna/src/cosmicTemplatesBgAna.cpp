@@ -15,8 +15,9 @@
 #include "../../CTCoreModules/inc/PatternEngine.h"
 #include "../../CTCoreModules/inc/TemplateBank.h"
 #include "../../CTCoreModules/inc/TemplateData.h"
-#include "../Mu3eCosPat/include/cosmicTemplatesEfficiency.h"
+#include "cosmicTemplatesEfficiency.h"
 #include "MetaDataTree.h"
+#include "Configuration.h"
 
 struct BGcombinatorics {
     std::vector<std::vector<TemplateID>> frames_TIDS;
@@ -26,6 +27,7 @@ struct BGcombinatorics {
     std::vector<BGSortedSIDs> frames_sortedhits;
     int total_nhits = 0;
     int processed_frames = 0;
+    int nhit_excluded_frames = 0;
     int bg_events = 0;
 };
 
@@ -33,7 +35,9 @@ BGcombinatorics produceBGcmbncsTID(const int bg_run, PatternEngine &PEbg, int ma
 
 
 void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcount, float spWZratio,
-                           const float tb_stopping_efficiency, const bool append_outfile, std::vector<TIDLoadingFilter> filters) {
+                          const float tb_stopping_efficiency, const bool append_outfile,
+                          std::vector<TIDLoadingFilter> filters, int max_bg_entries, int max_cosmic_entries,
+                          int max_bg_frame_nhits, int cosmic_testing_dst) {
     /**
      * Read and analyse the mu3e mc hits
      * get the hits in xyz
@@ -42,19 +46,19 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
      * check the frequency
      */
 
-    //TODO add mutliplicity plot
-
-    int MAX_BG_ENTRIES = 80000;
-    int MAX_COSMIC_ENTRIES = 500000;
+    int MAX_BG_ENTRIES = max_bg_entries;
+    int MAX_COSMIC_ENTRIES = max_cosmic_entries;
     int MAX_MUON_HITS = 0;
-    int MAX_NHITS = 100;
+    int MAX_NHITS = max_bg_frame_nhits;
     float TB_STOPPING_EFF = tb_stopping_efficiency;
     const bool RECREATE_FILE = !append_outfile;
     const int PRINTS = false;
     const int mode = 0;
-    const int cosmic_testint_dataset = 30;
+    const int cosmic_testing_dataset = cosmic_testing_dst;
 
-    const std::string pathtoBGdata = "data/SimulationData/";
+    Configuration CONFIG;
+
+    const std::string pathtoBGdata = CONFIG.pathtosimfiles;
     const std::string pathtoTemplateData = "data/TemplateData/";
     const std::string pathtoplots = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtooutfile =
@@ -92,7 +96,7 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
 
         //check the templates collected from file above
         std::vector<std::vector<unsigned int>> cosmic_spid_tracks;
-        cosmic_spid_tracks = produceCosmicSIDtracks(cosmic_testint_dataset, centralTPcount, spWZratio, mode);
+        cosmic_spid_tracks = produceCosmicSIDtracks(cosmic_testing_dataset, centralTPcount, spWZratio, mode);
         TemplateBank TBC = TemplateBank(pathtoplots, dataset, mode, spWbins, spZbins);
         TBC.readAMfromFile(pathtodatasettemplatedata,tb_stopping_efficiency, filter);
         for(auto &SPIDs : cosmic_spid_tracks) {
@@ -111,7 +115,7 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
         TB.SetPrints(false);
         TB.readAMfromFile(pathtodatasettemplatedata, TB_STOPPING_EFF, filter);
         TB.PlotTemplateTypeDistribution();
-        std::cout << "(CONFIG) : [BKG-EFF] wBins " << TB.mywbins << " | zBins " << TB.myzbins << std::endl;
+        std::cout << "(CONFIG) : [BKG-EFF] wBins " << TB.mywbins << " | zBins " << TB.myzbins << " | max nhits " << MAX_NHITS << std::endl;
 
         int rejected_frames = 0;
         int accepted_frames = 0;
@@ -144,10 +148,10 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
                 std::cout << "----frame number " << frame << std::endl;
                 std::cout << "  > total hits            --- " << bg_hits << std::endl;
                 std::cout << "  > inner hits            --- " << BGcmbncsResult.frames_innerhits[frame] << std::endl;
-                std::cout << "  > hits in upper layer 3 --- " << BGcmbncsResult.frames_sortedhits[frame].h0.size() << std::endl;
-                std::cout << "  > hits in upper layer 2 --- " << BGcmbncsResult.frames_sortedhits[frame].h1.size() << std::endl;
-                std::cout << "  > hits in lower layer 2 --- " << BGcmbncsResult.frames_sortedhits[frame].h2.size() << std::endl;
-                std::cout << "  > hits in lower layer 3 --- " << BGcmbncsResult.frames_sortedhits[frame].h3.size() << std::endl;
+//                std::cout << "  > hits in upper layer 3 --- " << BGcmbncsResult.frames_sortedhits[frame].h0.size() << std::endl;
+//                std::cout << "  > hits in upper layer 2 --- " << BGcmbncsResult.frames_sortedhits[frame].h1.size() << std::endl;
+//                std::cout << "  > hits in lower layer 2 --- " << BGcmbncsResult.frames_sortedhits[frame].h2.size() << std::endl;
+//                std::cout << "  > hits in lower layer 3 --- " << BGcmbncsResult.frames_sortedhits[frame].h3.size() << std::endl;
 //                std::cout << "  > double sids           --- " << doublesid << std::endl;
 
                 std::cout << "  > templates created: " << tid_count << std::endl;
@@ -187,18 +191,23 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
         std::cout << "(INFO)    : [BKG-EFF] rejected frames: " << rejected_frames
                   << " accepted frames: " << accepted_frames
                   << " processed frames: " << BGcmbncsResult.processed_frames
+                  << " cut off frames (nhit): " << BGcmbncsResult.nhit_excluded_frames
                   << std::endl;
         std::cout << "(INFO)    : [BKG-EFF] BG efficiency: " << background_efficiency << "   (avg. nhits: " << mean_frame_nhits << ")"
                   << std::endl;
 
-
         //open new TFile for plots
-        TFile *tF = new TFile((pathtooutfile + "CosmicTBGAna" +
-                "_bkgEv" + get_padded_string(BGcmbncsResult.bg_events, 6, '0') +
-                "_cosEv" + get_padded_string(MAX_COSMIC_ENTRIES, 6, '0') +
-                "_bkgrun_" + get_padded_string(run, 6, '0') +
-                "_cosdst_" + get_padded_string(cosmic_testint_dataset, 6, '0') + "_" +
-                TB.getfileidtag(1) + "_plots.root").c_str(), (RECREATE_FILE ? "recreate" : "update"));
+        TFile *tF = new TFile((pathtooutfile + get_bgevalfile(BGcmbncsResult.bg_events, MAX_COSMIC_ENTRIES,
+                MAX_NHITS, run, cosmic_testing_dataset, dataset, mode, spWbins, spZbins)).c_str(),
+                        (RECREATE_FILE ? "recreate" : "update"));
+
+//        TFile *tF = new TFile((pathtooutfile + "CosmicTBGAna" +
+//                               "_bkgEv" + get_padded_string(BGcmbncsResult.bg_events, 6, '0') +
+//                               "_cosEv" + get_padded_string(MAX_COSMIC_ENTRIES, 6, '0') +
+//                               "_bkgrun_" + get_padded_string(run, 6, '0') +
+//                               "_cosdst_" + get_padded_string(cosmic_testing_dataset, 6, '0') + "_" +
+//                               TB.getfileidtag(1) + "_plots.root").c_str(), (RECREATE_FILE ? "recreate" : "update"));
+
         if (!tF->IsOpen()) {
             std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
         }
@@ -226,15 +235,23 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
                                                    (unsigned int) centralTPcount, spWZratio, TB.getTrainingEventCount(), TB.getTemplateCount());
         tT_met.Write();
 
+        std::string filter_string = enum_to_string(filter);
+
 
         TTree tT_efficiencies("BackgroundEfficiency", "Contains the Bg efficiencies per Frame");
         tT_efficiencies.Branch("background_efficiency", &background_efficiency, "background_efficiency/F");
         tT_efficiencies.Branch("tb_training_eff", &tb_max_efficiency, "tb_training_eff/F");
         tT_efficiencies.Branch("tb_train_eff_total", &train_eff_total, "tb_train_eff_total/F");
         tT_efficiencies.Branch("tb_train_eff_relative", &train_eff_relative, "tb_train_eff_relative/F");
+        tT_efficiencies.Branch("tb_filter_str", &filter_string);
+        tT_efficiencies.Branch("tb_filter", &filter, "tb_filter/I");
+
         tT_efficiencies.Branch("frame_eff", &frame_eff);
         tT_efficiencies.Branch("frame_bghits", &frame_bghits);
         tT_efficiencies.Branch("mean_frame_nhits", &mean_frame_nhits, "mean_frame_nhits/F");
+        tT_efficiencies.Branch("max_bg_frame_nhits", &max_bg_frame_nhits, "max_bg_frame_nhits/I");
+        tT_efficiencies.Branch("nhit_cut_off_frames", &BGcmbncsResult.nhit_excluded_frames, "nhit_cut_off_frames/I");
+        tT_efficiencies.Branch("processed_frames", &BGcmbncsResult.processed_frames, "processed_frames/I");
         tT_efficiencies.Fill();
         tT_efficiencies.Write();
 
@@ -289,9 +306,13 @@ BGcombinatorics produceBGcmbncsTID(const int bg_run, PatternEngine &PEbg, int ma
         Mu3e.getEntry(frame);
         if (PRINTS) Mu3e.Print(frame);
 
-        if (Mu3e.Nhit > MAX_NHITS) {
+        if (MAX_NHITS != 0 && Mu3e.Nhit > MAX_NHITS) {
+            BGcmbncsResult.nhit_excluded_frames++;
+            continue;
+        } else if(Mu3e.Nhit == 0) {
             continue;
         }
+
         BGcmbncsResult.processed_frames++;
         print_status_bar(frame, bg_events, "bg event combinatorics", "");
 
@@ -364,15 +385,11 @@ BGcombinatorics produceBGcmbncsTID(const int bg_run, PatternEngine &PEbg, int ma
         BGcmbncsResult.frames_outerhits.push_back(outerhits); //int number of hits in outer layers per frame
         BGcmbncsResult.frames_innerhits.push_back(innerhits); //int number of hits in inner layers per frame
         BGcmbncsResult.frames_bgframehits.push_back(bgframehits.size()); // int number of hits per frame
-        BGcmbncsResult.frames_sortedhits.push_back(hits); //SIDs sorted in layers per frame
+//        BGcmbncsResult.frames_sortedhits.push_back(hits); //SIDs sorted in layers per frame
         BGcmbncsResult.total_nhits += bgframehits.size();
     }
 
     BGcmbncsResult.bg_events = bg_events;
-
-    PEbg.displayBinBoundaries();
-    PEbg.displayBinWeightDistribution();
-    PEbg.closePlot();
 
     return BGcmbncsResult;
 }

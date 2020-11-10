@@ -7,6 +7,7 @@
 
 #include <vector>
 
-void makeCosPatPlots(const int dataset, const int combination_id, std::vector<int>);
+void makeCosPatPlots(const int dataset, const int combination_id, std::vector<int> cycle_plotting_order,
+                     std::string filelabel);
 
 #endif //COSMICTRIGGER_COSMICTEMPLATESTRAININGPLOTS_H

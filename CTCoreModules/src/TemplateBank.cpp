@@ -289,6 +289,8 @@ TemplateBank::TemplateBank(std::string plottingpath, float stopping_efficiency, 
     initializeMembers(dataset, mode, wBins, zBins);
     this->plottingpath = plottingpath;
     this->stopping_efficiency = stopping_efficiency;
+    std::cout << "(STATUS) : Template Bank was initialized! | wbins " << wBins << " | zbins " << zBins << " | stopp eff " << stopping_efficiency;
+    std::cout << " | max map size " << this->AMem.max_size() << std::endl;
 }
 
 TemplateBank::~TemplateBank() {
@@ -456,7 +458,7 @@ void TemplateBank::PlotTemplateMatchedFreqHistogram(std::string filetag) {
     }
     h_templfreq->Draw();
     h_templfreq->Write();
-    saveCanvas(canvas, ("templateMatchingFrequency_" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
+    saveCanvas(canvas, ("TemplateBank_" + getfileidtag((loaded_database_from_file ? 2 : 0)) + "_MatchingFrequency").c_str(), plottingpath);
 }
 
 void TemplateBank::PlotTemplatePopulationHistogram() {
@@ -789,35 +791,42 @@ void TemplateBank::PlotTemplateTypeDistribution() {
     }
 
     //make it nice
-    h_templtypes->GetYaxis()->SetTitle("Normalized distribution");
-    h_templtypes->GetXaxis()->SetTitle("Template type");
+    h_templtypes->GetYaxis()->SetTitle("normalized distribution");
+    h_templtypes->GetXaxis()->SetTitle("template type");
     h_templtypes->SetFillColor(kBlue);
     h_templtypes->SetFillStyle(3003);
     h_templtypes->SetMaximum(h_templtypes->GetMaximum()*1.3);
+    h_templtypes->GetXaxis()->SetTitleSize(0.06);
     h_templtypes->SetTitle(("Template Type Distribution - filter: " + enum_to_string(this->loading_filter)).c_str());
 
     setPlottingStyle(h_templtypes); //general plotting style defined in plots.h
 
 //    h_templtypes->SetBit(TH1::kNoTitle);
-    h_templtypes->Draw();
+    h_templtypes->DrawNormalized();
 
-    TLatex tline1(.5,.81,("#it{#bf{TEMPLATE BANK} FILTER " + enum_to_string(this->loading_filter) +
+    h_templtypes->GetXaxis()->SetTitleSize(0.09);
+    h_templtypes->GetYaxis()->SetTitleSize(0.09);
+
+    h_templtypes->GetXaxis()->SetLabelSize(0.09);
+    h_templtypes->GetYaxis()->SetLabelSize(0.09);
+
+    TLatex tline1(.15,.81,("#it{#bf{TEMPLATE BANK} FILTER " + enum_to_string(this->loading_filter) +
                           " | TEMPL CNT " + get_string(this->newtemplatecount) +
                           string_perc(newtemplatecount, this->Ntemplates[Ntemplates.size()-1]) + "}").c_str());
     tline1.SetTextFont(43);
-    tline1.SetTextSize(10);
+    tline1.SetTextSize(16);
     tline1.SetNDC(kTRUE);
     tline1.Draw();
 
-    TLatex tline2(.5,.78,("#it{#bf{CONFIG} WBINS " + get_string(this->mywbins) + " | ZBINS " + get_string(this->myzbins) +
+    TLatex tline2(.15,.77,("#it{#bf{CONFIG} WBINS " + get_string(this->mywbins) + " | ZBINS " + get_string(this->myzbins) +
                           " | DATASET " + get_string(this->mydataset) + " | TRAIN EFF " + get_string(this->getEfficiency()) + "}").c_str());
     tline2.SetTextFont(43);
-    tline2.SetTextSize(10);
+    tline2.SetTextSize(16);
     tline2.SetNDC(kTRUE);
     tline2.Draw();
 
     h_templtypes->Write();
-    saveCanvas(canvas, ("TemplateTypes_" + getfileidtag((loaded_database_from_file ? 2 : 0))).c_str(), plottingpath);
+    saveCanvas(canvas, ("TemplateBank_" + getfileidtag((loaded_database_from_file ? 2 : 0)) + "_TemplateTypes").c_str(), plottingpath);
 }
 
 void TemplateBank::SetPrints(bool opt) {

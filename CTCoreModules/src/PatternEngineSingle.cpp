@@ -257,7 +257,7 @@ unsigned int PatternEngineSingle::getSuperPixel(const float x, const float y, co
     // data valid?
     assert(0 <= area && area < 3);
     assert(0 <= layer && layer < 4);
-    assert(totalBinCount < 4096); // fatal because SID needs format of 0xFFF
+    assert(totalBinCount <= 4096); // fatal because SID needs format of 0xFFF
 
     int sp2DID = computeIndex(zSPIndex, phiSPIndex, this->wBinCount);
     if(sp2DID < 0 || totalBinCount < sp2DID) sp2DID = 0;
@@ -376,7 +376,7 @@ void PatternEngineSingle::displayBinBoundaries() {
 
     auto *canvas = new TCanvas(("bin_boundaries" + this->getAreaTag()).c_str(), "bin_boundaries", 1200, 900);
     canvas->SetLeftMargin(0.15);
-    canvas->SetGrid(1,1);
+//    canvas->SetGrid(1,1);
     canvas->SetTicks(1, 1);
 
     TH2F * grid = new TH2F(("h_bins" + this->getAreaTag()).c_str(), ("Superpixel bin grid boundaries "+ this->getAreaTag()).c_str() , zBinCount, centralDetectorZmin, centralDetectorZmax, wBinCount, widthMin, widthMax);

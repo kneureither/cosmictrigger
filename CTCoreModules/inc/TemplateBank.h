@@ -21,11 +21,11 @@ typedef std::map<temid, int> CheckedMemory;
 enum TrackType {RLRL, RLCE, CECE, RRCE, RRRR};
 static std::string enum_to_string(TrackType tracktype) {
     switch(tracktype) {
-        case RLRL: return "RLRL";
-        case RLCE: return "RLCE";
+        case RLRL: return "RDRD";
+        case RLCE: return "RDCE";
         case CECE: return "CECE";
-        case RRCE: return "RRCE";
-        case RRRR: return "RRRR";
+        case RRCE: return "RUCE";
+        case RRRR: return "RURU";
         default: return "Invalid TrackType!";
     }
 }
