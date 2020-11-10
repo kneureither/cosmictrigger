@@ -82,6 +82,7 @@ void BgAnaPlots_SPR() {
 
     ///root section
     gStyle->SetPalette(kRust);
+    gStyle->SetLegendTextSize(1);
 
     TCanvas *canvas = new TCanvas("canvas", "Background Evaluation Eff", 900, 750);
     canvas->SetTicks(1, 1);
@@ -176,7 +177,7 @@ void BgAnaPlots_SPR() {
 
             tb_stopping_effs.push_back(tb_stopping_eff);
 
-            std::string ltext = "#bf{TB EFF} #it{" + get_string(tb_stopping_eff).substr(0, 3) + " "
+            std::string ltext = "#bf{COSMIC EFF} #it{" + get_string(tb_stopping_eff).substr(0, 3) + " "
                                 /*+ "[" + get_string(tb_train_eff_relative).substr(0,4) + " ]" */
                                 + "} | #bf{SPC} #it{" + get_string(spc)
                                 + ( filter != ALL ? ("} | #bf{FLTR} #it{" + enum_to_string(filter)) : "") + "}";
@@ -204,14 +205,14 @@ void BgAnaPlots_SPR() {
     pad1->SetLogx(1);
     g_eff_spress->GetXaxis()->SetTitle("super pixel ratio [W bins / Z bins]");
     g_eff_spress->GetXaxis()->SetTitleFont(53);
-    g_eff_spress->GetXaxis()->SetTitleSize(14);
+    g_eff_spress->GetXaxis()->SetTitleSize(17);
     g_eff_spress->GetXaxis()->SetTitleOffset(1.9);
     g_eff_spress->GetXaxis()->SetNdivisions(5, 3,1, false);
 
 
-    g_eff_spress->GetYaxis()->SetTitle("background discr. #epsilon");
+    g_eff_spress->GetYaxis()->SetTitle("background rejection #epsilon");
     g_eff_spress->GetYaxis()->SetTitleFont(53);
-    g_eff_spress->GetYaxis()->SetTitleSize(14);
+    g_eff_spress->GetYaxis()->SetTitleSize(17);
     g_eff_spress->GetYaxis()->SetTitleOffset(1.9);
 
     expandYaxisRange(g_eff_spress);
@@ -236,12 +237,12 @@ void BgAnaPlots_SPR() {
 
     TLatex tline1(leg_x,leg_y,l1.c_str());
     tline1.SetTextFont(43);
-    tline1.SetTextSize(14);
+    tline1.SetTextSize(15);
     tline1.SetNDC(kTRUE);
     tline1.Draw();
     TLatex tline2(leg_x,leg_y-spacing,l2.c_str());
     tline2.SetTextFont(43);
-    tline2.SetTextSize(14);
+    tline2.SetTextSize(15);
     tline2.SetNDC(kTRUE);
     tline2.Draw();
 
@@ -257,17 +258,17 @@ void BgAnaPlots_SPR() {
     //set template count mutliplot style
     pad2->cd();
     pad2->SetLogx(1);
-    pad2->SetBottomMargin(0.16);
+    pad2->SetBottomMargin(0.20);
     g_tcounts_spress->GetXaxis()->SetTitle("super pixel ratio [W bins / Z bins]");
-    g_tcounts_spress->GetXaxis()->SetTitleSize(0.06);
+    g_tcounts_spress->GetXaxis()->SetTitleSize(0.075);
     g_tcounts_spress->GetXaxis()->SetLabelSize(0.08);
     g_tcounts_spress->GetXaxis()->SetTitleFont(52);
     g_tcounts_spress->GetXaxis()->SetLabelFont(42);
     g_tcounts_spress->GetXaxis()->SetTitleOffset(1.3);
-    g_tcounts_spress->GetYaxis()->SetTitleOffset(1.2);
+    g_tcounts_spress->GetYaxis()->SetTitleOffset(1.1);
 
     g_tcounts_spress->GetYaxis()->SetTitle("# templates in db");
-    g_tcounts_spress->GetYaxis()->SetTitleSize(0.07);
+    g_tcounts_spress->GetYaxis()->SetTitleSize(0.08);
     g_tcounts_spress->GetYaxis()->SetLabelSize(0.08);
     g_tcounts_spress->GetYaxis()->SetTitleFont(52);
     g_tcounts_spress->GetYaxis()->SetLabelFont(42);

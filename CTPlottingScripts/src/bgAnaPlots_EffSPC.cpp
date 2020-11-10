@@ -80,8 +80,8 @@ void BgAnaPlots_SPC() {
     auto g_eff_spress = new TMultiGraph();
     auto g_tcounts_spress = new TMultiGraph();
 
-    float leg_x=0.5;
-    float leg_y=0.45;
+    float leg_x=0.45;
+    float leg_y=0.4;
     float spacing = 0.05;
 
     ///root section
@@ -92,12 +92,14 @@ void BgAnaPlots_SPC() {
 
     auto *pad1 = new TPad("bg eff vs sp count", "bg eff vs sp count", 0, 0.3, 1, 0.99);
     pad1->SetLogx(0);
+    pad1->SetTicks(1, 1);
     pad1->Draw();
     gStyle->SetLegendBorderSize(0);
-    auto legend1 = new TLegend(leg_x, 0.25, 0.89, leg_y-0.1);
+    auto legend1 = new TLegend(leg_x, 0.15, 0.85, leg_y-0.1);
 
     auto *pad2 = new TPad("template count vs sp count", "template count vs sp count", 0, 0.01, 1, 0.3);
     pad2->Draw();
+    pad2->SetTicks(1, 1);
     auto legend2 = new TLegend(0.1, 0., 0.35, 0.9);
 
     int curve_idx = 0;
@@ -198,7 +200,7 @@ void BgAnaPlots_SPC() {
             g_eff_spres->SetLineWidth(2);
             std::cout << tb_stopping_eff << std::endl;
             if(tb_stopping_eff < 0.7){
-                g_eff_spres->SetLineStyle(7);
+//                g_eff_spres->SetLineStyle(7);
             }
 
 //            TF1 *f1 = new TF1("f1", "1-[0]*exp([1] * x)");
@@ -212,7 +214,7 @@ void BgAnaPlots_SPC() {
             g_tcount_spres->SetMarkerStyle(23);
             g_tcount_spres->SetMarkerSize(2);
             g_tcount_spres->SetLineWidth(2);
-            if(tb_stopping_eff < 0.7) g_tcount_spres->SetLineStyle(7);
+//            if(tb_stopping_eff < 0.7) g_tcount_spres->SetLineStyle(7);
             g_tcounts_spress->Add(g_tcount_spres, "PL"); //no markers shown
 
             curve_idx++;
@@ -270,9 +272,9 @@ void BgAnaPlots_SPC() {
 
     //set template count mutliplot style
     pad2->cd();
-    pad2->SetBottomMargin(0.18);
+    pad2->SetBottomMargin(0.20);
     g_tcounts_spress->GetXaxis()->SetTitle("super pixel count [W bins * Z bins] ");
-    g_tcounts_spress->GetXaxis()->SetTitleSize(0.073);
+    g_tcounts_spress->GetXaxis()->SetTitleSize(0.075);
     g_tcounts_spress->GetXaxis()->SetLabelSize(0.08);
     g_tcounts_spress->GetXaxis()->SetTitleFont(52);
     g_tcounts_spress->GetXaxis()->SetLabelFont(42);
@@ -283,11 +285,11 @@ void BgAnaPlots_SPC() {
 
 
     g_tcounts_spress->GetYaxis()->SetTitle("# templates in db");
-    g_tcounts_spress->GetYaxis()->SetTitleSize(0.07);
+    g_tcounts_spress->GetYaxis()->SetTitleSize(0.08);
     g_tcounts_spress->GetYaxis()->SetLabelSize(0.08);
     g_tcounts_spress->GetYaxis()->SetTitleFont(52);
     g_tcounts_spress->GetYaxis()->SetLabelFont(42);
-    g_tcounts_spress->GetYaxis()->SetTitleOffset(0.4);
+    g_tcounts_spress->GetYaxis()->SetTitleOffset(0.5);
     expandYaxisRange(g_tcounts_spress);
     g_tcounts_spress->Draw("A PLC PMC");
 

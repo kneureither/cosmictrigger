@@ -376,7 +376,7 @@ void PatternEngineSingle::displayBinBoundaries() {
 
     auto *canvas = new TCanvas(("bin_boundaries" + this->getAreaTag()).c_str(), "bin_boundaries", 1200, 900);
     canvas->SetLeftMargin(0.15);
-    canvas->SetGrid(1,1);
+//    canvas->SetGrid(1,1);
     canvas->SetTicks(1, 1);
 
     TH2F * grid = new TH2F(("h_bins" + this->getAreaTag()).c_str(), ("Superpixel bin grid boundaries "+ this->getAreaTag()).c_str() , zBinCount, centralDetectorZmin, centralDetectorZmax, wBinCount, widthMin, widthMax);

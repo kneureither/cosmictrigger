@@ -37,3 +37,7 @@ set(SRC5 main_CTtrainTemplSPC.cpp src/ctTrainingPlots_TemplatesSPC.cpp)
 add_executable(PlotsCosPatTemplSPC ${SRC5})
 target_link_libraries(PlotsCosPatTemplSPC rootTreeFiles)
 
+set(SRC5 PlotPEconfig.cpp)
+add_executable(PlotsPEconfig ${SRC5})
+target_link_libraries(PlotsPEconfig rootTreeFiles)
+

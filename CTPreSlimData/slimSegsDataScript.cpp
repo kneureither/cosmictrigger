@@ -557,6 +557,23 @@ void slimSegsDataScript(const int dataset, const int run, const bool appendToFil
 
     ////###########################################################################
 
+
+    //open new TFile for plots
+    TFile * tF = new TFile((pathtodatasetplots + "SlimSegsOutput.root").c_str(), "RECREATE");
+    if (!tF->IsOpen()) {
+        std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
+    } else {
+        std::cout << "file opened" << std::endl;
+    }
+
+    h_z0kari->Write();
+    h_phikari->Write();
+    h_thetakari->Write();
+    h_ptkari->Write();
+    h_dcakari->Write();
+
+    tF->Close();
+
 #endif
 
 }

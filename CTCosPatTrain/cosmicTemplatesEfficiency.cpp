@@ -174,11 +174,11 @@ void cosmicTemplatesEfficiency(const int dataset, unsigned int centralTPcount, f
     //make it nice
     h_templtypetotaleff->GetYaxis()->SetTitle("cosmic efficiency");
     h_templtypetotaleff->GetXaxis()->SetTitle("template filter");
-    h_templtypetotaleff->SetFillColor(kRed-2);
-    h_templtypetotaleff->SetLineColor(kRed-2);
+    h_templtypetotaleff->SetFillColor(kRed-4);
+    h_templtypetotaleff->SetLineColor(kRed-4);
     h_templtypereleff->SetLineColor(kCyan+4);
     h_templtypereleff->SetFillColor(kCyan+4);
-    h_templtypetotaleff->SetFillStyle(3004);
+    h_templtypetotaleff->SetFillStyle(3005);
     h_templtypereleff->SetFillStyle(3004);
 
     setPlottingStyle(h_templtypetotaleff); //general plotting style defined in plots.h

@@ -80,13 +80,13 @@ struct BkgRateAna {
     std::vector<float> beam_rates =   {5e7,   1e8,    2e8,   2.466e8};
     std::vector<float> nhit_mean =    {14.5,  24.3,   48.3,  59.86};
     std::vector<float> nhit_sigma =   {17.65, 22.9,   32.1,  36.07};
-    std::vector<int> max_bkg_frames = {249900, 150000,  99900, 80000};
+    std::vector<int> max_bkg_frames = {249900, 150000,  99900, 80000 /* 70000 for 50% */};
 
 //    std::vector<int> bg_runs =        {127};
 //    std::vector<float> beam_rates =   {2.466e8};
 //    std::vector<float> nhit_mean =    {59.86};
 //    std::vector<float> nhit_sigma =   {36.07};
-//    std::vector<int> max_bkg_frames = {80000};
+//    std::vector<int> max_bkg_frames = {70000};
 
     // Testing
 //    std::vector<int> bg_runs = {127};
@@ -295,14 +295,25 @@ public:
         return *this;
     };
 
+    Configuration &set13_plot_traineff_software() {
+        this->resetMembers();
+        dataset = 13;
+        TrainPlots.combination_id = 9;
+        TrainPlots.cycle_plotting_order.clear();
+        TrainPlots.cycle_plotting_order.push_back(20);
+        TrainPlots.cycle_plotting_order.push_back(48);
+
+        return *this;
+    };
+
     Configuration &set12_plot_traineff_spr_final() {
         this->resetMembers();
         dataset=12;
         TrainPlots.cycle_plotting_order.clear();
         TrainPlots.cycle_plotting_order.push_back(4);
         TrainPlots.cycle_plotting_order.push_back(1);
-        TrainPlots.cycle_plotting_order.push_back(2);
         TrainPlots.cycle_plotting_order.push_back(3);
+        TrainPlots.cycle_plotting_order.push_back(2);
         TrainPlots.cycle_plotting_order.push_back(5);
         TrainPlots.combination_id=3;
         return *this;
@@ -424,7 +435,7 @@ public:
         this->michelBackground();
         dataset = 13;
         TrainPlots.combination_id=0;
-        TmplBankFilter.CLR().addALL().addNO_CENTER().addCUT_ON_FREQ();
+        TmplBankFilter.CLR().addALL();
 
         float stopping_eff = 0.6;
         std::vector<DatabaseConfigBuild> plot_datapoints;
@@ -535,19 +546,19 @@ public:
         this->michelBackground();
         dataset = 13;
         TrainPlots.combination_id=0;
-        TmplBankFilter.CLR().addALL().addNO_CENTER();
+        TmplBankFilter.CLR().addALL().addNO_CENTER().addCUT_ON_FREQ();
         max_bg_frame_nhits=0;
 
         std::vector<DatabaseConfigBuild> plot_datapoints;
+//        DBconfigDatapoints.push_back(plot_datapoints);
         DBconfigDatapoints.push_back(plot_datapoints);
-        DBconfigDatapoints.push_back(plot_datapoints);
-        DBconfigDatapoints.push_back(plot_datapoints);
+//        DBconfigDatapoints.push_back(plot_datapoints);
 
         for(int i=1; i<10; i++ ) {
             std::cout << "adding datapoints " << i*0.1 << std::endl;
-            DBconfigDatapoints[0].push_back(DatabaseConfigBuild(128, 4, 0.1*i));
-            DBconfigDatapoints[1].push_back(DatabaseConfigBuild(256, 4, 0.1*i));
-            if(i<9) DBconfigDatapoints[2].push_back(DatabaseConfigBuild(256, 8, 0.1*i));
+//            DBconfigDatapoints[0].push_back(DatabaseConfigBuild(128, 4, 0.1*i));
+            DBconfigDatapoints[0].push_back(DatabaseConfigBuild(256, 4, 0.1*i));
+//            if(i<9) DBconfigDatapoints[2].push_back(DatabaseConfigBuild(256, 8, 0.1*i));
         }
 
         return *this;
@@ -566,7 +577,7 @@ public:
         BkgFiles.make_max_nhit_cut.push_back(1);
 
         TmplBankFilter.filters.clear();
-        TmplBankFilter.addALL().addNO_CENTER().addCUT_ON_FREQ();
+        TmplBankFilter.addALL().addNO_CENTER();
 //        TmplBankFilter.addALL();
 
         return *this;
@@ -600,24 +611,25 @@ public:
 //        set13_bkg_spr_plot();
 //        set13_bkg_spc_zbins_plot();
         dataset=13;
-        TrainPlots.combination_id = 7;
+        TrainPlots.combination_id = 0;
 
         std::vector<DatabaseConfigBuild> plot_datapoints;
-        for(int i=1; i<5; i++ ) {
-            plot_datapoints.push_back(DatabaseConfigBuild(128, 4, 0.1*i));
-            plot_datapoints.push_back(DatabaseConfigBuild(256, 4, 0.1*i));
-            plot_datapoints.push_back(DatabaseConfigBuild(256, 8, 0.1*i));
+        for(int i=6; i<=6; i++ ) {
+//            plot_datapoints.push_back(DatabaseConfigBuild(8, 32, 0.1*i));
+            plot_datapoints.push_back(DatabaseConfigBuild(24, 24, 0.1*i));
+//            plot_datapoints.push_back(DatabaseConfigBuild(32, 8, 0.1*i));
         }
         DBconfigDatapoints.push_back(plot_datapoints);
     }
 
     void BUILDTB_TRAIN_PLOT(){
 //        set3_base().set3_trainplot();
-//        set12_plot_traineff_spr_final();
-//        set12_plot_traineff_spc_final(); //final plot in thesis
-//        set13_plot_traineff_final(); //final plot in thesis
-//        set13_plot_traineff_1024_final(); //final plot in thesis
-        set12_plot_traineff_spc_appendix();
+//        set12_plot_traineff_spr_final(); //check
+//        set12_plot_traineff_spc_final(); //
+        set13_plot_traineff_final(); //final plot in thesis // check
+//        set13_plot_train eff_1024_final(); //final plot in thesis //check
+//        set12_plot_traineff_spc_appendix(); // final plot / check
+//        set13_plot_traineff_software(); // check
     }
 
     void BUILDTB_COS_EFF() {

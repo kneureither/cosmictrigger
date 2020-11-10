@@ -49,8 +49,9 @@ void ctTrainingPlots_TemplatesSPC() {
     gStyle->SetPalette(kThermometer);
     gStyle->SetMarkerStyle(23);
     gStyle->SetHistLineWidth(4);
+    gStyle->SetLegendTextSize(0.027);
 
-    int colors[2] = {kRed-2, kCyan+4};
+    int colors[2] = {kRed-4, kCyan+4};
 
     //define data and plots
     auto g_templ_spc_multi = new TMultiGraph();
@@ -62,7 +63,8 @@ void ctTrainingPlots_TemplatesSPC() {
     pad1->Draw();
     gStyle->SetLegendBorderSize(0);
     auto legend1 = new TLegend(0.12, 0.6, 0.4, 0.88);
-//    auto legend1 = new TLegend(0.47 , 0.15, 0.89 , 0.37);
+//    auto legend1 = new TLegend(0.4 , 0.15, 0.89 , 0.37);
+//    auto legend1 = new TLegend(0.45, 0.13, 0.89 , 0.34);
 
     //file label
     std::string spcounts = "";
@@ -163,8 +165,13 @@ void ctTrainingPlots_TemplatesSPC() {
         if(stopping_eff < 0.8) {
 //            fit->SetLineStyle(7);
         }
+        float a = fit->GetParameter(0);
+        float a_err = fit->GetParError(0);
+        float b = fit->GetParameter(1);
+        float b_err = fit->GetParError(1);
+
 //        std::string fitlegend = "Fit f(x) = " + get_string(fit->GetParameter(0))+  " x + " + get_string(fit->GetParameter(1)) + " x^{2}";
-        std::string fitlegend = "Fit f(x) = ax + bx^{2}";
+        std::string fitlegend = "Fit f(x) = (" + get_string((int)a) + " #pm " + get_string((int)a_err) + ") #upoint x + (" + get_string(b).substr(0,5) + " #pm " + get_string(b_err).substr(0,5) + ") #upoint x^{2}";
         legend1->AddEntry(fit, fitlegend.c_str(), "L");
 
         curve_idx++;
@@ -177,10 +184,11 @@ void ctTrainingPlots_TemplatesSPC() {
     //// Make the Multigraph
     //set multiplot style
     pad1->cd();
+    pad1->SetBottomMargin(1.2);
     g_templ_spc_multi->GetXaxis()->SetTitle("[W#timesZ bins] / super pixel count ");
     g_templ_spc_multi->GetXaxis()->SetTitleFont(53);
-    g_templ_spc_multi->GetXaxis()->SetTitleSize(16);
-    g_templ_spc_multi->GetXaxis()->SetTitleOffset(1.6);
+    g_templ_spc_multi->GetXaxis()->SetTitleSize(18);
+    g_templ_spc_multi->GetXaxis()->SetTitleOffset(1.3);
     g_templ_spc_multi->GetXaxis()->SetMaxDigits(2);
     g_templ_spc_multi->GetXaxis()->SetLimits(0, 4096);
     g_templ_spc_multi->GetXaxis()->SetRangeUser(0, 4096);
@@ -189,8 +197,8 @@ void ctTrainingPlots_TemplatesSPC() {
 
     g_templ_spc_multi->GetYaxis()->SetTitle("# templates");
     g_templ_spc_multi->GetYaxis()->SetTitleFont(53);
-    g_templ_spc_multi->GetYaxis()->SetTitleSize(16);
-    g_templ_spc_multi->GetYaxis()->SetTitleOffset(1.1);
+    g_templ_spc_multi->GetYaxis()->SetTitleSize(18);
+    g_templ_spc_multi->GetYaxis()->SetTitleOffset(1.0);
 
     expandYaxisRange(g_templ_spc_multi);
     g_templ_spc_multi->Draw("A");

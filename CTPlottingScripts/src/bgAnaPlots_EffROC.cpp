@@ -24,7 +24,7 @@
 #include "Configuration.h"
 #include "TemplateBank.h"
 
-#define USE_RATE false
+#define USE_RATE true
 
 
 
@@ -48,7 +48,7 @@ void BgAnaPlots_ROCdp() {
     const int bgevents = CONFIG.max_bg_frames;
 
 #if USE_RATE
-    const bool DRAW_LEGEND = false;
+    const bool DRAW_LEGEND = true;
     const bool LOG_Y = true;
 #else
     const bool DRAW_LEGEND = true;
@@ -91,10 +91,6 @@ void BgAnaPlots_ROCdp() {
     std::vector<std::string> ltexts;
     auto g_eff_ROCs = new TMultiGraph();
 
-    float leg_x=0.15;
-    float leg_y=0.33;
-    float spacing = 0.04;
-
     ///root section
     gStyle->SetPalette(kRust);
     gStyle->SetLegendBorderSize(0);
@@ -104,9 +100,22 @@ void BgAnaPlots_ROCdp() {
 
     auto *pad1 = new TPad("bg eff vs train eff", "bg eff vs train eff", 0, 0.0, 1, 0.99);
     pad1->SetLogx(0);
+    pad1->SetTicks(1,1);
+
     if(LOG_Y) pad1->SetLogy(1);
     pad1->Draw();
+
+#if USE_RATE
+    float leg_x=0.45;
+    float leg_y=0.78;
+    float spacing = 0.04;
+    auto legend1 = new TLegend(leg_x, 0.58, 0.85, leg_y-0.08 );
+#else
+    float leg_x=0.15;
+    float leg_y=0.33;
+    float spacing = 0.04;
     auto legend1 = new TLegend(leg_x, 0.13, 0.5, leg_y-0.08 );
+#endif
 
 
     int curve_idx = 0;
@@ -241,7 +250,7 @@ void BgAnaPlots_ROCdp() {
 
     //set eff sp res mutliplot style
     pad1->cd();
-    g_eff_ROCs->GetXaxis()->SetTitle("true positive rate / cosmic efficiency #epsilon_{training}^{cosmic} ");
+    g_eff_ROCs->GetXaxis()->SetTitle("cosmic efficiency #epsilon_{training}^{cosmic} ");
     g_eff_ROCs->GetXaxis()->SetTitleFont(53);
     g_eff_ROCs->GetXaxis()->SetTitleSize(16);
     g_eff_ROCs->GetXaxis()->SetTitleOffset(1.4);
@@ -249,9 +258,9 @@ void BgAnaPlots_ROCdp() {
     g_eff_ROCs->GetXaxis()->SetRangeUser(0, 1);
 
 #if USE_RATE
-    g_eff_ROCs->GetYaxis()->SetTitle("frame rate suppression factor");
+    g_eff_ROCs->GetYaxis()->SetTitle("frame selectivity");
 #else
-    g_eff_ROCs->GetYaxis()->SetTitle("(1 - false positive rate) / background rejection #epsilon");
+    g_eff_ROCs->GetYaxis()->SetTitle("background rejection #epsilon");
 #endif
     g_eff_ROCs->GetYaxis()->SetTitleFont(53);
     g_eff_ROCs->GetYaxis()->SetTitleSize(16);
@@ -262,7 +271,7 @@ void BgAnaPlots_ROCdp() {
 #if USE_RATE
 #else
     g_eff_ROCs->SetMaximum(1);
-    g_eff_ROCs->SetMinimum(0.97);
+    g_eff_ROCs->SetMinimum(0.99);
 #endif
     g_eff_ROCs->Draw("A PLC PMC");
 
@@ -285,8 +294,9 @@ void BgAnaPlots_ROCdp() {
     }
 
 
-    std::string l1 = "#it{#bf{COSMIC TRIGGER SIM} @  }#it{" + effs2 + "TRAINING EFF}";
-    std::string l2 = "#it{#bf{MU3E BKG SIM} RUN " + get_string(run) + " | EVENTS " + get_string(bgevents)
+//    std::string l1 = "#it{#bf{COSMIC TRIGGER SIM} @  }#it{" + effs2 + "TRAINING EFF}";
+    std::string l1 = "#it{#bf{COSMIC TRIGGER SIM} @  }#it{UP TO 80% TRAINING EFF}";
+    std::string l2 = "#it{#bf{MU3E BKG SIM} RUN " + get_string(run) + " (MICHEL) | EVENTS " + get_string(bgevents)
             + (max_frame_nhits != 0 ? (" | MAX HITS " + get_string(max_frame_nhits)) : "") + "}";
     drawAdditionalInfoBlock(pad1,0.37, 0.8, l1, l2);
 

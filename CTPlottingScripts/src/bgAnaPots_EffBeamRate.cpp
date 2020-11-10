@@ -84,7 +84,7 @@ void BgAnaPlots_EffBeamRate() {
     auto *pad1 = new TPad("bgeff_vs_beamrate", "bg eff vs beam rate", 0, 0, 1, 0.99);
     pad1->Draw();
     gStyle->SetLegendBorderSize(0);
-    auto legend1 = new TLegend(0.12, 0.12, 0.4, 0.4);
+    auto legend1 = new TLegend(0.15, 0.15, 0.5, 0.4);
 
 
     //read data section
@@ -196,7 +196,7 @@ void BgAnaPlots_EffBeamRate() {
                         if(make_nhit_cut) {
                             ltext = "#bf{CUT} frames with upper 15% nhits";
                         } else {
-                            ltext = "#bf{TB EFF [ACC]} #it{" + get_string(tb_train_eff_total).substr(0, 4) + " [" + get_string(tb_train_eff_relative).substr(0,4) + " ]" +
+                            ltext = "#bf{TB EFF [ACC]} #it{" + get_string(tb_train_eff_total).substr(0, 4) + " [" + get_string(tb_train_eff_relative).substr(0,4) + "]" +
                                                 /*"} | #bf{SPRATIO} W:Z #it{" + (spratio < 1 ? "1:" + get_string(1 / spratio) : get_string(spratio) + ":1") +*/
                                                 /*"} | #bf{BINS} W#timesZ #it{" + get_string(spWbins) + "#times" + get_string(spZbins) + */
                                                 "} | #bf{FLTR} #it{" + enum_to_string(filter) + "}";
@@ -209,6 +209,7 @@ void BgAnaPlots_EffBeamRate() {
                         // create TGraph
                         TGraph *g_eff_beamrate = new TGraph(bg_discr_effs[curve_idx].size(), &beam_rates[curve_idx][0], &bg_discr_effs[curve_idx][0]);
                         g_eff_beamrate->SetLineWidth(2);
+                        g_eff_beamrate->SetMarkerSize(2);
                         g_eff_beamrate->SetLineStyle(make_nhit_cut ? 2 : 1);
                         legend1->AddEntry(g_eff_beamrate, ltext.c_str());
                         g_eff_beamrates->Add(g_eff_beamrate, "PL");
@@ -226,16 +227,16 @@ void BgAnaPlots_EffBeamRate() {
     //// Make the Multigraph
     //set multiplot style
     pad1->cd();
-    g_eff_beamrates->GetXaxis()->SetTitle("mu3e simulation [normal mode] / beam rate at target");
+    g_eff_beamrates->GetXaxis()->SetTitle("Mu3e simulation [normal mode] / target stopping rate");
     g_eff_beamrates->GetXaxis()->SetTitleFont(53);
-    g_eff_beamrates->GetXaxis()->SetTitleSize(14);
+    g_eff_beamrates->GetXaxis()->SetTitleSize(16);
     g_eff_beamrates->GetXaxis()->SetTitleOffset(1.6);
     g_eff_beamrates->GetXaxis()->SetMaxDigits(2);
 
-    g_eff_beamrates->GetYaxis()->SetTitle(("#bf{CONFIG} bins w#timesz " + get_string(spWbins) + "#times" + get_string(spZbins) + " /    background discr. #epsilon").c_str());
+    g_eff_beamrates->GetYaxis()->SetTitle(("#bf{CONFIG} bins w#timesz " + get_string(spWbins) + "#times" + get_string(spZbins) + "  /    background rejection #epsilon").c_str());
     g_eff_beamrates->GetYaxis()->SetTitleFont(53);
-    g_eff_beamrates->GetYaxis()->SetTitleSize(14);
-    g_eff_beamrates->GetYaxis()->SetTitleOffset(1.6);
+    g_eff_beamrates->GetYaxis()->SetTitleSize(16);
+    g_eff_beamrates->GetYaxis()->SetTitleOffset(1.4);
 
     expandYaxisRange(g_eff_beamrates);
     g_eff_beamrates->GetXaxis()->SetLimits(2e7, 1e8);
@@ -243,8 +244,8 @@ void BgAnaPlots_EffBeamRate() {
     g_eff_beamrates->Draw("A PLC PMC");
 
     std::string lheadtext="#bf{SP CONFIG} #it{DST " + get_string(dataset) + "}";
-    legend1->SetTextSize(0.02);
-    legend1->SetHeader(lheadtext.c_str(), "C"); // option "C" allows to center the header
+    legend1->SetTextSize(0.03);
+//    legend1->SetHeader(lheadtext.c_str(), "C"); // option "C" allows to center the header
     legend1->Draw("C");
 
 
