@@ -1,8 +1,10 @@
 # THE COSMIC TRIGGER #
 
 This project is part of a Bachelor Thesis at the Mu3e experiment @ Physikalisches Insitut Heidelberg.
-Author: Konstantin Neureither
-Supervisor: Prof. Dr. Andre Schöning
+
+*Author:* Konstantin Neureither
+
+*Supervisor:* Prof. Dr. Andre Schöning
 
 ### What is this repository for? ###
 
@@ -43,4 +45,4 @@ Get it running:
 
 ### Who do I talk to? ###
 
-The software will be slightly improved and refractored in the next weeks, before it should be reused for further projects. If you need help, you can still contact me [neureither@physi.uni-heidelberg.de](mailto:neureither@physi.uni-heidelberg.de)
+The software will be slightly improved and refractored in the next weeks, before it can be reused for further projects. If you need help, you can still contact me [neureither@physi.uni-heidelberg.de](mailto:neureither@physi.uni-heidelberg.de)
