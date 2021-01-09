@@ -97,7 +97,7 @@ struct BkgRateAna {
 
     std::vector<int> max_nhits; //calculated automatically
 
-    std::vector<int> make_max_nhit_cut = {0,1}; // yes no
+    std::vector<int> make_max_nhit_cut = {0/*,1*/}; // yes no
 
     int ndatapoints;
 
@@ -574,7 +574,7 @@ public:
 
         BkgFiles.make_max_nhit_cut.clear();
         BkgFiles.make_max_nhit_cut.push_back(0);
-        BkgFiles.make_max_nhit_cut.push_back(1);
+//        BkgFiles.make_max_nhit_cut.push_back(1);
 
         TmplBankFilter.filters.clear();
         TmplBankFilter.addALL().addNO_CENTER();

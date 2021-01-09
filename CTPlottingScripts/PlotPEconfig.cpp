@@ -68,7 +68,6 @@ void PlotPEconfigs() {
     tinF.GetObject(h_title_cycle.c_str(), h);
 
 
-
     TCanvas *c1 = new TCanvas("c1", "c1", 900, 650);
     c1->SetTicks(1, 1);
     auto *pad1 = new TPad("binweights", "binweights", 0, 0, 1, 1);

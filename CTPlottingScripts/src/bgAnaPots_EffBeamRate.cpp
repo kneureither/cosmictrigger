@@ -31,6 +31,8 @@
 #include "Configuration.h"
 #include "TemplateBank.h"
 
+#define USE_RATE true
+
 
 void BgAnaPlots_EffBeamRate() {
     /**
@@ -58,6 +60,7 @@ void BgAnaPlots_EffBeamRate() {
     //// Plotting data
     //dim = (num curves x datapoints per curve)
     std::vector<std::vector<float>> bg_discr_effs;
+    std::vector<std::vector<float>> bg_frame_selects;
     std::vector<std::vector<float>> beam_rates;
 
     //dim = (num curves)
@@ -82,10 +85,18 @@ void BgAnaPlots_EffBeamRate() {
     TCanvas *canvas = new TCanvas("canvas", "Background Evaluation Eff vs. Beamrates", 900, 550);
     canvas->SetTicks(1, 1);
     auto *pad1 = new TPad("bgeff_vs_beamrate", "bg eff vs beam rate", 0, 0, 1, 0.99);
+    pad1->SetTicks(1,1);
+#if USE_RATE
+    pad1->SetLogy(1);
+#endif
     pad1->Draw();
     gStyle->SetLegendBorderSize(0);
-    auto legend1 = new TLegend(0.15, 0.15, 0.5, 0.4);
 
+#if USE_RATE
+    auto legend1 = new TLegend(0.4, 0.7, 0.85, 0.85);
+#else
+    auto legend1 = new TLegend(0.15, 0.15, 0.5, 0.4);
+#endif
 
     //read data section
     float tb_train_eff_total;
@@ -119,8 +130,10 @@ void BgAnaPlots_EffBeamRate() {
                         int sp_count_real = 0;
                         int tmpl_count = 0;
                         int training_eventcnt = 0;
+                        float frame_selectivity = 0;
 
                         std::vector<float> curve_bg_discr_eff;
+                        std::vector<float> curve_bg_frame_select;
                         std::vector<float> curve_beam_rates;
 
                         for(auto &bkg_run : CONFIG.BkgFiles.bg_runs) {
@@ -152,13 +165,16 @@ void BgAnaPlots_EffBeamRate() {
 
                             BGAna = new BGAnaResTreeRead(t_meta, t_eff);
 
+                            frame_selectivity = 1 / (1-BGAna->bg_discr_eff);
+
                             //append to vectors here
                             curve_bg_discr_eff.push_back(BGAna->bg_discr_eff);
                             curve_beam_rates.push_back(beam_rate);
-
+                            curve_bg_frame_select.push_back(frame_selectivity);
 
                             tb_train_eff_relative = BGAna->train_eff_rel;
                             tb_train_eff_total = BGAna->train_eff_total;
+
                             sp_count_real = BGAna->wBins[0] * BGAna->zBins[0];
                             tmpl_count = BGAna->template_count;
                             training_eventcnt = BGAna->tb_training_eventcount;
@@ -173,6 +189,7 @@ void BgAnaPlots_EffBeamRate() {
                                       << " | tb_stopping_eff " << BGAna->tb_stopping_eff
                                       << " | tb_eff " << tb_train_eff_total
                                       << " | bg_eff " << BGAna->bg_discr_eff
+                                      << " | rate_red " << frame_selectivity
                                       << " | nhit_cut " << (make_nhit_cut == false ? "[none]" : get_string(max_bkg_nhits))
                                       << std::endl;
 
@@ -183,6 +200,7 @@ void BgAnaPlots_EffBeamRate() {
                         //make space for new curve
                         bg_discr_effs.push_back(curve_bg_discr_eff);
                         beam_rates.push_back(curve_beam_rates);
+                        bg_frame_selects.push_back(curve_bg_frame_select);
 
                         //store meta data per curve
                         training_effs_total.push_back(tb_train_eff_total);
@@ -196,7 +214,7 @@ void BgAnaPlots_EffBeamRate() {
                         if(make_nhit_cut) {
                             ltext = "#bf{CUT} frames with upper 15% nhits";
                         } else {
-                            ltext = "#bf{TB EFF [ACC]} #it{" + get_string(tb_train_eff_total).substr(0, 4) + " [" + get_string(tb_train_eff_relative).substr(0,4) + "]" +
+                            ltext = "#epsilon^{cosmic}_{detect} #it{" + get_string(tb_train_eff_total).substr(0, 4) + "} | #Alpha^{cosmic}_{filter} #it{" + get_string(tb_train_eff_relative).substr(0,4) + "" +
                                                 /*"} | #bf{SPRATIO} W:Z #it{" + (spratio < 1 ? "1:" + get_string(1 / spratio) : get_string(spratio) + ":1") +*/
                                                 /*"} | #bf{BINS} W#timesZ #it{" + get_string(spWbins) + "#times" + get_string(spZbins) + */
                                                 "} | #bf{FLTR} #it{" + enum_to_string(filter) + "}";
@@ -206,6 +224,16 @@ void BgAnaPlots_EffBeamRate() {
 
                         // make legend label
 
+#if USE_RATE
+                        // create TGraph
+                        TGraph *g_eff_beamrate = new TGraph(bg_frame_selects[curve_idx].size(), &beam_rates[curve_idx][0], &bg_frame_selects[curve_idx][0]);
+                        g_eff_beamrate->SetLineWidth(2);
+                        g_eff_beamrate->SetMarkerSize(2);
+                        g_eff_beamrate->SetLineStyle(make_nhit_cut ? 2 : 1);
+                        legend1->AddEntry(g_eff_beamrate, ltext.c_str());
+                        g_eff_beamrates->Add(g_eff_beamrate, "PL");
+#else
+
                         // create TGraph
                         TGraph *g_eff_beamrate = new TGraph(bg_discr_effs[curve_idx].size(), &beam_rates[curve_idx][0], &bg_discr_effs[curve_idx][0]);
                         g_eff_beamrate->SetLineWidth(2);
@@ -213,6 +241,7 @@ void BgAnaPlots_EffBeamRate() {
                         g_eff_beamrate->SetLineStyle(make_nhit_cut ? 2 : 1);
                         legend1->AddEntry(g_eff_beamrate, ltext.c_str());
                         g_eff_beamrates->Add(g_eff_beamrate, "PL");
+#endif
 
                         curve_idx++;
                     }
@@ -238,9 +267,16 @@ void BgAnaPlots_EffBeamRate() {
     g_eff_beamrates->GetYaxis()->SetTitleSize(16);
     g_eff_beamrates->GetYaxis()->SetTitleOffset(1.4);
 
+#if USE_RATE
+    g_eff_beamrates->GetYaxis()->SetLimits(1, 1e3);
+    g_eff_beamrates->GetYaxis()->SetRangeUser(1, 1e3);
+    g_eff_beamrates->GetXaxis()->SetLimits(2e7, 1e8);
+    g_eff_beamrates->GetXaxis()->SetRangeUser(2e7, 1e8);
+#else
     expandYaxisRange(g_eff_beamrates);
     g_eff_beamrates->GetXaxis()->SetLimits(2e7, 1e8);
     g_eff_beamrates->GetXaxis()->SetRangeUser(2e7, 1e8);
+#endif
     g_eff_beamrates->Draw("A PLC PMC");
 
     std::string lheadtext="#bf{SP CONFIG} #it{DST " + get_string(dataset) + "}";
@@ -281,5 +317,9 @@ void BgAnaPlots_EffBeamRate() {
     std::string spcounts = CONFIG.ResolutionsToString();
     std::string ratios = CONFIG.RatiosToString();
     std::string stopp_effs = CONFIG.StoppingEffsToString();
+#if USE_RATE
+    saveCanvas(canvas, "Plots_bgAnaBeamRate_SELECTIVITY_dst_" + get_string(dataset) + "_flt_" + filters + "_spc_" + spcounts +  "_spratio_" + ratios + "_tbeff_" + stopp_effs, pathtorunplots);
+#else
     saveCanvas(canvas, "Plots_bgAnaBeamRate_dst_" + get_string(dataset) + "_flt_" + filters + "_spc_" + spcounts +  "_spratio_" + ratios + "_tbeff_" + stopp_effs, pathtorunplots);
+#endif
 }
