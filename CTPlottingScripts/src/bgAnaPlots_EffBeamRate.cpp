@@ -2,34 +2,25 @@
 // Created by Konstantin Neureither on 17.10.20.
 //
 
-#include "bgAnaPots_EffBeamRate.h"
-
-
-//
-// Created by Konstantin Neureither on 15.09.20.
-//
-
-#include "../inc/bgAnaPlots_EffSPcount.h"
-
-#include "../inc/bgAnaPlots_ROC.h"
+// root
 #include "TFile.h"
 #include "TMultiGraph.h"
-#include "TH1F.h"
 #include "TLatex.h"
 #include "TStyle.h"
 
 #include <map>
 #include <stdlib.h>
 
+// project files
 #include "utilityFunctions.h"
 #include "Mu3eTree.h"
 #include "MetaDataTree.h"
-#include "bgeval.h"
 #include "plots.h"
 #include "PatternEngine.h"
 #include "TemplateData.h"
-#include "Configuration.h"
+#include "../../CTCoreModules/Configuration.h"
 #include "TemplateBank.h"
+#include "bgAnaPlots_EffBeamRate.h"
 
 
 void BgAnaPlots_EffBeamRate() {
@@ -40,15 +31,15 @@ void BgAnaPlots_EffBeamRate() {
      */
 
     Configuration CONFIG;
-    CONFIG.bkg_rates();
+    CONFIG.PLOT_BGANA_BEAMRATES();
 
     const bool RECREATE_FILE = true;
     const int PRINTS = CONFIG.prints;
     const int mode = CONFIG.mode;
     const int dataset = CONFIG.dataset;
 
-    const std::string basepathtoplots = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
-    const std::string pathtooutfile = basepathtoplots + "BgBeamRateEff/";
+    const std::string basepathtoplots = "output/3_BKGEvaluation/dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    const std::string pathtooutfile = basepathtoplots + "BkgBeamRateEff/";
     const std::string pathtorunplots = pathtooutfile + "PDF/"; //this is where the pdf files are stored
 
     check_create_directory(basepathtoplots);

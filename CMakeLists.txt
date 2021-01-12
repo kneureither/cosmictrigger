@@ -15,7 +15,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/karimaki)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/root)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/CTCosPatTrain)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/CTCosPatTrain/include) #this is for the core modules
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/CTCosPatTrain/inc) #this is for the core modules
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/CTBgAna/inc)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/CTCoreModules/inc)
 

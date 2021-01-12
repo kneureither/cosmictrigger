@@ -29,7 +29,7 @@ using std::endl;
 void reconstruction_accuracy(int run, int FILTER) {
 
     const std::string pathtodata = "data/SimulationData/";
-    const std::string pathtoplots = "plots/Mu3eRecAcc/";
+    const std::string pathtoplots = "output/0_RecAcc/";
     const bool RECONSTRUCTION_PRINTS = false;
     const bool HIT_PRINTS = DEBUG;
     const bool MAKE_PLOT = true;

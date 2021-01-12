@@ -15,9 +15,23 @@
 #include "../../CTCoreModules/inc/PatternEngine.h"
 #include "../../CTCoreModules/inc/TemplateBank.h"
 #include "../../CTCoreModules/inc/TemplateData.h"
-#include "cosmicTemplatesEfficiency.h"
+#include "getCosmicSIDtracks.h"
 #include "MetaDataTree.h"
-#include "Configuration.h"
+#include "../../CTCoreModules/Configuration.h"
+
+/**
+ * This file contains the background analysis.
+ * To save computation time, it get the background hits from the file once per sp config
+ * and stores it inside a struct BGcombinatorics.
+ * For different filter settings, this struct is reused, which is a lot faster, as the data
+ * is in the RAM.
+ *
+ * However, depending on the beam rate of the simulation, this data grows very fast, so that
+ * the RAM size can get a critical parameter.
+ *
+ * For higher beam rates, this must be changed, so that the data ist always read from the root file and
+ * never completely stored inside the RAM.
+ */
 
 struct BGcombinatorics {
     std::vector<std::vector<TemplateID>> frames_TIDS;
@@ -39,11 +53,12 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
                           std::vector<TIDLoadingFilter> filters, int max_bg_entries, int max_cosmic_entries,
                           int max_bg_frame_nhits, int cosmic_testing_dst) {
     /**
-     * Read and analyse the mu3e mc hits
+     * Read and analyse the mu3e mc hits of a background run
      * get the hits in xyz
-     * assign sps to these hits
-     * initialize template bank
-     * check the frequency
+     * assign sids to these hits
+     * make full combinatorics of these hits into templates
+     * initialize a pretrained template bank
+     * check the frequency of false-positive matches
      */
 
     int MAX_BG_ENTRIES = max_bg_entries;
@@ -60,7 +75,8 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
 
     const std::string pathtoBGdata = CONFIG.pathtosimfiles;
     const std::string pathtoTemplateData = "data/TemplateData/";
-    const std::string pathtoplots = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    const std::string pathtobkgeval = "output/3_BKGEvaluation/";
+    const std::string pathtoplots = pathtobkgeval + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtooutfile =
             pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/"; //this is where the root file is stored
     const std::string pathtorunplots = pathtooutfile + "/PDF/"; //this is where the pdf files are stored
@@ -69,6 +85,7 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
 
     check_create_directory(pathtoBGdata);
     check_create_directory(pathtoTemplateData);
+    check_create_directory(pathtobkgeval);
     check_create_directory(pathtoplots);
     check_create_directory(pathtooutfile);
     check_create_directory(pathtorunplots);
@@ -96,7 +113,7 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
 
         //check the templates collected from file above
         std::vector<std::vector<unsigned int>> cosmic_spid_tracks;
-        cosmic_spid_tracks = produceCosmicSIDtracks(cosmic_testing_dataset, centralTPcount, spWZratio, mode);
+        cosmic_spid_tracks = getCosmicSIDtracks(cosmic_testing_dataset, centralTPcount, spWZratio, mode);
         TemplateBank TBC = TemplateBank(pathtoplots, dataset, mode, spWbins, spZbins);
         TBC.readAMfromFile(pathtodatasettemplatedata,tb_stopping_efficiency, filter);
         for(auto &SPIDs : cosmic_spid_tracks) {
@@ -212,7 +229,7 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
             std::cout << "[ERROR] File " << tF->GetName() << " is not open!" << std::endl;
         }
 
-        //make directories in file
+        //make directories in file for different train effs
         std::string dirlevelone = enum_to_string(filter);
         tF->mkdir(dirlevelone.c_str());
         tF->cd(dirlevelone.c_str());
@@ -272,9 +289,10 @@ void cosmicTemplatesBgAna(const int run, int dataset, unsigned int centralTPcoun
     }
 }
 
+
 BGcombinatorics produceBGcmbncsTID(const int bg_run, PatternEngine &PEbg, int max_frame_hits, const int MAX_BG_ENTRIES, std::string pathtoBGdata, std::string pathtoplots) {
-    std::string pathtorunplots = pathtoplots + "BGcmbncs/";
-    check_create_directory(pathtorunplots);
+//    std::string pathtorunplots = pathtoplots + "BGcmbncs/";
+//    check_create_directory(pathtorunplots);
     const int MAX_NHITS = max_frame_hits;
     bool PRINTS = false;
 

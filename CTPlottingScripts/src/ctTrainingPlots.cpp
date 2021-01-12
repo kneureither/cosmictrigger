@@ -14,14 +14,13 @@
 #include "TH1F.h"
 #include "TLegend.h"
 #include "TColor.h"
-#include "TPaveText.h"
 #include "TStyle.h"
 #include "TMultiGraph.h"
 #include "TF1.h"
 #include "TMath.h"
 
 //custom
-#include "../inc/cosmicTemplatesTrainingPlots.h"
+#include "../inc/ctTrainingPlots.h"
 #include "utilityFunctions.h"
 #include "plots.h"
 
@@ -29,10 +28,11 @@
 
 void makeCosPatPlots(const int dataset, const int combination_id, std::vector<int> cycle_plotting_order,
                      std::string filelabel="") {
-    const std::string pathtodata = "output/Mu3eCosPat/";
-    const std::string pathtoplots = "output/Mu3eCosPatPlots/";
-    std::string pathtorunplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    const std::string pathtodata = "output/2_DBTraining/";
+    const std::string pathtoplots = "output/2_DBTraining/";
     std::string pathtorundata = pathtodata + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    std::string pathtorunplots = pathtorundata + "PDFs_combined_overview/";
+
 
     const bool MAKE_PLOT = true;
     const int MAX_ENTRIES = 0;

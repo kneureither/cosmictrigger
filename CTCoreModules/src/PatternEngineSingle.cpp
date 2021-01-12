@@ -20,7 +20,6 @@
 #include "utilityFunctions.h"
 #include "plots.h"
 #include "../inc/PatternEngineSingle.h"
-#include "../inc/SuperPixelHit.h"
 #include "basicDefines.h"
 
 PatternEngineSingle::PatternEngineSingle() = default;

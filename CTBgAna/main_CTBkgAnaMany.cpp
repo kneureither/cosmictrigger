@@ -4,7 +4,7 @@
 #include "inc/cosmicTemplatesBgAna.h"
 #include "../CTCoreModules/inc/TemplateBank.h"
 #include <iostream>
-#include "Configuration.h"
+#include "../CTCoreModules/Configuration.h"
 
 int main() {
     Configuration CONFIG;

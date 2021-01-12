@@ -2,26 +2,25 @@
 // Created by Konstantin Neureither on 14.09.20.
 //
 
-#include "../inc/bgAnaPlots_ROC.h"
+//root
 #include "TFile.h"
 #include "TMultiGraph.h"
-#include "TH1F.h"
 #include "TStyle.h"
 
 #include <map>
 #include <stdlib.h>
 
+//project files
 #include "utilityFunctions.h"
 #include "Mu3eTree.h"
 #include "MetaDataTree.h"
-#include "bgeval.h"
 #include "plots.h"
-#include "Configuration.h"
+#include "../../CTCoreModules/Configuration.h"
 #include "../../CTCoreModules/inc/PatternEngine.h"
-#include "../../CTCoreModules/inc/TemplateData.h"
+#include "../inc/bgAnaPlots_legacyROC.h"
 
 
-void bgAnaPlots_ROC() {
+void bgAnaPlots_legacyROC() {
     /*
      * Read the BGEval output files from multiple root files
      * put the data into  two vectors (bg eff and train eff)
@@ -45,10 +44,10 @@ void bgAnaPlots_ROC() {
     std::vector<float> tb_stopping_effs = CONFIG.stopping_effs;
     std::vector<TIDLoadingFilter> filters = CONFIG.TmplBankFilter.filters;
 
-    const std::string pathtoplots = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    const std::string pathtoplots = "output/3_BKGEvaluation/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtooutfile =
             pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/"; //this is where the root file is stored
-    const std::string pathtorunplots = pathtooutfile + "PDF/"; //this is where the pdf files are stored
+    const std::string pathtorunplots = pathtooutfile + "PDF_ROCplots/"; //this is where the pdf files are stored
 
     check_create_directory(pathtoplots);
     check_create_directory(pathtorunplots);

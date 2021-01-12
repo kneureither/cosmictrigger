@@ -11,13 +11,13 @@
 #include "SPCalculations.h"
 #include "utilityFunctions.h"
 
-//typedef unsigned long long temid;
+//typedef for the template IDs. TemplateID is defined in TemplateData.h
 typedef TemplateID temid;
-typedef std::map<temid, TemplateData> AssociativeMemory;
-typedef std::pair<temid, TemplateData> AssociativePair;
-typedef std::map<temid, int> CheckedMemory;
+typedef std::map<temid, TemplateData> AssociativeMemory; //Storage
+typedef std::pair<temid, TemplateData> AssociativePair; //Interal Searching and Sorting
+typedef std::map<temid, int> CheckedMemory; //For (Bkg) Evaluation
 
-//to distinquish between TID types (area dependency)
+//to distinquish between TID types (area dependent)
 enum TrackType {RLRL, RLCE, CECE, RRCE, RRRR};
 static std::string enum_to_string(TrackType tracktype) {
     switch(tracktype) {
@@ -45,6 +45,9 @@ static std::string enum_to_string(TIDLoadingFilter filter) {
 }
 
 struct tidQueueNode {
+    /**
+     * For sorting the templates in the database
+     */
     temid TID; //the template
     unsigned int frequency; //population
     bool operator<(const tidQueueNode& rhs) const {
@@ -80,8 +83,8 @@ private:
     TIDLoadingFilter loading_filter = ALL;
 
     //for checking templates (background eval)
-    unsigned int rejectedcount = 0; //bg
-    unsigned int acceptedcount = 0; //bg
+    unsigned int rejectedcount = 0; //bkg
+    unsigned int acceptedcount = 0; //bkg
 
     //for checking templates (eff with filter eval)
     unsigned int cosmic_checkedcount = 0; //comsics
@@ -115,9 +118,15 @@ public:
 
     //database handling
     bool fillTemplate(unsigned int * SPIDs, int hitcount, float p, float dca, float phi, float theta);
+
+    //to check a background template for occurence in the database (db read and compare call) -> compute false-positive rate
     bool checkTemplate(temid &TID);
+
+    //to check a cosmic template for occurence in the database (db read an compare call) -> compute cosmic efficiency
     //TODO change signature!! easy fix ->filter not needed, move to temid TID
     bool checkCosmicTemplate(unsigned int *SPIDs, const int hitcount, TIDLoadingFilter filter);
+
+    //db file handling
     void writeAMtoFile(std::string path, const int *zBins, const int *wBins, char areaDescript[3][8],
                        std::string mode_description);
 
@@ -126,9 +135,9 @@ public:
     //read out database stats
     std::vector<temid>  getMostPopulatedTemplates(int howmany);
     std::vector<temid>  getMostMatchedTemplates(int howmany);
-    template <typename spidtype>
 
     //util
+    template <typename spidtype>
     temid getTemplateID(spidtype *SPIDs, int hitcount);
     unsigned int getSPIDfromTemplateID(temid TID, int index);
     TrackType GetTypeOfTID(temid TID);

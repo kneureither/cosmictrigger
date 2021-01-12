@@ -3,7 +3,7 @@
 //
 
 #include <vector>
-#include "Configuration.h"
+#include "../CTCoreModules/Configuration.h"
 #include "cosmicTemplatesBgAna.h"
 
 int main(int argc, char *argv[]) {
@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     std::vector<TIDLoadingFilter> filters = CONFIG.TmplBankFilter.filters;
 
 
-    for (auto &curves : CONFIG.DBconfigDatapoints) {
+    for (auto &curves : CONFIG.DBconfigCurveDatapoints) {
         for (auto &config : curves) {
             std::cout << "(STATUS) : Running BG Eval for dataset " << pattern_dataset
                       << " CONFIG: WxZ bins " << config.wbins << " x " << config.zbins

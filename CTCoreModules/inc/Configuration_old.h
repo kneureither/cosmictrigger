@@ -65,7 +65,7 @@ struct TltBnkFltr {
     }
 };
 
-struct BkgRateAna {
+struct InfoForBkgRejVsBeamRatePlot {
     // Final Plot
 //    std::vector<int> bg_runs =        {120,   121,    122,    126,    128,    123};
 //    std::vector<float> beam_rates =   {2e7,   6e7,    1e8,    2e8,    4.932e8,1e9};
@@ -101,7 +101,7 @@ struct BkgRateAna {
 
     int ndatapoints;
 
-    BkgRateAna(){
+    InfoForBkgRejVsBeamRatePlot(){
         calc_max_nhits(1);
         ndatapoints = bg_runs.size();
     };
@@ -166,7 +166,7 @@ public:
 
     TltBnkTrnSet TrainPlots;
     TltBnkFltr TmplBankFilter;
-    BkgRateAna BkgFiles;
+    InfoForBkgRejVsBeamRatePlot BkgFiles;
     std::vector<std::vector<DatabaseConfigBuild>> DBconfigDatapoints;
 
     Configuration &set1() {
@@ -510,6 +510,7 @@ public:
         /**
          * This creates the datapoints for the bkg SPC eval
          */
+
         this->resetMembers();
         this->michelBackground();
         dataset = 13;
@@ -622,7 +623,7 @@ public:
         DBconfigDatapoints.push_back(plot_datapoints);
     }
 
-    void BUILDTB_TRAIN_PLOT(){
+    void PLOT_BUILDTB(){
 //        set3_base().set3_trainplot();
 //        set12_plot_traineff_spr_final(); //check
 //        set12_plot_traineff_spc_final(); //
@@ -668,16 +669,16 @@ public:
     void BGANA_PLOT_SPC() {
         set3_base().set3_spc(64, 0.6);
     }
-    void BGANA_PLOT_SPC_DATAPOINTS() {
+    void PLOT_BGANA_SPC_DATAPOINTS() {
 //        set13_bkg_spc_plot();
         set13_bkg_spc_zbins_plot();
     }
 
-    void BGANA_PLOT_SPR_DATAPOINTS() {
+    void PLOT_BGANA_SPR_DATAPOINTS() {
         set13_bkg_spr_plot();
     }
 
-    void BGANA_PLOT_ROC_DATAPOINTS() {
+    void PLOT_BGANA_ROC_DATAPOINTS() {
         set13_bkg_roc_plot();
     }
 

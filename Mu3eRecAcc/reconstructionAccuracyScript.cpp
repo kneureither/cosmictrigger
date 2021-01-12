@@ -2,9 +2,6 @@
 // Created by Konstantin Neureither on 08.07.20.
 //
 
-//
-// Created by Konstantin Neureither on 27.04.20.
-//
 #define GET_DATA_FROM_MU3E false
 
 #include <TFile.h>
@@ -34,7 +31,7 @@ using std::endl;
 void reconstructionAccuracyScript(int run, int FILTER) {
 
     const std::string pathtodata = "data/SimulationData/";
-    const std::string pathtoplots = "plots/Mu3eRecAcc/";
+    const std::string pathtoplots = "output/0_RecAcc/";
     const bool RECONSTRUCTION_PRINTS = false;
     const bool HIT_PRINTS = DEBUG;
     const bool MAKE_PLOT = true;

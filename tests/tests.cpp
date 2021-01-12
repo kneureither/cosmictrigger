@@ -15,31 +15,22 @@
 #include "testTemplateID.h"
 #include "../CTCoreModules/inc/TemplateBank.h"
 #include "testTemplateBank.h"
+#include "../CTCoreModules/inc/PatternEngine.h"
+#include "../CTCoreModules/inc/PatternEngineSingle.h"
 
 
 #ifndef TRIPLET_HIT_ARRAY_LENGTH
 #define TRIPLET_HIT_ARRAY_LENGTH 1024
 #endif //TRIPLET_HIT_ARRAY_LENGTH
 
-void TESTncombinedhits();
-void TESTslimsegs();
-
-
-
-int main (int argc, char *argv[]) {
-    srand (static_cast <unsigned> (time(0)));
-
-//    TESTncombinedhits();
-//    TESTslimsegs();
-//    TESTtemplateData();
-//    testTemplateID();
-
-    testTemplateBank();
-
-
-    printf("SUCCESS! Finished all tests.\n");
-    return 0;
-}
+/**
+ * COMMENT:
+ * This file includes the code of some test routines, used for the development of the cosmic trigger.
+ * The code was reworked several times and these routines below were not explicitly debugged in the final iteration.
+ * Subsequently it might well be, that they do not run out of the box. Still, they might offer some insights on
+ * how the code was tested and how future tests could be build.
+ *
+ */
 
 void TESTncombinedhits() {
     printf("STATUS : Running TESTncombinedhits()...\n");
@@ -173,5 +164,37 @@ void TESTslimsegs() {
         printf("asserting SlimSegsR.kari_p == SlimSegsR[%d].kari_p : %f == %f\n\n", i, SlimSegsR.kari_p, SlimSegsVec[i].kari_p);
         assert(SlimSegsR.kari_p == SlimSegsVec[i].kari_p);
     }
+}
+
+void testPES() {
+    PatternEngineSingle PE(40, 10, 0);
+    PE.displayBinBoundaries();
+//    PE.testbinSearch();
+//    PE.testCoordImpl();
+
+    PE.getSuperPixel(1, 0, -100);
+    PE.getSuperPixel(0, 0, -200);
+    PE.getSuperPixel(20, 0, 0);
+    PE.getSuperPixel(45, 0, 100);
+    PE.getSuperPixel(55, 0, 200);
+    PE.getSuperPixel(65, 0, 200);
+
+    PE.testSPID();
+    PE.displayBinWeightDistribution();
+}
+
+int main (int argc, char *argv[]) {
+    srand (static_cast <unsigned> (time(0)));
+
+//    TESTncombinedhits();
+//    TESTslimsegs();
+//    TESTtemplateData();
+//    testTemplateID();
+
+    testTemplateBank();
+
+
+    printf("SUCCESS! Finished all tests.\n");
+    return 0;
 }
 

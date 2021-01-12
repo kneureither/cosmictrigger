@@ -3,23 +3,24 @@
 //
 
 #include "cosmicTemplatesBuild.h"
-#include "cosmicTemplatesEfficiency.h"
-#include "../CTPlottingScripts/inc/cosmicTemplatesTrainingPlots.h"
+#include "cosmicEffTemplFilter.h"
+#include "../CTPlottingScripts/inc/ctTrainingPlots.h"
 #include <vector>
-#include "Configuration.h"
+#include "../CTCoreModules/Configuration.h"
 
 int main(int argc, char *argv[]) {
 
+    //read parameter data from configuration.h header -> add config files.
     Configuration CONFIG;
     CONFIG.BUILDTB_DATAPOINTS();
 
-    int combination_id = CONFIG.TrainPlots.combination_id; //will produce a separate file
+    int combination_id = CONFIG.TrainPlots.trainplotoutput_id; //will produce a separate file
     int dataset = CONFIG.dataset;
     bool append_to_outfile = true;
 
     std::vector<int> cycle_plotting_order;
 
-    for (auto &curves : CONFIG.DBconfigDatapoints) {
+    for (auto &curves : CONFIG.DBconfigCurveDatapoints) {
         for (auto &config : curves) {
             std::cout << "(STATUS) : Building Template Database for dataset " << dataset
                       << " CONFIG: WxZ bins " << config.wbins << " x " << config.zbins

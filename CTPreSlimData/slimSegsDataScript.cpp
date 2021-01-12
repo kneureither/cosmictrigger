@@ -22,17 +22,23 @@
 #include "SegsTreeRead.h"
 #include "SlimSegsTree.h"
 #include "basicDefines.h"
-#include "Configuration.h"
+#include "../CTCoreModules/Configuration.h"
 
 using std::cout;
 using std::endl;
 
 void slimSegsDataScript(const int dataset, const int run, const bool appendToFile) {
+    /**
+     * Preprocess the MC data.
+     * Input: Output files from the Mu3e TriRec Module in cosmic mode.
+     * The script slims down the data and computes an additional helix fit.
+     * Also it produces some controlplots
+     */
 
     const int MAX_ENTRIES = 0;
     Configuration CONFIG;
 
-    const std::string pathtoplots = "output/Mu3eSlimSegs/";
+    const std::string pathtoplots = "output/1_SlimSegs/";
     const std::string pathtodata = CONFIG.pathtosimfiles;
     const std::string pathtodatasetplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string infile = pathtodata + "mu3e_run_" + get_padded_string(run, 6, '0') + "_trirec_cosmic.root";

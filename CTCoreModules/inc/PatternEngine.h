@@ -10,6 +10,16 @@
 
 
 class PatternEngine : public SPCalculations {
+    /**
+     * Handles pixel hit (cartesian coord) to super pixel assignment and super pixel mapping in general. For more
+     * details see PatternEngineSingle.
+     *
+     * This class handles the different PatternEngineSingle modules that all manage a single detector station and
+     * provides an interface that covers the whole detector and internally forwards requests to the PES responsible.
+     *
+     * Remember to call closePlot() at the end of your script, if you have used any of the plotting scripts.
+     */
+
 private:
 
     std::string plottingpath;

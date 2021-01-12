@@ -14,8 +14,8 @@
 #include "TTree.h"
 
 #include "cosmicTemplatesBuild.h"
-#include "../CTCoreModules/inc/PatternEngine.h"
-#include "../CTCoreModules/inc/TemplateBank.h"
+#include "PatternEngine.h"
+#include "TemplateBank.h"
 #include "utilityFunctions.h"
 #include "MetaDataTree.h"
 
@@ -24,7 +24,7 @@ void getReferenceHits(unsigned int *pInt, int nhit, unsigned int ncombinedhits);
 void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float spWZratio, int combination_id,
                           float max_efficiency, bool append_to_outfile) {
     const std::string pathtodata = "data/SlimmedData/";
-    const std::string pathtoplots = "output/Mu3eCosPat/";
+    const std::string pathtoplots = "output/2_DBTraining/";
 
     const bool MAKE_PLOT = true;
     const int MAX_ENTRIES = 0;
@@ -34,7 +34,7 @@ void cosmicTemplatesBuild(const int dataset, unsigned int centralTPcount, float 
 
     std::string runpadded = get_padded_string(dataset, 6, '0');
     std::string pathtorunplotsfile = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
-    std::string pathtorunplots = pathtorunplotsfile + "PDF/";
+    std::string pathtorunplots = pathtorunplotsfile + "PDFs_db_training/";
     std::string pathtotemplatedb = "data/TemplateData/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     std::string infile = pathtodata + "mu3e_slimmed_segs_" + get_padded_string(dataset, 6, '0') + ".root";
 //    std::string infile = pathtodata + "mu3e_test_slimmed_file_000000.root";

@@ -15,8 +15,11 @@
 #include "../../CTCoreModules/inc/PatternEngine.h"
 #include "../../CTCoreModules/inc/TemplateBank.h"
 #include "../../CTCoreModules/inc/TemplateData.h"
-#include "MetaDataTree.h"
+#include "MetaDataTree.h
 
+
+/// UNUSED LEGACY CODE! It  allows to add super pixel hits of a cosmic track
+/// into background data and analyse the discrimination capabilities with one cosmic added.
 
 void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcount, float spWZratio,
                            const float tb_stopping_efficiency, const bool append_outfile, TIDLoadingFilter filter) {
@@ -42,7 +45,7 @@ void cosmicTemplatesBgEval(const int run, int dataset, unsigned int centralTPcou
 
     const std::string pathtoBGdata = "data/SimulationData/";
     const std::string pathtoTemplateData = "data/TemplateData/";
-    const std::string pathtoplots = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    const std::string pathtoplots = "output/3_BKGEvaluation/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtooutfile = pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/"; //this is where the root file is stored
     const std::string pathtorunplots = pathtooutfile +"/PDF/"; //this is where the pdf files are stored
     const std::string pathtodatasettemplatedata = pathtoTemplateData + "dataset_" + get_padded_string(dataset, 3, '0') + "/";

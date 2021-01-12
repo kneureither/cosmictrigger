@@ -2,11 +2,18 @@
 // Created by Konstantin Neureither on 11.08.20.
 //
 
-#include "cosmicTemplatesEfficiency.h"
+#include "cosmicEffTemplFilter.h"
 #include <iostream>
 
 
 int main(int argc, char *argv[]) {
+    /**
+    * This routine is just a basic a test for the method
+    * getCosmicSIDtracks(...)
+    *
+    * TODO Move to test/ folder
+    */
+
     int dataset = 13;
     int spcount = 1024;
     float spratio = 64;
