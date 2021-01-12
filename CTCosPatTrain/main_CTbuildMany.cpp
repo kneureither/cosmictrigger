@@ -3,24 +3,10 @@
 //
 
 #include "TemplateBank.h"
-#include "PatternEngineSingle.h"
-#include "PatternEngine.h"
 #include "cosmicTemplatesBuild.h"
-#include "cosmicTemplatesEfficiency.h"
-#include "../CTPlottingScripts/inc/cosmicTemplatesTrainingPlots.h"
+#include "../CTPlottingScripts/inc/ctTrainingPlots.h"
 #include <vector>
-#include "Configuration.h"
-
-
-void processSegsPrototype(int, int);
-
-const bool TEST_PES = false;
-const bool TEST_PE = false;
-const bool TEST_TB = false;
-const bool TEST_SEGS_PROCESS = false;
-const bool TEST_buildDB = false;
-const bool TEST_readDB = true;
-
+#include "../CTCoreModules/Configuration.h"
 
 int main(int argc, char *argv[]) {
 
@@ -30,7 +16,7 @@ int main(int argc, char *argv[]) {
     std::vector<float> sp_ratios = CONFIG.sp_ratios;
     std::vector<int> sp_count = CONFIG.sp_cnt;
     std::vector<float> stopping_effs = CONFIG.stopping_effs;
-    int combination_id = CONFIG.TrainPlots.combination_id; //will produce a separate file
+    int combination_id = CONFIG.TrainPlots.trainplotoutput_id; // produces a separate file for each trainplotoutput_id
     int dataset = CONFIG.dataset;
     bool append_to_outfile = true;
 
@@ -51,46 +37,6 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Producing combined plots for dataset " << dataset << "..." << std::endl;
     makeCosPatPlots(dataset, combination_id, cycle_plotting_order, std::string());
-
-
-
-    if(TEST_SEGS_PROCESS) {
-        processSegsPrototype(14, 0);
-    }
-
-    if(TEST_PE) {
-        PatternEngine PE(20, 100, "plots/Mu3eCosPat/");
-        PE.displayBinBoundaries();
-        PE.closePlot();
-    }
-
-    if(TEST_PES) {
-        PatternEngineSingle PE(40, 10, 0);
-        PE.displayBinBoundaries();
-//    PE.testbinSearch();
-//    PE.testCoordImpl();
-
-        PE.getSuperPixel(1, 0, -100);
-        PE.getSuperPixel(0, 0, -200);
-        PE.getSuperPixel(20, 0, 0);
-        PE.getSuperPixel(45, 0, 100);
-        PE.getSuperPixel(55, 0, 200);
-        PE.getSuperPixel(65, 0, 200);
-
-        PE.testSPID();
-        PE.displayBinWeightDistribution();
-
-    }
-
-    if(TEST_TB) {
-        TemplateBank TB("plots/Mu3eCosPat", 0, 0, 0, 0);
-    TB.testTemplateID();
-//    TB.testFill();
-//        TB.testGetMostPopTemplates();
-//        TB.PlotTemplatePopulationHistogram("test");
-
-//        TB.testCheck();
-    }
 
     return 0;
 }

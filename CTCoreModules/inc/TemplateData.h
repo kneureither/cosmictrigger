@@ -6,6 +6,14 @@
 #define COSMICTRIGGER_TEMPLATEDATA_H
 
 #define TID_LEN 4
+/**
+ * Theoretically, it is possible to use 8 instead of 4 hits for the templates. This means that also the inner detector
+ * layers are taken into account. Tracks that do not pass the inner layers are then described as
+ * [SID1, SID2, 0, 0 ,0 ,0 SID3, SID5].
+ *
+ * However, even if the data strture supports TID_LEN > 4, there is some routines that need to be updated manually.
+ * So be cautious if you plan on doing so.
+ */
 
 #include <vector>
 #include <iostream>
@@ -15,12 +23,17 @@
 #include "basicDefines.h"
 
 struct TemplateID {
+    /**
+     * Contains a template consisting of SIDs and some convenience function, such as (copy) constructors.
+     * Theoretically supports TID_LEN>4  with some adaptions
+     */
+
     //SIDs ids in order of hits each hit 16bit
     unsigned short HIDS[TID_LEN];
 
     std::string toString() {
         std::stringstream ss;
-        char buffer[4]; //FIXME not working for 24 len. (when TID_LEN = 6)
+        char buffer[4]; //FIXME not working for 24 len (when TID_LEN = 6). Should be working for 32 len
         for(int i = 0; i<TID_LEN; i++) {
             sprintf(buffer, "%04X", HIDS[i]);
             ss << buffer;
@@ -65,8 +78,15 @@ struct TemplateID {
 };
 
 struct TemplateData {
+    /**
+     * This is the data that is stored for every template in the database file.
+     *
+     * In the beginning of the study it was thinkable, that storing track parameters for the templates could be helpful,
+     * but was eventually never used. Maybe it is needed in the future, so it was left in the code.
+     */
+
     int frequency = 0;
-    //z0 is missing!
+    //FIXME z0 is missing!
     std::vector<int> count;
     std::vector<float> p;
     std::vector<float> dca;

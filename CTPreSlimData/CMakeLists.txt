@@ -9,12 +9,12 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(SRC main.cpp slimSegsDataScript.cpp ../root/SegsTreeRead.cpp ../root/SlimSegsTree.cpp)
 
-add_executable(Mu3ePreSlimData ${SRC})
-target_link_libraries(Mu3ePreSlimData ${ROOT_LIBRARIES} f2clib karilib)
+add_executable(PreSlimCosData ${SRC})
+target_link_libraries(PreSlimCosData ${ROOT_LIBRARIES} f2clib karilib)
 add_compile_options("-lf2c" "-DMAIN")
 
 set(SRC PlotSlimSegsTrackVars.cpp ../root/SegsTreeRead.cpp ../root/SlimSegsTree.cpp)
 
-add_executable(Mu3ePreSlimPlot ${SRC})
-target_link_libraries(Mu3ePreSlimPlot ${ROOT_LIBRARIES} f2clib karilib)
+add_executable(PreSlimPlot ${SRC})
+target_link_libraries(PreSlimPlot ${ROOT_LIBRARIES} f2clib karilib)
 add_compile_options("-lf2c" "-DMAIN")

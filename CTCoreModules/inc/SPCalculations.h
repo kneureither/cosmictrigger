@@ -7,6 +7,10 @@
 
 
 class SPCalculations {
+    /**
+     * Provides a base class from which Pattern Engine and Pattern Engine Single are derived.
+     * Geometry parameters as well as Super Pixel Indexing Systematics can be modified here.
+     */
 public:
     static const int areaCount = 3;
     bool PRINTS = false;

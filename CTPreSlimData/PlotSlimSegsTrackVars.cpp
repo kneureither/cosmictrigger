@@ -29,7 +29,7 @@ void SetStyle(TH1F* h, std::string name) {
 
 void PlotSlimSegsTrackVars() {
     int dataset = 15;
-    const std::string pathtoplots = "output/Mu3eSlimSegs/";
+    const std::string pathtoplots = "output/1_SlimSegs/";
     const std::string pathtodatasetplots = pathtoplots + "dataset_" + get_padded_string(dataset, 3, '0') + "/";
 
     check_create_directory(pathtoplots);

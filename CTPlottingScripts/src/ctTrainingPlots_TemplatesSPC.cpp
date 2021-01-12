@@ -2,8 +2,7 @@
 // Created by Konstantin Neureither on 28.10.20.
 //
 
-#include "../inc/ctTrainingPlots_TemplatesSPC.h"
-#include "Configuration.h"
+//root
 #include "TStyle.h"
 #include "TMultiGraph.h"
 #include "TCanvas.h"
@@ -12,24 +11,24 @@
 #include "TFile.h"
 #include "TTree.h"
 
+//custom
 #include "plots.h"
+#include "../inc/ctTrainingPlots_TemplatesSPC.h"
+#include "../../CTCoreModules/Configuration.h"
 
 void ctTrainingPlots_TemplatesSPC() {
 
     Configuration CONFIG;
-//    CONFIG.set13_spc_tmpl_plot();
-    CONFIG.set13_bkg_spc_zbins_plot();
+    CONFIG.PLOT_TRAIN_TEMPL_SPC();
 
     const int mode = CONFIG.mode;
     const int dataset = CONFIG.dataset;
 
-    const std::string basepathtoplots = "output/Mu3eCosPatPlots/dataset_" + get_padded_string(dataset, 3, '0') + "/";
-    const std::string pathtooutfile = basepathtoplots + "TempltCntSPC/";
-    const std::string pathtorunplots = pathtooutfile + "PDF/"; //this is where the pdf files are stored
+    const std::string basepathtoplots = "output/2_DBTraining/dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    const std::string pathtorunplots = basepathtoplots + "PDFs_templCntSPC/"; //this is where the pdf files are stored
     const std::string pathtotempldb = "data/TemplateData/dataset_" + get_padded_string(dataset, 3, '0') + "/";
 
     check_create_directory(basepathtoplots);
-    check_create_directory(pathtooutfile);
     check_create_directory(pathtorunplots);
     check_create_directory(pathtotempldb);
 
@@ -78,7 +77,7 @@ void ctTrainingPlots_TemplatesSPC() {
 
     int curve_idx=0;
 
-    for(auto &curve : CONFIG.DBconfigDatapoints) {
+    for(auto &curve : CONFIG.DBconfigCurveDatapoints) {
 
         std::vector<double> tcounts;
         std::vector<double> spcs;

@@ -18,16 +18,29 @@
 #include <TLegend.h>
 #include <cmath>
 #include <assert.h>
-#include "SuperPixelHit.h"
 #include "SPCalculations.h"
 
 
-//TODO Implement other mapping of superpixels (maybe just a cartesian one
-// -- This could either be done by deriving cartesian and phi dependent from a common base class
-// -- Or include it into this class and use the int mode parameter
-
-
 class PatternEngineSingle : public SPCalculations{
+    /**
+     * Pattern Engine Single handles one single station of the detector and its super pixel mapping.
+     * This includes the creation of cartesian decision borders between super pixels, Super Pixel Frequency monitoring,
+     * Cartesian hit -> Super Pixel assignment.
+     *
+     * It was build with several mapping systematics in mind, that is the purpose of the ``mode`` parameter, to switch
+     * between these.
+     * Forseen was a radial SP mapping and a planar x-projective mapping.
+     * Completely implemented and used was only the former. To use a projective mappaing, some functions have to be
+     * implemented still.
+     *
+     * The reason for the SP borders being stored in an array is the idea of a non-uniform mapping where not all super
+     * pixels are evenly sized. This could be a means to increase bkg discrimination power in areas with a lot of background.
+     * The Pattern Engine could be upgraded to a non-uniform mapping, just by adding a memberfunction of a separate
+     * constructor, that sets up the bin-boundary vecotors in the desired way.
+     *
+     * Furhter Comment: If the plotting functions are used, remember to call closePlot(); before deleting the
+     * Pattern Engine, as otherwise the pdf output wont be readable.
+     */
 
 private:
     int getLayer(const float r);
@@ -55,16 +68,16 @@ private:
 
     std::string pltf();
 
-    //necessary  for wbin mapping with x-coord, not phi
+    //necessary for wbin mapping with projective x-coord, not phi
     float layerFactor[4] = {0.0}; // scale down x boundaries with reference to outer layer
 
-    int mode = 0; //default is cylindrical mode = 0
+    int mode = 0; //default is radial sp (phi as variable): mode = 0
     int area = 0;
     int wBinCount{}; //width (phi or x)
     int zBinCount{};
     int totalBinCount{};
 
-    //only center region implemented for now
+    //for the region the PES manages
     float centralDetectorZmin;
     float centralDetectorZmax;
     float centralDetectorLength;
@@ -75,7 +88,7 @@ private:
 
     std::vector<float> phiBins;
     std::vector<float> zBins;
-    std::vector<float> xBins; //not used so far
+    std::vector<float> xBins; //not used so far -> x-projective Mapping
 
     float SPZsize{};
     float SPWsize{};
@@ -94,7 +107,7 @@ public:
     PatternEngineSingle(const int spWpartition, const int spZpartition, const int mode, const int area, std::string plottingpath);
 
     PatternEngineSingle();
-    //~PatternEngineSingle();
+    //~PatternEngineSingle(); //Improve: Move closePlot() to destructor.
 
     unsigned int getSuperPixel(const float x, const float y, const float z);
 

@@ -2,26 +2,23 @@
 // Created by Konstantin Neureither on 15.09.20.
 //
 
-#include "../inc/bgAnaPlots_EffSPcount.h"
-
-#include "../inc/bgAnaPlots_ROC.h"
+//root
 #include "TFile.h"
 #include "TMultiGraph.h"
-#include "TH1F.h"
 #include "TLatex.h"
 #include "TStyle.h"
 
 #include <map>
 #include <stdlib.h>
 
+//project files
 #include "utilityFunctions.h"
 #include "Mu3eTree.h"
 #include "MetaDataTree.h"
-#include "bgeval.h"
 #include "plots.h"
 #include "PatternEngine.h"
 #include "TemplateData.h"
-#include "Configuration.h"
+#include "../../CTCoreModules/Configuration.h"
 #include "TemplateBank.h"
 
 
@@ -36,7 +33,7 @@ void BgAnaPlots_SPC() {
 
     /// Config data
     Configuration CONFIG;
-    CONFIG.BGANA_PLOT_SPC_DATAPOINTS();
+    CONFIG.PLOT_BGANA_SPC_DATAPOINTS();
 
     const bool RECREATE_FILE = true;
     const int PRINTS = CONFIG.prints;
@@ -45,10 +42,10 @@ void BgAnaPlots_SPC() {
     const int dataset = CONFIG.dataset;
     const int bgevents = CONFIG.max_bg_frames;
 
-    const std::string pathtoplots = "output/Mu3eCosPatBgEval/dataset_" + get_padded_string(dataset, 3, '0') + "/";
+    const std::string pathtoplots = "output/3_BKGEvaluation/dataset_" + get_padded_string(dataset, 3, '0') + "/";
     const std::string pathtooutfile =
             pathtoplots + "bgrun_" + get_padded_string(run, 3, '0') + "/"; //this is where the root file is stored
-    const std::string pathtorunplots = pathtooutfile + "PDF/"; //this is where the pdf files are stored
+    const std::string pathtorunplots = pathtooutfile + "PDF_SPCplots/"; //this is where the pdf files are stored
 
     check_create_directory(pathtoplots);
     check_create_directory(pathtorunplots);
@@ -104,7 +101,7 @@ void BgAnaPlots_SPC() {
 
     int curve_idx = 0;
     for(auto &filter : CONFIG.TmplBankFilter.filters) {
-        for(auto &curve : CONFIG.DBconfigDatapoints) {
+        for(auto &curve : CONFIG.DBconfigCurveDatapoints) {
 
             int run_idx=0;
 

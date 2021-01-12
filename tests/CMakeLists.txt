@@ -9,7 +9,7 @@ set(SRC tests.cpp ../root/SlimSegsTree.cpp testTemplateID.h ../CTCoreModules/src
 add_executable(tests ${SRC})
 target_link_libraries(tests ${ROOT_LIBRARIES} f2clib karilib patterns)
 add_compile_options("-lf2c" "-DMAIN")
-#target_compile_options(Mu3eRecAcc PUBLIC -lf2c -DMAIN)
+#target_compile_options(RecAccCheck PUBLIC -lf2c -DMAIN)
 
 add_executable(testRootMCtype findRootMctypeError.cpp ../root/SegsTreeRead.cpp)
 target_link_libraries(testRootMCtype ${ROOT_LIBRARIES})
