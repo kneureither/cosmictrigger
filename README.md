@@ -38,12 +38,69 @@ The Associative Memory, that is used as a hardware database in the future implem
     * ```karimaki``` an implementation of a three dimensional helix fit, used in ```CTPreSlimData```.
     * ```root``` classes for ROOT file reading and writing.
     * ```Mu3eRecAcc``` Mu3e Reconstruction Accuracy produces analysis and control plots for a Mu3e simulation TriRec output in cosmic mode.
-    * ```output``` this folder is created to store all PDF and .root files created by the Cosmic Trigger
+    * ```output``` this folder is created to store all PDF and .root files created by the Cosmic Trigger (and are not stored in /data such as the template databases)
       * ```0_RecAcc``` Reconstruction Accuracy output
       * ```1_SlimSegs``` Slim Segs Script Control Plots
       * ```2_DBTraining``` Training Control Plots, Training overview plots, training control data
       * ```3_DBEvaluation``` Bkg Evaluation output data, Bkg Eval Plots 
       * ```4_CosmicSIDs``` 
-      * ```5_TemplateFilterEff```
-      * ```6_Tests```
+      * ```5_TemplateFilterEff``` Histograms showing the cosmic efficiency with filters on
+      * ```6_Tests``` Plots of test scripts
     
+
+### How to set it up
+
+The project can be entirely build with cmake. As requirements, one needs to install
+
+* root package
+* f2c libraries (fortran to c) *needed for karimaki helix fit*.
+
+The f2c libraries are horrible to install, but there is a nice bash script available online, that does the job.
+However, if not explicitly needed, the helix fit can just be excluded from the code and the project can then 
+be compiled without.
+
+To compile, follow these commands in the terminal:
+
+```
+mkdir build
+cd build/
+cmake ..
+make
+```
+
+Once it is build, the executable should be executed from the projects top-level directory, e.g.
+
+```
+build/CTCosPatTrain/BuildDBSingleConfig 13 200 1 0.5 10
+```
+
+Yes, this is not very convenient, but I would just recommend to use an IDE, where you can choose your woking directory yourself and just hit the run button.
+
+Also add the following directories to your top level:
+
+```
+mkdir data
+mkdir output
+```
+
+
+### How to run it
+
+Usually the Cosmic Trigger Code is used in several phases, which are:
+
+1. Preparation of the data with ``PreSlimCosData``. This will result in a dataset file stored in data/
+2. Database Training with the Executables in CTCosPatTrain, namely e.g. ```BuildDBMultiConfigs```. 
+   The Parameters for super pixel mapping and the simulation in general can be specified in the file 
+   *CTCoreModules/Configuration.h*. It centralises all parameter choices. For a future use of the Cosmic Trigger,
+   this parameter selection should be moved to external config files to avoid recompiling.
+3. Database Evaluation with Background data. The code is provided in the folder *CTBkgAna/* and Executables are e.g. ```EvalBkgDBMulti```
+4. Finally, once the data is simulated and stored in *data/* and *output/*, the Plotting scripts can be used. Those can 
+   found in *CTPlottingScripts/*. 
+   
+More information on how to run the Cosmic Trigger and how to choose the parameters is contained in *CTCoreModules/Configuration.h*
+This directory also conatains the Code for the ```TemplateBank``` and ```PatternEngine```.
+
+
+
+### Who can I talk to?
+If you need help, feel free to contact me neureither@physi.uni-heidelberg.de or dev@kneureither.de.

@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     float max_eff;
 
     if(argc < 5) {
-        std::cout << "ERROR: Error in argument! Usage: "
+        std::cout << "ERROR: Error in argument! \n Usage: "
                      "BuildDBSingleConfig <dataset number> <SPC> <SPR> <stopping efficiency> <id tag outfile>" << std::endl;
         exit(0);
     } else {
