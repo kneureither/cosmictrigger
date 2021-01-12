@@ -15,7 +15,6 @@ The Associative Memory, that is used as a hardware database in the future implem
 ![Module Overview](img/Software_Module_Overview.png)
 
 
-
 ### Project File Structure
 
 * The software contains several subcomponents, which are
@@ -48,7 +47,7 @@ The Associative Memory, that is used as a hardware database in the future implem
       * ```6_Tests``` Plots of test scripts
     
 
-### How to set it up
+### How to set it up?
 
 The project can be entirely build with cmake. As requirements, one needs to install
 
@@ -84,7 +83,7 @@ mkdir output
 ```
 
 
-### How to run it
+### How to run it?
 
 Usually the Cosmic Trigger Code is used in several phases, which are:
 
@@ -98,9 +97,9 @@ Usually the Cosmic Trigger Code is used in several phases, which are:
    found in *CTPlottingScripts/*. 
    
 More information on how to run the Cosmic Trigger and how to choose the parameters is contained in *CTCoreModules/Configuration.h*
-This directory also conatains the Code for the ```TemplateBank``` and ```PatternEngine```.
+This directory also contains the Code for the ```TemplateBank``` and ```PatternEngine```.
 
 
 
 ### Who can I talk to?
-If you need help, feel free to contact me neureither@physi.uni-heidelberg.de or dev@kneureither.de.
+If you need help, feel free to contact me via email neureither@physi.uni-heidelberg.de or dev@kneureither.de.

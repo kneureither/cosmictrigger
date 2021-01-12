@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[]) {
     /**
-     * Builds exactly one template database file, paramters are given as commandline parameters.
+     * Builds exactly one template database file, parameters are given as commandline parameters.
      */
 
     int dataset;
