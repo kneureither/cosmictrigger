@@ -15,7 +15,7 @@
 #include "../../CTCoreModules/inc/PatternEngine.h"
 #include "../../CTCoreModules/inc/TemplateBank.h"
 #include "../../CTCoreModules/inc/TemplateData.h"
-#include "getCosmicSIDtracks.h"
+#include "../../CTCosPatTrain/inc/getCosmicSIDtracks.h"
 #include "MetaDataTree.h"
 #include "../../CTCoreModules/Configuration.h"
 
