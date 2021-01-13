@@ -2,7 +2,7 @@
 // Created by Konstantin Neureither on 09.01.21.
 //
 
-#include "getCosmicSIDtracks.h"
+#include "../inc/getCosmicSIDtracks.h"
 
 //basic stuff
 #include <string>
@@ -15,7 +15,7 @@
 #include "TTree.h"
 #include "TLatex.h"
 
-#include "cosmicTemplatesBuild.h"
+#include "../inc/cosmicTemplatesBuild.h"
 #include "PatternEngine.h"
 #include "TemplateBank.h"
 #include "utilityFunctions.h"
