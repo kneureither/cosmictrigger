@@ -134,3 +134,7 @@ Some of the run scripts are also included in this repository, in the folder *Mu3
 
 ### Who can I talk to?
 If you need help, feel free to contact me via email neureither@physi.uni-heidelberg.de or dev@kneureither.de.
+
+### One more thing
+I do not really know how to use cmake, so if you do, feel free to clean up that project, unify commonly used libraries,
+such as ```patterns``` or ```rootTreeFiles``` into the top level CMakeLists.txt or however this is done properly ;-)
