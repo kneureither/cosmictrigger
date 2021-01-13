@@ -51,7 +51,7 @@ The Associative Memory, that is used as a hardware database in the future implem
 
 The project can be entirely build with cmake. As requirements, one needs to install
 
-* root package
+* root package (v6.20/04) 
 * f2c libraries (fortran to c) *needed for karimaki helix fit*.
 
 The f2c libraries are horrible to install, but there is a nice bash script available online, that does the job.
@@ -85,6 +85,23 @@ mkdir output
 
 ### How to run it?
 
+#### Data generation with the Mu3e Simulation
+
+The Cosmic Trigger is a stand-alone program, that uses generated data from the Mu3e simulation package. 
+This package can be installed from the bitbucket repository, if you need help, talk to Nik Berger.
+
+Two different kinds of files are produced with the Mu3e sim, that are relevant for this study. 
+First, it is necessary to simulate cosmic muon tracks. The simulation has a cosmic mode. To simulate the data just set 
+the settings in the *mu3e/run/digi.json* file in the mu3e repo to the values shown in *Mu3eSimConfigFiles/digi_cosmic.json*.
+
+Additionally, for the background evalutation, background (beam) data is needed. This can be obtained by using the normal 
+mode of the mu3e simulation. The settings are provided in *Mu3eSimConfigFiles/digi_bg.json*. 
+
+Once these steps are done and you can produce datat with the Mu3e Simulation Package, the files must be provided to the
+cosmic trigger, and the Cosmic Trigger can be used.
+
+#### Analysis with the Cosmic Trigger
+
 Usually the Cosmic Trigger Code is used in several phases, which are:
 
 1. Preparation of the data with ``PreSlimCosData``. This will result in a dataset file stored in data/
@@ -99,6 +116,20 @@ Usually the Cosmic Trigger Code is used in several phases, which are:
 More information on how to run the Cosmic Trigger and how to choose the parameters is contained in *CTCoreModules/Configuration.h*
 This directory also contains the Code for the ```TemplateBank``` and ```PatternEngine```.
 
+### Get the data used in the first study
+
+The data is provided on Tachyon at
+```tachyon.physi.uni-heidelberg:/data/user_data/kneureither/mu3e/run/data```. This folder contains the raw data from 
+the simulation and the corresponding *.json* config files. 
+
+To reproduce the cosmic *dataset 13* that was used for most of the analysis within the thesis it is necessary to 
+combine the *[...]trirec_cosmic.root* files of the following runs into one dataset by using ```PreSlimCosData```:
+
+```
+14,16,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37, 1000 to 1036, 1038 to 1065, 1100 to 1108 and 1110 to 1120.
+```
+
+Some of the run scripts are also included in this repository, in the folder *Mu3eSimConfigFiles/*.
 
 
 ### Who can I talk to?

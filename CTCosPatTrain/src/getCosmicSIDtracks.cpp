@@ -29,7 +29,8 @@ std::vector<std::vector<unsigned int>> getCosmicSIDtracks(int cosmic_testing_dat
      *
      * This function can be used, if the TIDs from a cosmic simulation are needed, e.g. during Template Bank Training.
      * Especially if the same cosmic data is needed multiple times, it offers a speed advantage, as in only reads and
-     * comines the actual cosmic sim file and then automatically refers to its own small combined file
+     * comines the actual cosmic sim file and then automatically refers
+     * to its own small combined file
      * "CosmicSIDtracks_[fileidtag].root" stored in data/CosmicSIDtrackData
      *
      */
